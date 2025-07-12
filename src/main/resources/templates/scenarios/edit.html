@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <div th:replace="~{fragment :: meta}"></div>
+
+        <div th:replace="~{fragment :: styles}"></div>
+
+        <title>シーン一覧</title>
+    </head>
+    <body>
+        <div class="trpg-wrapper">
+           <div th:replace="~{fragment :: header}"></div>
+
+            <main>
+              <div th:if="${successMessage}" class="container trpg-container pt-2">
+                <div class="alert alert-info mt-4 mb-0">
+                  <span th:text="${successMessage}"></span>
+                </div>
+              </div>
+
+              <!-- ここから本文 -->
+              <div class="container py-4">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <h2 class="mb-3" th:text="${scenario.title}"></h2>
+                    <p class="text-muted mb-4" th:text="${scenario.introduction}"></p>
+
+                    <hr class="mb-4">
+
+                    <h3 class="mb-3">シーン一覧</h3>
+
+                    <!-- New Scene Button -->
+                    <div class="d-grid gap-2 mb-4">
+                        <a th:href="@{/scenarios/{scenarioId}/scenes/create(scenarioId=${scenario.id})}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus-circle me-2"></i>新しいシーンを追加する
+                        </a>
+                    </div>
+
+                    <!-- Scene List -->
+                    <div th:if="${scenes.hasContent()}" class="mb-4">
+                      <div class="list-group">
+                        <div th:each="scene : ${scenes.content}" class="list-group-item list-group-item-action flex-column align-items-start">
+                          <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1" th:text="${scene.title}"></h5>
+                            <small th:text="${#dates.format(scene.createdAt, 'yyyy/MM/dd HH:mm')}"></small>
+                          </div>
+                          <p class="mb-1" th:text="${scene.content}"></p>
+                          <div class="d-flex justify-content-end">
+                            <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id})}" class="btn btn-sm btn-outline-secondary">編集</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- No Scenes Message -->
+                    <div th:unless="${scenes.hasContent()}" class="text-center p-5 border rounded">
+                      <p class="lead">まだシーンがありません。</p>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div th:if="${scenes.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                      <nav aria-label="Pagination">
+                        <ul class="pagination">
+                          <li class="page-item" th:classappend="${scenes.isFirst()} ? 'disabled'">
+                            <a class="page-link" th:href="@{/scenarios/{id}/edit(id=${scenario.id}, page=${scenes.number - 1}, sort=${scenes.sort.toString().replace(': ASC', '').replace(': DESC', '')})}">
+                              <span>&laquo;</span>
+                            </a>
+                          </li>
+                          <li th:each="i : ${#numbers.sequence(0, scenes.totalPages - 1)}" class="page-item" th:classappend="${i == scenes.number} ? 'active'">
+                            <a class="page-link" th:href="@{/scenarios/{id}/edit(id=${scenario.id}, page=${i}, sort=${scenes.sort.toString().replace(': ASC', '').replace(': DESC', '')})}" th:text="${i + 1}"></a>
+                          </li>
+                          <li class="page-item" th:classappend="${scenes.isLast()} ? 'disabled'">
+                            <a class="page-link" th:href="@{/scenarios/{id}/edit(id=${scenario.id}, page=${scenes.number + 1}, sort=${scenes.sort.toString().replace(': ASC', '').replace(': DESC', '')})}">
+                              <span>&raquo;</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </main>
+
+            <div th:replace="~{fragment :: footer}"></div>
+        </div>
+
+        <div th:replace="~{fragment :: scripts}"></div>
+
+        <!-- Swiper -->
+        <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    </body>
+</html>

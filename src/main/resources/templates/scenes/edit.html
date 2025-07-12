@@ -12,21 +12,6 @@
            <div th:replace="~{fragment :: header}"></div>
 
             <main>
-                
-
-              <div th:if="${param.loggedIn}" class="container trpg-container pt-2">
-                  <div class="alert alert-info mt-4 mb-0">
-                       ログインしました。
-                  </div>
-              </div>
-
-
-              <div th:if="${param.loggedOut}" class="container trpg-container pt-2">
-                <div class="alert alert-info mt-4 mb-0">
-                  ログアウトしました。
-                </div>
-              </div>
-
               <div th:if="${successMessage}" class="container trpg-container pt-2">
                 <div class="alert alert-info mt-4 mb-0">
                   <span th:text="${successMessage}"></span>
