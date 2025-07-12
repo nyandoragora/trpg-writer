@@ -1,6 +1,5 @@
 package com.example.trpg_writer.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
