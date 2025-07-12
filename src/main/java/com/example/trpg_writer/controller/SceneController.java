@@ -12,6 +12,16 @@ import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.service.ScenarioService;
 import com.example.trpg_writer.service.SceneService;
+import com.example.trpg_writer.service.NpcService;
+import com.example.trpg_writer.service.InfoService;
+import com.example.trpg_writer.service.PartService;
+import com.example.trpg_writer.service.BootyService;
+import com.example.trpg_writer.service.SkillService;
+import com.example.trpg_writer.service.SceneNpcService;
+import com.example.trpg_writer.service.SceneInfoService;
+import com.example.trpg_writer.service.NpcPartService;
+import com.example.trpg_writer.service.NpcSkillService;
+import com.example.trpg_writer.service.NpcBootyService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +32,16 @@ public class SceneController {
 
     private final ScenarioService scenarioService;
     private final SceneService sceneService;
+    private final NpcService npcService;
+    private final InfoService infoService;
+    private final PartService partService;
+    private final BootyService bootyService;
+    private final SkillService skillService;
+    private final SceneNpcService sceneNpcService;
+    private final SceneInfoService sceneInfoService;
+    private final NpcPartService npcPartService;
+    private final NpcSkillService npcSkillService;
+    private final NpcBootyService npcBootyService;
 
     @GetMapping("/{sceneId}/edit")
     public String edit(@PathVariable("scenarioId") Integer scenarioId,
@@ -37,6 +57,23 @@ public class SceneController {
         if (isNotBelongToScenario(scene, scenario)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Scene does not belong to the specified scenario");
         }
+
+        // シナリオに紐づく全NPC、情報、パーツ、戦利品、スキルを取得
+        model.addAttribute("allNpcs", npcService.findByScenarioId(scenarioId));
+        model.addAttribute("allInfos", infoService.findByScenarioId(scenarioId));
+        model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
+        model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
+        model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
+
+        // シーンに紐づくNPCと情報を取得
+        model.addAttribute("sceneNpcs", sceneNpcService.findBySceneId(sceneId));
+        model.addAttribute("sceneInfos", sceneInfoService.findBySceneId(sceneId));
+
+        // シナリオに紐づくNPCのパーツ、スキル、戦利品を取得
+        model.addAttribute("npcParts", npcPartService.findByNpcScenarioId(scenarioId));
+        model.addAttribute("npcSkills", npcSkillService.findByNpcScenarioId(scenarioId));
+        model.addAttribute("npcBootys", npcBootyService.findByNpcScenarioId(scenarioId));
+
 
         model.addAttribute("scenario", scenario);
         model.addAttribute("scene", scene);

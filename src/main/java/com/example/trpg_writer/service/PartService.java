@@ -18,4 +18,8 @@ public class PartService {
     public Optional<Part> findById(Integer id) {
         return partRepository.findById(id);
     }
+
+    public List<Part> findByScenarioId(Integer scenarioId) {
+        return partRepository.findByScenarioId(scenarioId);
+    }
 }

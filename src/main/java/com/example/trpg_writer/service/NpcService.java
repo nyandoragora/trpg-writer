@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,5 +18,9 @@ public class NpcService {
 
     public Optional<Npc> findById(Integer id) {
         return npcRepository.findById(id);
+    }
+
+    public List<Npc> findByScenarioId(Integer scenarioId) {
+        return npcRepository.findByScenarioId(scenarioId);
     }
 }

@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NpcSkillRepository extends JpaRepository<NpcSkill, NpcSkillId> {
+    List<NpcSkill> findByNpc_ScenarioId(Integer scenarioId);
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,5 +19,9 @@ public class SceneNpcService {
 
     public Optional<SceneNpc> findById(SceneNpcId id) {
         return sceneNpcRepository.findById(id);
+    }
+
+    public List<SceneNpc> findBySceneId(Integer sceneId) {
+        return sceneNpcRepository.findBySceneId(sceneId);
     }
 }

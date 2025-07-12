@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NpcRepository extends JpaRepository<Npc, Integer> {
+    List<Npc> findByScenarioId(Integer scenarioId);
 }

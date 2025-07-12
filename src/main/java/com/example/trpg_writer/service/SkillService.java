@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,5 +18,9 @@ public class SkillService {
 
     public Optional<Skill> findById(Integer id) {
         return skillRepository.findById(id);
+    }
+
+    public List<Skill> findByScenarioId(Integer scenarioId) {
+        return skillRepository.findByScenarioId(scenarioId);
     }
 }
