@@ -1,6 +1,6 @@
 -- roles
-INSERT IGNORE INTO roles (id, name) VALUES (1, 'ROLE_PL');
-INSERT IGNORE INTO roles (id, name) VALUES (2, 'ROLE_GM');
+INSERT IGNORE INTO roles (id, role) VALUES (1, 'ROLE_PL');
+INSERT IGNORE INTO roles (id, role) VALUES (2, 'ROLE_GM');
 
 -- users
 INSERT IGNORE INTO users (id, name, email, password, enabled) VALUES (1, '山田 太郎', 'taro.yamada@example.com', '$2a$10$2JNjTwZBwo7fprL2X4sv.OEKqxnVtsVQvuXDkI8xVGix.U3W5B7CO', TRUE);

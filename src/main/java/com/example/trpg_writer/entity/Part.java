@@ -32,7 +32,7 @@ public class Part {
     private Integer hit;
 
     @Column(name = "damage")
-    private Integer damage;
+    private String damage;
 
     @Column(name = "evasion")
     private Integer evasion;
