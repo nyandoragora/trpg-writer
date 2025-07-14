@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <div th:replace="~{fragment :: meta}"></div>
+
+        <div th:replace="~{fragment :: styles}"></div>
+
+        <title>シナリオ作成</title>
+    </head>
+    <body>
+        <div class="trpg-wrapper">
+           <div th:replace="~{fragment :: header}"></div>
+
+            <main>
+              <div class="container pt-4 pb-5 trpg-container">
+                <div class="row justify-content-center">
+                  <div class="col-xl-6 col-lg-7 col-md-8 col-sm-10">
+                    <h1 class="mb-4 text-center">新しいシナリオを執筆する</h1>
+
+                    <form th:action="@{/scenarios/create}" th:object="${scenarioForm}" method="post">
+                      <div class="form-group mb-3">
+                        <label for="title" class="form-label">タイトル</label>
+                        <div th:if="${#fields.hasErrors('title')}" class="text-danger small mb-2" th:errors="*{title}"></div>
+                        <input type="text" class="form-control" id="title" th:field="*{title}">
+                      </div>
+                      <div class="form-group mb-3">
+                        <label for="introduction" class="form-label">概要</label>
+                        <div th:if="${#fields.hasErrors('introduction')}" class="text-danger small mb-2" th:errors="*{introduction}"></div>
+                        <textarea class="form-control" id="introduction" th:field="*{introduction}" rows="5"></textarea>
+                      </div>
+
+                      <div class="d-flex justify-content-center my-4">
+                        <button type="submit" class="btn btn-primary shadow-sm w-100">作成</button>
+                      </div>
+                    </form>
+
+                    <div class="text-center">
+                      <a th:href="@{/users}">マイページに戻る</a>
+                    </div>
+                  </div>
+                </div>
+              </div> 
+
+            </main>
+
+            <div th:replace="~{fragment :: footer}"></div>
+        </div>
+
+        <div th:replace="~{fragment :: scripts}"></div>
+
+        <!-- Swiper -->
+        <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    </body>
+</html>
