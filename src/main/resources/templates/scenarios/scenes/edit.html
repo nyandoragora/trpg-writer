@@ -93,7 +93,7 @@
                   </div>
 
                   <!-- Right Pane: Scene Content Editor & Lists -->
-                  <div class="col-lg-8">
+                  <div class="col-lg-6">
                     <div class="card mb-4">
                       <div class="card-header">シーン内容編集</div>
                       <div class="card-body">
@@ -122,6 +122,27 @@
                       <div class="card-header">シーンに紐づくNPC</div>
                       <div class="card-body">
                         <p>NPCリストエリア（未実装）</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Rightmost Pane: Scene List -->
+                  <div class="col-lg-2">
+                    <div class="card mb-4">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">シーン一覧</h5>
+                        <a th:href="@{/scenarios/{scenarioId}/scenes/create(scenarioId=${scenario.id})}" class="btn btn-sm btn-primary">シーン追加</a>
+                      </div>
+                      <div class="card-body" style="max-height: 700px; overflow-y: auto;">
+                        <div th:each="s : ${allScenes}" class="card mb-2">
+                          <div class="card-body p-2">
+                            <h6 class="card-title mb-1" th:text="${s.title}"></h6>
+                            <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenario.id}, sceneId=${s.id})}" class="btn btn-sm btn-outline-primary w-100">編集</a>
+                          </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(allScenes)}" class="text-center text-muted">
+                          <p>シーンがありません</p>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.entity.Scenario;
+import com.example.trpg_writer.form.SceneForm;
 import com.example.trpg_writer.repository.SceneRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,15 @@ public class SceneService {
     // Method to save a Scene entity
     @Transactional
     public Scene save(Scene scene) {
+        return sceneRepository.save(scene);
+    }
+
+    // Method to create a new Scene
+    @Transactional
+    public Scene create(SceneForm sceneForm, Scenario scenario) {
+        Scene scene = new Scene();
+        scene.setTitle(sceneForm.getTitle());
+        scene.setScenario(scenario);
         return sceneRepository.save(scene);
     }
 
@@ -66,6 +77,10 @@ public class SceneService {
 
     public Page<Scene> findByScenarioOrderByCreatedAtAsc(Scenario scenario , Pageable pageable) {
         return sceneRepository.findByScenarioOrderByCreatedAtAsc(scenario , pageable);
+    }
+
+    public List<Scene> findByScenario(Scenario scenario) {
+        return sceneRepository.findByScenario(scenario);
     }
 
     public Optional<Scene> findById(Integer id) {

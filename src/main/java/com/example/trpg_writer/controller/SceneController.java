@@ -51,6 +51,34 @@ public class SceneController {
     private final NpcSkillService npcSkillService;
     private final NpcBootyService npcBootyService;
 
+    @GetMapping("/create")
+    public String create(@PathVariable("scenarioId") Integer scenarioId, Model model, @ModelAttribute SceneForm sceneForm) {
+        Scenario scenario = scenarioService.findById(scenarioId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
+        model.addAttribute("scenario", scenario);
+        return "scenarios/scenes/create";
+    }
+
+    @PostMapping("/create")
+    public String store(@PathVariable("scenarioId") Integer scenarioId,
+                        @ModelAttribute @Validated SceneForm sceneForm,
+                        BindingResult bindingResult,
+                        RedirectAttributes redirectAttributes,
+                        Model model) {
+        Scenario scenario = scenarioService.findById(scenarioId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("scenario", scenario); // Add scenario back to model
+            return "scenarios/scenes/create";
+        }
+
+        Scene newScene = sceneService.create(sceneForm, scenario);
+
+        redirectAttributes.addFlashAttribute("successMessage", "シーンを作成しました。");
+        return "redirect:/scenarios/" + scenarioId + "/scenes/" + newScene.getId() + "/edit";
+    }
+
     @GetMapping("/{sceneId}/edit")
     public String edit(@PathVariable("scenarioId") Integer scenarioId,
                        @PathVariable("sceneId") Integer sceneId,
@@ -70,7 +98,6 @@ public class SceneController {
         // Populate sceneForm with existing scene data
         sceneForm.setId(scene.getId());
         sceneForm.setTitle(scene.getTitle());
-        sceneForm.setContent(scene.getContent());
         sceneForm.setExistingImagePath(scene.getImagePath()); // Set existing image path
 
         // シナリオに紐づく全NPC、情報、パーツ、戦利品、スキルを取得
@@ -89,6 +116,8 @@ public class SceneController {
         model.addAttribute("npcSkills", npcSkillService.findByNpcScenarioId(scenarioId));
         model.addAttribute("npcBootys", npcBootyService.findByNpcScenarioId(scenarioId));
 
+        // シナリオに紐づく全てのシーンを取得
+        model.addAttribute("allScenes", sceneService.findByScenario(scenario));
 
         model.addAttribute("scenario", scenario);
         model.addAttribute("scene", scene); // Keep scene for other attributes if needed
@@ -115,7 +144,6 @@ public class SceneController {
 
         // Update scene properties from form
         scene.setTitle(sceneForm.getTitle());
-        scene.setContent(sceneForm.getContent());
 
         sceneService.save(scene); // Assuming SceneService has a save method
 
