@@ -13,20 +13,19 @@ INSERT IGNORE INTO scenarios (id, user_id, title, introduction) VALUES (2, 2, '�
 INSERT IGNORE INTO scenarios (id, user_id, title, introduction) VALUES (3, 1, '森の守り人', '古代の森が病んでいる。その原因を突き止め、森を救う。');
 
 -- scenes
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (1, 1, '城門', '古城の巨大な城門の前に立つ。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (2, 1, '玉座の間', '広大な玉座の間。主のいない玉座が静かに佇んでいる。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (3, 2, 'ネオン街', '煌びやかなネオンが輝く雑踏の中、情報屋と接触する。');
--- Dummy scenes for scenario_id = 2
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (4, 2, 'ダミーシーン 1', 'これは電脳都市の影のダミーシーン1です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (5, 2, 'ダミーシーン 2', 'これは電脳都市の影のダミーシーン2です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (6, 2, 'ダミーシーン 3', 'これは電脳都市の影のダミーシーン3です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (7, 2, 'ダミーシーン 4', 'これは電脳都市の影のダミーシーン4です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (8, 2, 'ダミーシーン 5', 'これは電脳都市の影のダミーシーン5です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (9, 2, 'ダミーシーン 6', 'これは電脳都市の影のダミーシーン6です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (10, 2, 'ダミーシーン 7', 'これは電脳都市の影のダミーシーン7です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (11, 2, 'ダミーシーン 8', 'これは電脳都市の影のダミーシーン8です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (12, 2, 'ダミーシーン 9', 'これは電脳都市の影のダミーシーン9です。');
-INSERT IGNORE INTO scenes (id, scenario_id, title, content) VALUES (13, 2, 'ダミーシーン 10', 'これは電脳都市の影のダミーシーン10です。');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (1, 1, '城門', '古城の巨大な城門の前に立つ。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (2, 1, '玉座の間', '広大な玉座の間。主のいない玉座が静かに佇んでいる。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (3, 2, 'ネオン街', '煌びやかなネオンが輝く雑踏の中、情報屋と接触する。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (4, 2, 'ダミーシーン 1', 'これは電脳都市の影のダミーシーン1です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (5, 2, 'ダミーシーン 2', 'これは電脳都市の影のダミーシーン2です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (6, 2, 'ダミーシーン 3', 'これは電脳都市の影のダミーシーン3です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (7, 2, 'ダミーシーン 4', 'これは電脳都市の影のダミーシーン4です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (8, 2, 'ダミーシーン 5', 'これは電脳都市の影のダミーシーン5です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (9, 2, 'ダミーシーン 6', 'これは電脳都市の影のダミーシーン6です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (10, 2, 'ダミーシーン 7', 'これは電脳都市の影のダミーシーン7です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (11, 2, 'ダミーシーン 8', 'これは電脳都市の影のダミーシーン8です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (12, 2, 'ダミーシーン 9', 'これは電脳都市の影のダミーシーン9です。', '');
+INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (13, 2, 'ダミーシーン 10', 'これは電脳都市の影のダミーシーン10です。', '');
 
 -- infos
 INSERT IGNORE INTO infos (id, scenario_id, role_id, content) VALUES (1, 1, 1, 'あなたはこの城の元城主の子孫である。');

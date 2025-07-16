@@ -31,6 +31,9 @@ public class Scene {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private Timestamp createdAt;
 
