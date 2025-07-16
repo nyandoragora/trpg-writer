@@ -25,7 +25,6 @@ public class SceneService {
 
     private final SceneRepository sceneRepository;
 
-    // Define the upload directory for scene images
     private static final String UPLOAD_DIR = "src/main/resources/static/images/scenes/";
 
     // Method to save a Scene entity
