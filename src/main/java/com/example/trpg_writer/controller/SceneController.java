@@ -1,5 +1,6 @@
 package com.example.trpg_writer.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,9 @@ public class SceneController {
     private final NpcSkillService npcSkillService;
     private final NpcBootyService npcBootyService;
 
+    @Value("${tinymce.api-key}")
+    private String tinymceApiKey;
+
     @GetMapping("/create")
     public String create(@PathVariable("scenarioId") Integer scenarioId, Model model, @ModelAttribute SceneForm sceneForm) {
         Scenario scenario = scenarioService.findById(scenarioId)
@@ -69,7 +73,7 @@ public class SceneController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("scenario", scenario); // Add scenario back to model
+            model.addAttribute("scenario", scenario); 
             return "scenarios/scenes/create";
         }
 
@@ -98,7 +102,8 @@ public class SceneController {
         // Populate sceneForm with existing scene data
         sceneForm.setId(scene.getId());
         sceneForm.setTitle(scene.getTitle());
-        sceneForm.setExistingImagePath(scene.getImagePath()); // Set existing image path
+        sceneForm.setContent(scene.getContent()); 
+        sceneForm.setExistingImagePath(scene.getImagePath()); 
 
         // シナリオに紐づく全NPC、情報、パーツ、戦利品、スキルを取得
         model.addAttribute("allNpcs", npcService.findByScenarioId(scenarioId));
@@ -120,7 +125,8 @@ public class SceneController {
         model.addAttribute("allScenes", sceneService.findByScenario(scenario));
 
         model.addAttribute("scenario", scenario);
-        model.addAttribute("scene", scene); // Keep scene for other attributes if needed
+        model.addAttribute("scene", scene); 
+        model.addAttribute("tinymceApiKey", tinymceApiKey); 
 
         return "scenarios/scenes/edit";
     }
@@ -132,20 +138,16 @@ public class SceneController {
                          BindingResult bindingResult,
                          RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            // If there are validation errors, return to the edit page
-            // Need to re-add model attributes that were present in the GET edit method
-            // This is a common pattern: if validation fails, return to the form with errors
-            // For simplicity, I'll just return the view name. In a real app, you'd re-populate the model.
             return "scenarios/scenes/edit";
         }
 
         Scene scene = sceneService.findById(sceneId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scene not found"));
-
-        // Update scene properties from form
+        
         scene.setTitle(sceneForm.getTitle());
+        scene.setContent(sceneForm.getContent()); 
 
-        sceneService.save(scene); // Assuming SceneService has a save method
+        sceneService.save(scene);  
 
         redirectAttributes.addFlashAttribute("successMessage", "シーンを更新しました。");
         return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit";
@@ -157,7 +159,7 @@ public class SceneController {
                               @RequestParam("imageFile") MultipartFile imageFile,
                               RedirectAttributes redirectAttributes) {
         try {
-            sceneService.saveImage(sceneId, imageFile); // Assuming SceneService has a saveImage method
+            sceneService.saveImage(sceneId, imageFile); 
             redirectAttributes.addFlashAttribute("successMessage", "背景画像をアップロードしました。");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "画像のアップロードに失敗しました: " + e.getMessage());

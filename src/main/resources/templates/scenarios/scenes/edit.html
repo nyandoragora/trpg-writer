@@ -6,6 +6,7 @@
         <div th:replace="~{fragment :: styles}"></div>
 
         <title>シーン編集ページ</title>
+        <script th:src="@{'https://cdn.tiny.cloud/1/' + ${tinymceApiKey} + '/tinymce/6/tinymce.min.js'}" referrerpolicy="origin"></script>
     </head>
     <body>
         <div class="trpg-wrapper">
@@ -39,7 +40,7 @@
                             </div>
                           </div>
                           <div>
-                            <p class="card-text" style="color: white; margin-bottom: 0;">KP向け情報: [未実装]</p>
+                            <p class="card-text" style="color: white; margin-bottom: 0;">GM向け情報: [未実装]</p>
                           </div>
                         </div>
                       </div>
@@ -68,8 +69,8 @@
                             <p class="mt-3">NPC管理エリア（未実装）</p>
                           </div>
                           <div class="tab-pane fade" id="info-kp" role="tabpanel" aria-labelledby="info-kp-tab">
-                            <!-- 情報 KP管理コンテンツ -->
-                            <p class="mt-3">情報 KP管理エリア（未実装）</p>
+                            <!-- 情報 GM管理コンテンツ -->
+                            <p class="mt-3">情報 GM管理エリア（未実装）</p>
                           </div>
                           <div class="tab-pane fade" id="info-pl" role="tabpanel" aria-labelledby="info-pl-tab">
                             <!-- 情報 PL管理コンテンツ -->
@@ -97,14 +98,14 @@
                     <div class="card mb-4">
                       <div class="card-header">シーン内容編集</div>
                       <div class="card-body">
-                        <form th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/update(scenarioId=${scenario.id}, sceneId=${scene.id})}" method="post">
+                        <form th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/update(scenarioId=${scenario.id}, sceneId=${scene.id})}" th:object="${sceneForm}" method="post">
                           <div class="mb-3">
                             <label for="sceneTitle" class="form-label">シーンタイトル</label>
-                            <input type="text" class="form-control" id="sceneTitle" th:field="${scene.title}">
+                            <input type="text" class="form-control" id="sceneTitle" th:field="*{title}">
                           </div>
                           <div class="mb-3">
                             <label for="sceneContent" class="form-label">シーン本文</label>
-                            <textarea class="form-control" id="sceneContent" th:field="${scene.content}" rows="15"></textarea>
+                            <textarea class="form-control" id="sceneContent" th:field="*{content}" rows="15"></textarea>
                           </div>
                           <button type="submit" class="btn btn-success">シーンを保存</button>
                         </form>
@@ -158,5 +159,17 @@
 
         <!-- Swiper -->
         <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+
+        <script th:inline="javascript">
+          var tinymceApiKey = /*[[${tinymceApiKey}]]*/ 'default-api-key'; // Fallback for IDE
+          console.log("TinyMCE API Key: ", tinymceApiKey);
+          tinymce.init({
+            selector: '#sceneContent',
+            api_key: tinymceApiKey,
+            plugins: 'advlist autolink lists link image charmap print preview anchor',
+            toolbar_mode: 'floating',
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
+          });
+        </script>
     </body>
 </html>

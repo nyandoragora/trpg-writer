@@ -40,6 +40,7 @@ public class SceneService {
     public Scene create(SceneForm sceneForm, Scenario scenario) {
         Scene scene = new Scene();
         scene.setTitle(sceneForm.getTitle());
+        scene.setContent(""); // Initialize content with an empty string
         scene.setScenario(scenario);
         return sceneRepository.save(scene);
     }
