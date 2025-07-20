@@ -44,7 +44,8 @@ public class SceneService {
         scene.setTitle(sceneForm.getTitle());
         
         // Sanitize the HTML content using Jsoup
-        Safelist safelist = Safelist.basicWithImages().addTags("table", "thead", "tbody", "tr", "th", "td");
+        Safelist safelist = Safelist.basicWithImages()
+                                     .addTags("div", "table", "thead", "tbody", "tr", "th", "td");
         String safeContent = Jsoup.clean(sceneForm.getContent(), safelist);
         scene.setContent(safeContent);
         

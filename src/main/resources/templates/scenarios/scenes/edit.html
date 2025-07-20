@@ -40,7 +40,7 @@
                             </div>
                           </div>
                           <div>
-                            <p class="card-text" style="color: white; margin-bottom: 0;">GM向け情報: [未実装]</p>
+                            <p class="card-text" style="color: white; margin-bottom: 0;" th:text="'GM向け情報: ' + ${gmInfoText}"></p>
                           </div>
                         </div>
                       </div>
@@ -54,7 +54,7 @@
                             <button class="nav-link active" id="npc-tab" data-bs-toggle="tab" data-bs-target="#npc" type="button" role="tab" aria-controls="npc" aria-selected="true">NPC</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="info-kp-tab" data-bs-toggle="tab" data-bs-target="#info-kp" type="button" role="tab" aria-controls="info-kp" aria-selected="false">情報 KP</button>
+                            <button class="nav-link" id="info-gm-tab" data-bs-toggle="tab" data-bs-target="#info-gm" type="button" role="tab" aria-controls="info-gm" aria-selected="false">情報 GM</button>
                           </li>
                           <li class="nav-item" role="presentation">
                             <button class="nav-link" id="info-pl-tab" data-bs-toggle="tab" data-bs-target="#info-pl" type="button" role="tab" aria-controls="info-pl" aria-selected="false">情報 PL</button>
@@ -68,7 +68,7 @@
                             <!-- NPC管理コンテンツ -->
                             <p class="mt-3">NPC管理エリア（未実装）</p>
                           </div>
-                          <div class="tab-pane fade" id="info-kp" role="tabpanel" aria-labelledby="info-kp-tab">
+                          <div class="tab-pane fade" id="info-gm" role="tabpanel" aria-labelledby="info-gm-tab">
                             <!-- 情報 GM管理コンテンツ -->
                             <p class="mt-3">情報 GM管理エリア（未実装）</p>
                           </div>
@@ -168,7 +168,26 @@
             api_key: tinymceApiKey,
             plugins: 'advlist autolink lists link image charmap print preview anchor',
             toolbar_mode: 'floating',
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help'
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help | addGmInfo addPlInfo',
+            content_css: '/css/style.css', // Load custom CSS
+
+            setup: function (editor) {
+              editor.ui.registry.addButton('addGmInfo', {
+                text: 'GM情報',
+                tooltip: 'GM情報ブロックを挿入',
+                onAction: function () {
+                  editor.insertContent('<div class="info-box-gm"><p>ここにGM向け情報を入力</p></div>&nbsp;');
+                }
+              });
+
+              editor.ui.registry.addButton('addPlInfo', {
+                text: 'PL情報',
+                tooltip: 'PL情報ブロックを挿入',
+                onAction: function () {
+                  editor.insertContent('<div class="info-box-pl"><p>ここにPL向け情報を入力</p></div>&nbsp;');
+                }
+              });
+            }
           });
         </script>
     </body>

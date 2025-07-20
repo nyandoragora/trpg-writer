@@ -16,6 +16,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+import java.util.stream.Collectors;
+
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.form.SceneForm;
@@ -104,6 +110,14 @@ public class SceneController {
         sceneForm.setTitle(scene.getTitle());
         sceneForm.setContent(scene.getContent()); 
         sceneForm.setExistingImagePath(scene.getImagePath()); 
+
+        // Extract GM info text from scene content
+        Document doc = Jsoup.parse(scene.getContent() != null ? scene.getContent() : "");
+        Elements gmInfoElements = doc.select(".info-box-gm");
+        String gmInfoText = gmInfoElements.stream()
+                                          .map(el -> el.text())
+                                          .collect(Collectors.joining("\n"));
+        model.addAttribute("gmInfoText", gmInfoText); 
 
         // シナリオに紐づく全NPC、情報、パーツ、戦利品、スキルを取得
         model.addAttribute("allNpcs", npcService.findByScenarioId(scenarioId));
