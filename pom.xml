@@ -89,7 +89,13 @@
             <groupId>com.stripe</groupId>
             <artifactId>stripe-java</artifactId>
             <version>29.2.0</version>
-        </dependency>	
+        </dependency>
+        <!-- Jsoup for HTML Sanitizing -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.21.1</version>
+        </dependency>
 	</dependencies>
 
 	<build>

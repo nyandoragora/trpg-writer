@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,7 +42,12 @@ public class SceneService {
     public Scene create(SceneForm sceneForm, Scenario scenario) {
         Scene scene = new Scene();
         scene.setTitle(sceneForm.getTitle());
-        scene.setContent(""); // Initialize content with an empty string
+        
+        // Sanitize the HTML content using Jsoup
+        Safelist safelist = Safelist.basicWithImages().addTags("table", "thead", "tbody", "tr", "th", "td");
+        String safeContent = Jsoup.clean(sceneForm.getContent(), safelist);
+        scene.setContent(safeContent);
+        
         scene.setScenario(scenario);
         return sceneRepository.save(scene);
     }
