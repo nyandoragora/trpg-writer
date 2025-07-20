@@ -40,7 +40,8 @@
                             </div>
                           </div>
                           <div>
-                            <p class="card-text" style="color: white; margin-bottom: 0;" th:text="'GM向け情報: ' + ${gmInfoText}"></p>
+                            <p class="card-text" style="color: white; margin-bottom: 0;">GM向け情報:</p>
+                            <div class="card-text" style="color: white; margin-bottom: 0;" th:utext="${gmInfoText}"></div>
                           </div>
                         </div>
                       </div>
@@ -176,7 +177,7 @@
                 text: 'GM情報',
                 tooltip: 'GM情報ブロックを挿入',
                 onAction: function () {
-                  editor.insertContent('<div class="info-box-gm"><p>ここにGM向け情報を入力</p></div>&nbsp;');
+                  editor.insertContent('<div class="info-box-gm"><p>ここにGM向け情報を入力</p></div>');
                 }
               });
 
@@ -184,7 +185,7 @@
                 text: 'PL情報',
                 tooltip: 'PL情報ブロックを挿入',
                 onAction: function () {
-                  editor.insertContent('<div class="info-box-pl"><p>ここにPL向け情報を入力</p></div>&nbsp;');
+                  editor.insertContent('<div class="info-box-pl"><p>ここにPL向け情報を入力</p></div>');
                 }
               });
             }
