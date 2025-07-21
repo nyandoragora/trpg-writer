@@ -16,6 +16,9 @@ public class SceneForm {
     @Size(max = 65535, message = "シーン本文は65535文字以内で入力してください。")
     private String content;
 
+    @Size(max = 65535, message = "GM情報は65535文字以内で入力してください。")
+    private String gmInfo;
+
     private MultipartFile imageFile;
 
     private String existingImagePath;

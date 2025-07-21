@@ -31,6 +31,9 @@ public class Scene {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "gm_info")
+    private String gmInfo;
+
     @Column(name = "image_path")
     private String imagePath;
 

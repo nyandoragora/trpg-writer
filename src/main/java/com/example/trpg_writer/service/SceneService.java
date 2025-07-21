@@ -45,11 +45,35 @@ public class SceneService {
         
         // Sanitize the HTML content using Jsoup
         Safelist safelist = Safelist.basicWithImages()
-                                     .addTags("div", "table", "thead", "tbody", "tr", "th", "td");
-        String safeContent = Jsoup.clean(sceneForm.getContent(), safelist);
+                                     .addTags("div", "table", "thead", "tbody", "tr", "th", "td")
+                                     .addAttributes("div", "class");
+        String safeContent = Jsoup.clean(sceneForm.getContent() != null ? sceneForm.getContent() : "", safelist);
         scene.setContent(safeContent);
+
+        // Sanitize GM info content
+        String safeGmInfo = Jsoup.clean(sceneForm.getGmInfo() != null ? sceneForm.getGmInfo() : "", safelist);
+        scene.setGmInfo(safeGmInfo);
         
         scene.setScenario(scenario);
+        return sceneRepository.save(scene);
+    }
+
+    // Method to update an existing Scene
+    @Transactional
+    public Scene update(Scene scene, SceneForm sceneForm) {
+        scene.setTitle(sceneForm.getTitle());
+
+        // Sanitize the HTML content using Jsoup
+        Safelist safelist = Safelist.basicWithImages()
+                                     .addTags("div", "table", "thead", "tbody", "tr", "th", "td")
+                                     .addAttributes("div", "class");
+        String safeContent = Jsoup.clean(sceneForm.getContent() != null ? sceneForm.getContent() : "", safelist);
+        scene.setContent(safeContent);
+
+        // Sanitize GM info content
+        String safeGmInfo = Jsoup.clean(sceneForm.getGmInfo() != null ? sceneForm.getGmInfo() : "", safelist);
+        scene.setGmInfo(safeGmInfo);
+
         return sceneRepository.save(scene);
     }
 

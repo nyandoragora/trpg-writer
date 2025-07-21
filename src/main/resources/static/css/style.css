@@ -1,13 +1,3 @@
-/* GM情報用のスタイル */
-.info-box-gm {
-    border: 1px solid #bce8f1; /* 水色の枠線 */
-    background-color: #d9edf7; /* 薄い水色 */
-    padding: 8px 12px;
-    margin: 10px 0;
-    border-radius: 4px;
-    display: inline-block;
-}
-
 /* PL情報用のスタイル */
 .info-box-pl {
     border: 1px solid #e0e0e0; /* グレーの枠線 */

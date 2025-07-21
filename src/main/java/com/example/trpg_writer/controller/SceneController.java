@@ -66,6 +66,7 @@ public class SceneController {
         Scenario scenario = scenarioService.findById(scenarioId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         model.addAttribute("scenario", scenario);
+        sceneForm.setGmInfo("このシーンの重要な点をプレビューに表示できます。"); // Set default text
         return "scenarios/scenes/create";
     }
 
@@ -109,33 +110,8 @@ public class SceneController {
         sceneForm.setId(scene.getId());
         sceneForm.setTitle(scene.getTitle());
         sceneForm.setContent(scene.getContent()); 
+        sceneForm.setGmInfo(scene.getGmInfo()); // Add this line
         sceneForm.setExistingImagePath(scene.getImagePath()); 
-
-        // Extract GM info text from scene content
-        Document doc = Jsoup.parse(scene.getContent() != null ? scene.getContent() : "");
-        Elements gmInfoElements = doc.select(".info-box-gm");
-        String gmInfoText = gmInfoElements.stream()
-                                          .map(el -> {
-                                              // Get the inner HTML of the info-box-gm div
-                                              String innerHtml = el.html();
-                                              // Parse the inner HTML to process its content
-                                              org.jsoup.nodes.Document innerDoc = Jsoup.parseBodyFragment(innerHtml);
-                                              // Replace <p> tags with their content followed by <br>
-                                              innerDoc.select("p").forEach(p -> {
-                                                  p.after(p.html() + "<br>"); // Add content and <br> after p
-                                                  p.remove(); // Remove the original p tag
-                                              });
-                                              // Clean up redundant <br> tags (e.g., <br><br>) and trim
-                                              String cleanedHtml = innerDoc.body().html().replaceAll("(<br>\\s*){2,}", "<br>").trim();
-                                              // Remove trailing <br> if any
-                                              if (cleanedHtml.endsWith("<br>")) {
-                                                  cleanedHtml = cleanedHtml.substring(0, cleanedHtml.length() - 4);
-                                              }
-                                              return cleanedHtml;
-                                          })
-                                          .filter(s -> !s.isEmpty()) // Filter out empty blocks
-                                          .collect(Collectors.joining("<br>")); // Join multiple GM info blocks with a single <br>
-        model.addAttribute("gmInfoText", gmInfoText); 
 
         // シナリオに紐づく全NPC、情報、パーツ、戦利品、スキルを取得
         model.addAttribute("allNpcs", npcService.findByScenarioId(scenarioId));
@@ -178,8 +154,9 @@ public class SceneController {
         
         scene.setTitle(sceneForm.getTitle());
         scene.setContent(sceneForm.getContent()); 
+        scene.setGmInfo(sceneForm.getGmInfo()); 
 
-        sceneService.save(scene);  
+        sceneService.update(scene, sceneForm);  
 
         redirectAttributes.addFlashAttribute("successMessage", "シーンを更新しました。");
         return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit";
