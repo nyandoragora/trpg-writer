@@ -36,12 +36,11 @@ CREATE TABLE IF NOT EXISTS scenes (
 CREATE TABLE IF NOT EXISTS infos (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     scenario_id INT NOT NULL,
-    role_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL, -- 情報名用の新しいカラム
     content TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (scenario_id) REFERENCES scenarios(id),
-    FOREIGN KEY (role_id) REFERENCES roles(id)
+    FOREIGN KEY (scenario_id) REFERENCES scenarios(id)
 );
 
 CREATE TABLE IF NOT EXISTS npcs (

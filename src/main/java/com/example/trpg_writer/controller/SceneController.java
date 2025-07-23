@@ -20,6 +20,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.trpg_writer.entity.Scenario;
@@ -30,6 +31,7 @@ import com.example.trpg_writer.service.SceneService;
 import com.example.trpg_writer.service.NpcService;
 import com.example.trpg_writer.service.InfoService;
 import com.example.trpg_writer.service.PartService;
+import com.example.trpg_writer.service.RoleService;
 import com.example.trpg_writer.service.BootyService;
 import com.example.trpg_writer.service.SkillService;
 import com.example.trpg_writer.service.SceneNpcService;
@@ -57,6 +59,8 @@ public class SceneController {
     private final NpcPartService npcPartService;
     private final NpcSkillService npcSkillService;
     private final NpcBootyService npcBootyService;
+    private final RoleService roleService;
+
 
     @Value("${tinymce.api-key}")
     private String tinymceApiKey;
@@ -116,6 +120,11 @@ public class SceneController {
         // シナリオに紐づく全NPC、情報、パーツ、戦利品、スキルを取得
         model.addAttribute("allNpcs", npcService.findByScenarioId(scenarioId));
         model.addAttribute("allInfos", infoService.findByScenarioId(scenarioId));
+        // Extract info names from sceneInfos for display in preview
+        List<String> infoNames = sceneInfoService.findBySceneId(sceneId).stream()
+                                                 .map(sceneInfo -> sceneInfo.getInfo().getName())
+                                                 .collect(Collectors.toList());
+        model.addAttribute("infoNames", infoNames);
         model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
         model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
         model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
@@ -135,6 +144,10 @@ public class SceneController {
         model.addAttribute("scenario", scenario);
         model.addAttribute("scene", scene); 
         model.addAttribute("tinymceApiKey", tinymceApiKey); 
+
+   
+        model.addAttribute("gmRoleId", roleService.findByRole("ROLE_GM").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GM Role not found")).getId());
+        model.addAttribute("plRoleId", roleService.findByRole("ROLE_PL").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PL Role not found")).getId()); 
 
         return "scenarios/scenes/edit";
     }

@@ -22,12 +22,11 @@ public class Info {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
-    @ManyToOne
     @JoinColumn(name = "scenario_id")
     private Scenario scenario;
+
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "content")
     private String content;

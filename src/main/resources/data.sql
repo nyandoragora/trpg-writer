@@ -28,9 +28,9 @@ INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (
 INSERT IGNORE INTO scenes (id, scenario_id, title, content, image_path) VALUES (13, 2, 'ダミーシーン 10', 'これは電脳都市の影のダミーシーン10です。', '');
 
 -- infos
-INSERT IGNORE INTO infos (id, scenario_id, role_id, content) VALUES (1, 1, 1, 'あなたはこの城の元城主の子孫である。');
-INSERT IGNORE INTO infos (id, scenario_id, role_id, content) VALUES (2, 1, 2, '城には秘密の通路があるという噂だ。');
-INSERT IGNORE INTO infos (id, scenario_id, role_id, content) VALUES (3, 2, 1, 'あなたの旧友が事件に巻き込まれたらしい。');
+INSERT IGNORE INTO infos (id, scenario_id, name, content) VALUES (1, 1, '城主の子孫', 'あなたはこの城の元城主の子孫である。');
+INSERT IGNORE INTO infos (id, scenario_id, name, content) VALUES (2, 1, '秘密の通路', '城には秘密の通路があるという噂だ。');
+INSERT IGNORE INTO infos (id, scenario_id, name, content) VALUES (3, 2, '旧友の事件', 'あなたの旧友が事件に巻き込まれたらしい。');
 
 -- npcs
 INSERT IGNORE INTO npcs (id, scenario_id, name, description, level, intelligence, perception, position, language, popularity, weakness, preemptive, movement, life_resist, mind_resist) VALUES (1, 1, 'ゴブリン', '小柄で緑色の肌をしたモンスター。', 1, 5, 10, '前衛', 'ゴブリン語', 5, '火', 10, 10, 5, 5);
