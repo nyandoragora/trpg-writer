@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -41,6 +42,7 @@ public class InfoController {
     // 情報の保存
     @PostMapping("/store")
     public String store(@PathVariable("scenarioId") Integer scenarioId,
+                        @RequestParam("sceneId") Integer sceneId, // Add sceneId
                         @ModelAttribute @Validated InfoForm infoForm,
                         BindingResult bindingResult,
                         RedirectAttributes redirectAttributes,
@@ -57,7 +59,7 @@ public class InfoController {
         infoService.create(infoForm);
 
         redirectAttributes.addFlashAttribute("successMessage", "情報を登録しました。");
-        return "redirect:/scenarios/" + scenarioId + "/edit"; // シナリオ編集画面にリダイレクト
+        return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit"; // Redirect to scene edit page
     }
 
     // 情報編集フォームの表示
@@ -90,6 +92,7 @@ public class InfoController {
     // 情報の更新
     @PostMapping("/{infoId}/update")
     public String update(@PathVariable("scenarioId") Integer scenarioId,
+                         @RequestParam("sceneId") Integer sceneId, // Add sceneId
                          @PathVariable("infoId") Integer infoId,
                          @ModelAttribute @Validated InfoForm infoForm,
                          BindingResult bindingResult,
@@ -111,7 +114,7 @@ public class InfoController {
         infoService.update(info, infoForm);
 
         redirectAttributes.addFlashAttribute("successMessage", "情報を更新しました。");
-        return "redirect:/scenarios/" + scenarioId + "/edit"; // シナリオ編集画面にリダイレクト
+        return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit"; // Redirect to scene edit page
     }
 
     // 情報の削除

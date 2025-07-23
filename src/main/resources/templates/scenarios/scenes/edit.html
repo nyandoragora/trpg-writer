@@ -78,7 +78,7 @@
                           </div>
                           <div class="tab-pane fade" id="info-pl" role="tabpanel" aria-labelledby="info-pl-tab">
                             <div class="mt-3">
-                              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" data-scenario-id="[[${scenario.id}]]">
+                              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" th:data-scenario-id="${scenario.id}" th:data-scene-id="${scene.id}">
                                 PL情報を追加
                               </button>
                             </div>
@@ -105,7 +105,8 @@
                                                 th:data-info-id="${sceneInfo.info.id}"
                                                 th:data-info-name="${sceneInfo.info.name}"
                                                 th:data-info-content="${sceneInfo.info.content}"
-                                                th:data-scenario-id="${scenario.id}">
+                                                th:data-scenario-id="${scenario.id}"
+                                                th:data-scene-id="${scene.id}">
                                           編集
                                         </button>
                                         <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id})}" method="post" style="display:inline;">
@@ -131,6 +132,7 @@
                                   <form id="infoForm" th:action="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}" method="post">
                                     <input type="hidden" id="infoId" name="id">
                                     <input type="hidden" id="infoScenarioId" name="scenarioId" th:value="${scenario.id}">
+                                    <input type="hidden" id="infoSceneId" name="sceneId" th:value="${scene.id}">
                                     <div class="mb-3">
                                       <label for="infoName" class="form-label">情報名</label>
                                       <input type="text" class="form-control" id="infoName" name="name" required>
@@ -155,6 +157,7 @@
                                     var infoName = button.getAttribute('data-info-name');
                                     var infoContent = button.getAttribute('data-info-content');
                                     var scenarioId = button.getAttribute('data-scenario-id');
+                                    var sceneId = button.getAttribute('data-scene-id');
 
                                     var modalTitle = infoModal.querySelector('.modal-title');
                                     var infoForm = infoModal.querySelector('#infoForm');
@@ -162,6 +165,7 @@
                                     var infoNameInput = infoModal.querySelector('#infoName');
                                     var infoContentTextarea = infoModal.querySelector('#infoContent');
                                     var infoScenarioIdInput = infoModal.querySelector('#infoScenarioId');
+                                    var infoSceneIdInput = infoModal.querySelector('#infoSceneId');
 
                                     if (infoId) {
                                         modalTitle.textContent = '情報編集';
@@ -170,6 +174,7 @@
                                         infoNameInput.value = infoName;
                                         infoContentTextarea.value = infoContent;
                                         infoScenarioIdInput.value = scenarioId;
+                                        infoSceneIdInput.value = sceneId;
                                     } else {
                                         modalTitle.textContent = '情報追加';
                                         infoForm.action = /*[[@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}]]*/ '';
@@ -177,6 +182,7 @@
                                         infoNameInput.value = '';
                                         infoContentTextarea.value = '';
                                         infoScenarioIdInput.value = scenarioId;
+                                        infoSceneIdInput.value = sceneId;
                                     }
                                 });
 
@@ -197,7 +203,8 @@
                                             alert(data.message);
                                             var modal = bootstrap.Modal.getInstance(infoModal);
                                             modal.hide();
-                                            location.reload(); // Reload page to update info list
+                                            // Redirect to the current scene edit page
+                                            location.href = /*[[@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id})}]]*/ '';
                                         } else {
                                             alert('エラー: ' + data.message + '\n' + JSON.stringify(data.errors, null, 2));
                                         }
