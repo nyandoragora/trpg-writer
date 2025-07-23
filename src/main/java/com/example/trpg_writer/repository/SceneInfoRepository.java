@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SceneInfoRepository extends JpaRepository<SceneInfo, SceneInfoId> {
     List<SceneInfo> findBySceneId(Integer sceneId);
+    void deleteByInfoId(Integer infoId);
 }

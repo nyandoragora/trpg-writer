@@ -10,6 +10,8 @@ public class InfoForm {
 
     private Integer scenarioId;
 
+    private Integer sceneId;
+
     @NotBlank(message = "情報名を入力してください。")
     @Size(max = 255, message = "情報名は255文字以内で入力してください。")
     private String name;

@@ -61,9 +61,9 @@ INSERT IGNORE INTO scene_npcs (scene_id, npc_id, appearance_notes) VALUES (2, 2,
 INSERT IGNORE INTO scene_npcs (scene_id, npc_id, appearance_notes) VALUES (3, 3, 'バーのカウンターに座っている。');
 
 -- scene_infos
-INSERT IGNORE INTO scene_infos (scene_id, info_id, `condition`) VALUES (1, 1, '城門を調べるとわかる。');
-INSERT IGNORE INTO scene_infos (scene_id, info_id, `condition`) VALUES (2, 2, '玉座を調べるとわかる。');
-INSERT IGNORE INTO scene_infos (scene_id, info_id, `condition`) VALUES (3, 3, '情報屋「K」と話すとわかる。');
+INSERT IGNORE INTO scene_infos (scene_id, info_id, display_condition) VALUES (1, 1, '城門を調べるとわかる。');
+INSERT IGNORE INTO scene_infos (scene_id, info_id, display_condition) VALUES (2, 2, '玉座を調べるとわかる。');
+INSERT IGNORE INTO scene_infos (scene_id, info_id, display_condition) VALUES (3, 3, '情報屋「K」と話すとわかる。');
 
 -- npc_parts
 INSERT IGNORE INTO npc_parts (npc_id, part_id) VALUES (1, 1);

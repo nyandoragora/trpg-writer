@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS scene_npcs (
 CREATE TABLE IF NOT EXISTS scene_infos (
     scene_id INT NOT NULL,
     info_id INT NOT NULL,
-    `condition` TEXT,
+    display_condition TEXT, -- カラム名を変更
     PRIMARY KEY (scene_id, info_id),
     FOREIGN KEY (scene_id) REFERENCES scenes(id),
     FOREIGN KEY (info_id) REFERENCES infos(id)

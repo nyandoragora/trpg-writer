@@ -56,6 +56,7 @@ public class InfoController {
         }
 
         infoForm.setScenarioId(scenarioId);
+        infoForm.setSceneId(sceneId); // Add this line
         infoService.create(infoForm);
 
         redirectAttributes.addFlashAttribute("successMessage", "情報を登録しました。");
@@ -107,10 +108,11 @@ public class InfoController {
         }
 
         if (bindingResult.hasErrors()) {
-            return "scenarios/infos/edit"; // 仮のテンプレートパス
+            return "scenarios/infos/edit"; 
         }
 
         infoForm.setScenarioId(scenarioId);
+        infoForm.setSceneId(sceneId); // Add this line
         infoService.update(info, infoForm);
 
         redirectAttributes.addFlashAttribute("successMessage", "情報を更新しました。");

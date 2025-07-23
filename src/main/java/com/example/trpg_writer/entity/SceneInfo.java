@@ -24,6 +24,6 @@ public class SceneInfo {
     @JoinColumn(name = "info_id")
     private Info info;
 
-    @Column(name = "condition")
-    private String condition;
+    @Column(name = "display_condition")
+    private String displayCondition;
 }

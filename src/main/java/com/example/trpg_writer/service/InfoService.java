@@ -2,11 +2,14 @@ package com.example.trpg_writer.service;
 
 import com.example.trpg_writer.entity.Info;
 import com.example.trpg_writer.entity.Scenario;
-import com.example.trpg_writer.entity.Role;
+import com.example.trpg_writer.entity.Scene;
+import com.example.trpg_writer.entity.SceneInfo;
+import com.example.trpg_writer.entity.SceneInfoId;
 import com.example.trpg_writer.form.InfoForm;
 import com.example.trpg_writer.repository.InfoRepository;
 import com.example.trpg_writer.repository.ScenarioRepository;
-import com.example.trpg_writer.repository.RoleRepository;
+import com.example.trpg_writer.repository.SceneRepository;
+import com.example.trpg_writer.repository.SceneInfoRepository;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
@@ -25,6 +28,8 @@ public class InfoService {
 
     private final InfoRepository infoRepository;
     private final ScenarioRepository scenarioRepository;
+    private final SceneRepository sceneRepository;
+    private final SceneInfoRepository sceneInfoRepository;
 
     public Optional<Info> findById(Integer id) {
         return infoRepository.findById(id);
@@ -39,6 +44,8 @@ public class InfoService {
         Info info = new Info();
         Scenario scenario = scenarioRepository.findById(infoForm.getScenarioId())
             .orElseThrow(() -> new IllegalArgumentException("Scenario not found"));
+        Scene scene = sceneRepository.findById(infoForm.getSceneId())
+            .orElseThrow(() -> new IllegalArgumentException("Scene not found"));
 
         info.setScenario(scenario);
 
@@ -47,7 +54,19 @@ public class InfoService {
         info.setName(Jsoup.clean(infoForm.getName() != null ? infoForm.getName() : "", safelist));
         info.setContent(Jsoup.clean(infoForm.getContent() != null ? infoForm.getContent() : "", safelist));
 
-        return infoRepository.save(info);
+        Info savedInfo = infoRepository.save(info);
+
+        // Create SceneInfo entry to link Info to Scene
+        SceneInfo sceneInfo = new SceneInfo();
+        SceneInfoId sceneInfoId = new SceneInfoId();
+        sceneInfoId.setScene(scene.getId());
+        sceneInfoId.setInfo(savedInfo.getId());
+        sceneInfo.setScene(scene);
+        sceneInfo.setInfo(savedInfo);
+        sceneInfo.setDisplayCondition(""); // Set a default empty string for displayCondition
+        sceneInfoRepository.save(sceneInfo);
+
+        return savedInfo;
     }
 
     @Transactional
@@ -57,11 +76,17 @@ public class InfoService {
         info.setName(Jsoup.clean(infoForm.getName() != null ? infoForm.getName() : "", safelist));
         info.setContent(Jsoup.clean(infoForm.getContent() != null ? infoForm.getContent() : "", safelist));
 
-        return infoRepository.save(info);
+        Info updatedInfo = infoRepository.save(info);
+
+        // Update SceneInfo entry if necessary (e.g., if sceneId changed, though not expected here)
+        // For now, assuming sceneId doesn't change for an existing info
+        return updatedInfo;
     }
 
     @Transactional
     public void delete(Integer id) {
+        // Delete associated SceneInfo entries first
+        sceneInfoRepository.deleteByInfoId(id);
         infoRepository.deleteById(id);
     }
 }
