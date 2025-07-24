@@ -123,6 +123,7 @@ public class InfoController {
     @PostMapping("/{infoId}/delete")
     public String delete(@PathVariable("scenarioId") Integer scenarioId,
                          @PathVariable("infoId") Integer infoId,
+                         @RequestParam("sceneId") Integer sceneId, // Add sceneId
                          RedirectAttributes redirectAttributes) {
         Info info = infoService.findById(infoId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Info not found"));
@@ -134,6 +135,6 @@ public class InfoController {
         infoService.delete(infoId);
 
         redirectAttributes.addFlashAttribute("successMessage", "情報を削除しました。");
-        return "redirect:/scenarios/" + scenarioId + "/edit"; // シナリオ編集画面にリダイレクト
+        return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit"; // Redirect to scene edit page
     }
 }

@@ -109,7 +109,7 @@
                                                 th:data-scene-id="${scene.id}">
                                           編集
                                         </button>
-                                        <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id})}" method="post" style="display:inline;">
+                                        <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}" method="post" style="display:inline;">
                                           <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('本当に削除しますか？');">削除</button>
                                         </form>
                                       </td>
