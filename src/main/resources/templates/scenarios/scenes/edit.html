@@ -169,7 +169,8 @@
 
                                     if (infoId) {
                                         modalTitle.textContent = '情報編集';
-                                        infoForm.action = /*[[@{/scenarios/{scenarioId}/infos/{infoId}/update(scenarioId=${scenario.id}, infoId=__infoId__)}]]*/ ''.replace('__infoId__', infoId);
+                                        let updateUrlTemplate = /*[[@{/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER/update(scenarioId=${scenario.id})}]]*/ 'default_url';
+                                        infoForm.action = updateUrlTemplate.replace('INFO_ID_PLACEHOLDER', infoId);
                                         infoIdInput.value = infoId;
                                         infoNameInput.value = infoName;
                                         infoContentTextarea.value = infoContent;
@@ -184,35 +185,6 @@
                                         infoScenarioIdInput.value = scenarioId;
                                         infoSceneIdInput.value = sceneId;
                                     }
-                                });
-
-                                // Handle form submission via AJAX
-                                document.getElementById('infoForm').addEventListener('submit', function(event) {
-                                    event.preventDefault();
-                                    var form = event.target;
-                                    var formData = new FormData(form);
-                                    var url = form.action;
-
-                                    fetch(url, {
-                                        method: 'POST',
-                                        body: formData
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            alert(data.message);
-                                            var modal = bootstrap.Modal.getInstance(infoModal);
-                                            modal.hide();
-                                            // Redirect to the current scene edit page
-                                            location.href = /*[[@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id})}]]*/ '';
-                                        } else {
-                                            alert('エラー: ' + data.message + '\n' + JSON.stringify(data.errors, null, 2));
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Error:', error);
-                                        alert('通信エラーが発生しました。');
-                                    });
                                 });
                             });
                           </script>
