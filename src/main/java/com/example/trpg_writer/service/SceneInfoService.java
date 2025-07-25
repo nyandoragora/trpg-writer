@@ -24,4 +24,8 @@ public class SceneInfoService {
     public List<SceneInfo> findBySceneId(Integer sceneId) {
         return sceneInfoRepository.findBySceneId(sceneId);
     }
+
+    public List<SceneInfo> findByScenarioId(Integer scenarioId) {
+        return sceneInfoRepository.findByScene_ScenarioId(scenarioId);
+    }
 }

@@ -58,10 +58,10 @@
                             <button class="nav-link active" id="npc-tab" data-bs-toggle="tab" data-bs-target="#npc" type="button" role="tab" aria-controls="npc" aria-selected="true">NPC</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="info-gm-tab" data-bs-toggle="tab" data-bs-target="#info-gm" type="button" role="tab" aria-controls="info-gm" aria-selected="false">情報 GM</button>
+                            <button class="nav-link" id="scenario-info-tab" data-bs-toggle="tab" data-bs-target="#scenario-info" type="button" role="tab" aria-controls="scenario-info" aria-selected="false">シナリオ内情報</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="info-pl-tab" data-bs-toggle="tab" data-bs-target="#info-pl" type="button" role="tab" aria-controls="info-pl" aria-selected="false">情報 PL</button>
+                            <button class="nav-link" id="scene-info-tab" data-bs-toggle="tab" data-bs-target="#scene-info" type="button" role="tab" aria-controls="scene-info" aria-selected="false">シーン内情報</button>
                           </li>
                           <li class="nav-item" role="presentation">
                             <button class="nav-link" id="background-tab" data-bs-toggle="tab" data-bs-target="#background" type="button" role="tab" aria-controls="background" aria-selected="false">背景挿入</button>
@@ -72,20 +72,37 @@
                             <!-- NPC管理コンテンツ -->
                             <p class="mt-3">NPC管理エリア（未実装）</p>
                           </div>
-                          <div class="tab-pane fade" id="info-gm" role="tabpanel" aria-labelledby="info-gm-tab">
-                            <!-- 情報 GM管理コンテンツ -->
-                            <p class="mt-3">情報 GM管理エリア（未実装）</p>
+                          <div class="tab-pane fade" id="scenario-info" role="tabpanel" aria-labelledby="scenario-info-tab">
+                            <div class="mt-3">
+                              <div th:if="${#lists.isEmpty(allSceneInfos)}">
+                                <p>シナリオ内情報がありません。</p>
+                              </div>
+                              <div th:unless="${#lists.isEmpty(allSceneInfos)}">
+                                <div th:each="sceneInfo : ${allSceneInfos}" class="card mb-2" style="cursor: pointer;" 
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#scenarioInfoModal"
+                                     th:attr="data-info-name=${sceneInfo.info.name}, 
+                                              data-info-content=${sceneInfo.info.content}, 
+                                              data-scene-edit-url=@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${sceneInfo.scene.scenario.id}, sceneId=${sceneInfo.scene.id})}">
+                                  <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted" th:text="'シーン名：' + ${sceneInfo.scene.title}"></h6>
+                                    <h5 class="card-title" th:text="${sceneInfo.info.name}"></h5>
+                                    <p class="card-text" th:text="${#strings.abbreviate(sceneInfo.info.content, 80)}"></p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div class="tab-pane fade" id="info-pl" role="tabpanel" aria-labelledby="info-pl-tab">
+                          <div class="tab-pane fade" id="scene-info" role="tabpanel" aria-labelledby="scene-info-tab">
                             <div class="mt-3">
                               <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" th:data-scenario-id="${scenario.id}" th:data-scene-id="${scene.id}">
-                                PL情報を追加
+                                シーン内情報を追加
                               </button>
                             </div>
                             <div class="mt-3">
-                              <h5>PL情報リスト</h5>
+                              <h5>シーン内情報リスト</h5>
                               <div th:if="${#lists.isEmpty(sceneInfos)}">
-                                <p>PL情報がありません。</p>
+                                <p>シーン内情報がありません。</p>
                               </div>
                               <div th:unless="${#lists.isEmpty(sceneInfos)}">
                                 <table class="table table-striped">
@@ -148,6 +165,25 @@
                             </div>
                           </div>
 
+                          <!-- Scenario Info Modal -->
+                          <div class="modal fade" id="scenarioInfoModal" tabindex="-1" aria-labelledby="scenarioInfoModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="scenarioInfoModalLabel"></h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <p id="scenarioInfoModalContent"></p>
+                                </div>
+                                <div class="modal-footer">
+                                  <a href="#" id="scenarioInfoModalEditButton" class="btn btn-primary">このシーンを編集</a>
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
                           <script th:inline="javascript">
                             document.addEventListener('DOMContentLoaded', function() {
                                 var infoModal = document.getElementById('infoModal');
@@ -185,6 +221,22 @@
                                         infoScenarioIdInput.value = scenarioId;
                                         infoSceneIdInput.value = sceneId;
                                     }
+                                });
+
+                                var scenarioInfoModal = document.getElementById('scenarioInfoModal');
+                                scenarioInfoModal.addEventListener('show.bs.modal', function (event) {
+                                    var button = event.relatedTarget;
+                                    var infoName = button.getAttribute('data-info-name');
+                                    var infoContent = button.getAttribute('data-info-content');
+                                    var sceneEditUrl = button.getAttribute('data-scene-edit-url');
+
+                                    var modalTitle = scenarioInfoModal.querySelector('.modal-title');
+                                    var modalContent = scenarioInfoModal.querySelector('#scenarioInfoModalContent');
+                                    var modalEditButton = scenarioInfoModal.querySelector('#scenarioInfoModalEditButton');
+
+                                    modalTitle.textContent = infoName;
+                                    modalContent.textContent = infoContent;
+                                    modalEditButton.href = sceneEditUrl;
                                 });
                             });
                           </script>

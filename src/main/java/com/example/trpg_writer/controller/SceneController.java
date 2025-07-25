@@ -16,9 +16,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -132,6 +129,7 @@ public class SceneController {
         // シーンに紐づくNPCと情報を取得
         model.addAttribute("sceneNpcs", sceneNpcService.findBySceneId(sceneId));
         model.addAttribute("sceneInfos", sceneInfoService.findBySceneId(sceneId));
+        model.addAttribute("allSceneInfos", sceneInfoService.findByScenarioId(scenarioId));
 
         // シナリオに紐づくNPCのパーツ、スキル、戦利品を取得
         model.addAttribute("npcParts", npcPartService.findByNpcScenarioId(scenarioId));
