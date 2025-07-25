@@ -77,7 +77,7 @@
                               <div th:if="${#lists.isEmpty(allSceneInfos)}">
                                 <p>シナリオ内情報がありません。</p>
                               </div>
-                              <div th:unless="${#lists.isEmpty(allSceneInfos)}">
+                              <div th:unless="${#lists.isEmpty(allSceneInfos)}" style="max-height: 400px; overflow-y: auto;">
                                 <div th:each="sceneInfo : ${allSceneInfos}" class="card mb-2" style="cursor: pointer;" 
                                      data-bs-toggle="modal" 
                                      data-bs-target="#scenarioInfoModal"
@@ -100,39 +100,31 @@
                               </button>
                             </div>
                             <div class="mt-3">
-                              <h5>シーン内情報リスト</h5>
                               <div th:if="${#lists.isEmpty(sceneInfos)}">
                                 <p>シーン内情報がありません。</p>
                               </div>
-                              <div th:unless="${#lists.isEmpty(sceneInfos)}">
-                                <table class="table table-striped">
-                                  <thead>
-                                    <tr>
-                                      <th>情報名</th>
-                                      <th>内容</th>
-                                      <th>操作</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <tr th:each="sceneInfo : ${sceneInfos}">
-                                      <td th:text="${sceneInfo.info.name}"></td>
-                                      <td th:text="${#strings.abbreviate(sceneInfo.info.content, 50)}"></td>
-                                      <td>
-                                        <button type="button" class="btn btn-sm btn-info edit-info-btn" data-bs-toggle="modal" data-bs-target="#infoModal"
-                                                th:data-info-id="${sceneInfo.info.id}"
-                                                th:data-info-name="${sceneInfo.info.name}"
-                                                th:data-info-content="${sceneInfo.info.content}"
-                                                th:data-scenario-id="${scenario.id}"
-                                                th:data-scene-id="${scene.id}">
-                                          編集
-                                        </button>
-                                        <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}" method="post" style="display:inline;">
-                                          <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('本当に削除しますか？');">削除</button>
-                                        </form>
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
+                              <div th:unless="${#lists.isEmpty(sceneInfos)}" style="max-height: 400px; overflow-y: auto;">
+                                <div class="card mb-2" th:each="sceneInfo : ${sceneInfos}">
+                                  <div class="card-body">
+                                    <h5 class="card-title" th:text="${sceneInfo.info.name}"></h5>
+                                    <p class="card-text" th:text="${#strings.abbreviate(sceneInfo.info.content, 80)}"></p>
+                                    <div class="d-flex justify-content-end mt-2">
+                                      <button type="button" class="btn btn-sm btn-info me-2 edit-info-btn" 
+                                              data-bs-toggle="modal" 
+                                              data-bs-target="#infoModal"
+                                              th:data-info-id="${sceneInfo.info.id}"
+                                              th:data-info-name="${sceneInfo.info.name}"
+                                              th:data-info-content="${sceneInfo.info.content}"
+                                              th:data-scenario-id="${scenario.id}"
+                                              th:data-scene-id="${scene.id}">
+                                        編集
+                                      </button>
+                                      <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('本当に削除しますか？');">削除</button>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
