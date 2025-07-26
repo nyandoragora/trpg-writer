@@ -6,9 +6,13 @@
         <div th:replace="~{fragment :: styles}"></div>
 
         <title>シーン編集ページ</title>
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
         <script th:src="@{'https://cdn.tiny.cloud/1/' + ${tinymceApiKey} + '/tinymce/6/tinymce.min.js'}" referrerpolicy="origin"></script>
     </head>
-    <body>
+    <body th:data-tinymce-api-key="${tinymceApiKey}"
+          th:data-update-url-template="@{/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER/update(scenarioId=${scenario.id})}"
+          th:data-store-url="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}">
         <div class="trpg-wrapper">
            <div th:replace="~{fragment :: header}"></div>
 
@@ -119,8 +123,13 @@
                                               th:data-scene-id="${scene.id}">
                                         編集
                                       </button>
-                                      <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}" method="post" style="display:inline;">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('本当に削除しますか？');">削除</button>
+                                      <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}" method="post" style="display:inline;" class="delete-info-form">
+                                        <button type="button" class="btn btn-sm btn-danger delete-info-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteInfoConfirmModal"
+                                                th:data-delete-url="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}">
+                                          削除
+                                        </button>
                                       </form>
                                     </div>
                                   </div>
@@ -150,8 +159,17 @@
                                       <label for="infoContent" class="form-label">内容</label>
                                       <textarea class="form-control" id="infoContent" name="content" rows="5"></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">保存</button>
+                                    <!-- ボタンはモーダルのフッターに移動 -->
                                   </form>
+                                </div>
+                                <div class="modal-footer">
+                                  <div id="unsaved-warning" class="alert alert-warning me-auto" style="display: none; padding: 0.5rem 1rem;">
+                                    本文に未保存の変更があります
+                                  </div>
+                                  <button type="submit" form="infoForm" id="save-info-btn" class="btn btn-primary">保存</button>
+                                  <button type="button" id="save-all-btn" class="btn btn-success" style="display: none;">本文と情報を保存</button>
+                                  <button type="button" id="save-info-only-btn" class="btn btn-warning" style="display: none;">情報のみ保存</button>
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
                                 </div>
                               </div>
                             </div>
@@ -176,60 +194,52 @@
                             </div>
                           </div>
 
+                          <!-- Delete Info Confirmation Modal -->
+                          <div class="modal fade" id="deleteInfoConfirmModal" tabindex="-1" aria-labelledby="deleteInfoConfirmModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="deleteInfoConfirmModalLabel">情報の削除</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <p>本当にこの情報を削除しますか？</p>
+                                  <div id="delete-unsaved-warning" class="alert alert-warning" style="display: none;">
+                                    注意：シーン本文に未保存の変更があります。
+                                  </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <!-- 通常時 -->
+                                  <button type="button" id="confirm-delete-btn" class="btn btn-danger">削除</button>
+                                  <!-- 変更あり時 -->
+                                  <button type="button" id="save-and-delete-btn" class="btn btn-success" style="display: none;">本文を保存して削除</button>
+                                  <button type="button" id="discard-and-delete-btn" class="btn btn-warning" style="display: none;">本文を破棄して削除</button>
+                                  
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
                           <script th:inline="javascript">
                             document.addEventListener('DOMContentLoaded', function() {
-                                var infoModal = document.getElementById('infoModal');
-                                infoModal.addEventListener('show.bs.modal', function (event) {
-                                    var button = event.relatedTarget;
-                                    var infoId = button.getAttribute('data-info-id');
-                                    var infoName = button.getAttribute('data-info-name');
-                                    var infoContent = button.getAttribute('data-info-content');
-                                    var scenarioId = button.getAttribute('data-scenario-id');
-                                    var sceneId = button.getAttribute('data-scene-id');
-
-                                    var modalTitle = infoModal.querySelector('.modal-title');
-                                    var infoForm = infoModal.querySelector('#infoForm');
-                                    var infoIdInput = infoModal.querySelector('#infoId');
-                                    var infoNameInput = infoModal.querySelector('#infoName');
-                                    var infoContentTextarea = infoModal.querySelector('#infoContent');
-                                    var infoScenarioIdInput = infoModal.querySelector('#infoScenarioId');
-                                    var infoSceneIdInput = infoModal.querySelector('#infoSceneId');
-
-                                    if (infoId) {
-                                        modalTitle.textContent = '情報編集';
-                                        let updateUrlTemplate = /*[[@{/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER/update(scenarioId=${scenario.id})}]]*/ 'default_url';
-                                        infoForm.action = updateUrlTemplate.replace('INFO_ID_PLACEHOLDER', infoId);
-                                        infoIdInput.value = infoId;
-                                        infoNameInput.value = infoName;
-                                        infoContentTextarea.value = infoContent;
-                                        infoScenarioIdInput.value = scenarioId;
-                                        infoSceneIdInput.value = sceneId;
-                                    } else {
-                                        modalTitle.textContent = '情報追加';
-                                        infoForm.action = /*[[@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}]]*/ '';
-                                        infoIdInput.value = '';
-                                        infoNameInput.value = '';
-                                        infoContentTextarea.value = '';
-                                        infoScenarioIdInput.value = scenarioId;
-                                        infoSceneIdInput.value = sceneId;
-                                    }
-                                });
-
                                 var scenarioInfoModal = document.getElementById('scenarioInfoModal');
-                                scenarioInfoModal.addEventListener('show.bs.modal', function (event) {
-                                    var button = event.relatedTarget;
-                                    var infoName = button.getAttribute('data-info-name');
-                                    var infoContent = button.getAttribute('data-info-content');
-                                    var sceneEditUrl = button.getAttribute('data-scene-edit-url');
-
-                                    var modalTitle = scenarioInfoModal.querySelector('.modal-title');
-                                    var modalContent = scenarioInfoModal.querySelector('#scenarioInfoModalContent');
-                                    var modalEditButton = scenarioInfoModal.querySelector('#scenarioInfoModalEditButton');
-
-                                    modalTitle.textContent = infoName;
-                                    modalContent.textContent = infoContent;
-                                    modalEditButton.href = sceneEditUrl;
-                                });
+                                if (scenarioInfoModal) {
+                                    scenarioInfoModal.addEventListener('show.bs.modal', function (event) {
+                                        var button = event.relatedTarget;
+                                        var infoName = button.getAttribute('data-info-name');
+                                        var infoContent = button.getAttribute('data-info-content');
+                                        var sceneEditUrl = button.getAttribute('data-scene-edit-url');
+    
+                                        var modalTitle = scenarioInfoModal.querySelector('.modal-title');
+                                        var modalContent = scenarioInfoModal.querySelector('#scenarioInfoModalContent');
+                                        var modalEditButton = scenarioInfoModal.querySelector('#scenarioInfoModalEditButton');
+    
+                                        modalTitle.textContent = infoName;
+                                        modalContent.textContent = infoContent;
+                                        modalEditButton.href = sceneEditUrl;
+                                    });
+                                }
                             });
                           </script>
                           <div class="tab-pane fade" id="background" role="tabpanel" aria-labelledby="background-tab">
@@ -254,7 +264,7 @@
                     <div class="card mb-4">
                       <div class="card-header">シーン内容編集</div>
                       <div class="card-body">
-                        <form th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/update(scenarioId=${scenario.id}, sceneId=${scene.id})}" th:object="${sceneForm}" method="post">
+                        <form id="sceneEditForm" th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/update(scenarioId=${scenario.id}, sceneId=${scene.id})}" th:object="${sceneForm}" method="post">
                           <div class="mb-3">
                             <label for="sceneTitle" class="form-label">シーンタイトル</label>
                             <input type="text" class="form-control" id="sceneTitle" th:field="*{title}">
@@ -331,21 +341,6 @@
         <!-- Swiper -->
         <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
-        <script th:inline="javascript">
-          var tinymceApiKey = /*[[${tinymceApiKey}]]*/ 'default-api-key'; // Fallback for IDE
-          console.log("TinyMCE API Key: ", tinymceApiKey);
-          tinymce.init({
-            selector: '#sceneContent',
-            api_key: tinymceApiKey,
-            plugins: 'advlist autolink lists link image charmap print preview anchor',
-            toolbar_mode: 'floating',
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
-            content_css: '/css/style.css', // Load custom CSS
-
-            setup: function (editor) {
-              // No custom buttons for PL info anymore
-            }
-          });
-        </script>
+        <script th:src="@{/js/scene-editor.js}"></script>
     </body>
 </html>

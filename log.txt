@@ -30,3 +30,22 @@
 2025年7月26日：6回目の作業
 私からの要望：ヘッダーに表示されるログイン情報をメアドからユーザー名に変更
 実行した実装：UserDetailsImpl#getUsernameがユーザー名を返すように変更
+
+2025年7月26日：7回目の作業
+私からの要望：ヘッダーのログイン情報をユーザー名に変更、シーン編集画面のUX改善（未保存警告、情報追加/編集/削除時のモーダル連携）、JavaScriptの外部ファイル化、CSRF対応
+実行した実装：
+- UserDetailsImpl#getUsername: ログインユーザー名を返すように変更
+- scenes/edit.html:
+  - シーン編集フォームにid="sceneEditForm"を追加
+  - CSRFトークンをmetaタグとして追加
+  - JavaScriptを外部ファイル(scene-editor.js)に分離し、data-*属性でThymeleaf変数を渡すように変更
+  - 情報追加/編集モーダル(infoModal)のフッターに警告表示と条件付きボタンを追加
+  - 削除確認用モーダル(deleteInfoConfirmModal)を新規追加
+  - 削除ボタンのtypeを"button"に変更し、deleteInfoConfirmModalを呼び出すように変更
+- src/main/resources/static/js/scene-editor.js:
+  - isFormDirtyフラグによるページ離脱警告ロジックを実装
+  - infoModalの表示ロジックを修正し、isFormDirtyに応じてボタン表示を切り替え
+  - fetchWithCsrfヘルパー関数を導入し、全てのfetchリクエストにCSRFトークンを自動付与
+  - deleteInfoConfirmModalの表示ロジックを実装し、isFormDirtyに応じてボタン表示を切り替え
+  - 削除処理をfetchWithCsrf経由で実行するように変更
+  - デバッグ用のconsole.logを削除
