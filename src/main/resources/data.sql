@@ -78,3 +78,10 @@ INSERT IGNORE INTO npc_skills (npc_id, skill_id) VALUES (3, 2);
 INSERT IGNORE INTO npc_bootys (npc_id, booty_id) VALUES (1, 1);
 INSERT IGNORE INTO npc_bootys (npc_id, booty_id) VALUES (2, 2);
 INSERT IGNORE INTO npc_bootys (npc_id, booty_id) VALUES (3, 3);
+
+-- faqs
+INSERT IGNORE INTO faqs (id, question, answer) VALUES (1, 'TRPG Writerとは何ですか？', 'TRPGシナリオの作成、管理、プレイを支援するアプリケーションです。');
+INSERT IGNORE INTO faqs (id, question, answer) VALUES (2, '対応しているTRPGシステムは何ですか？', '現在はソード・ワールド2.5に対応しています。今後、他のシステムも追加予定です。');
+INSERT IGNORE INTO faqs (id, question, answer) VALUES (3, '作成したシナリオは公開できますか？', '現在はシナリオ公開機能は未実装です。');
+INSERT IGNORE INTO faqs (id, question, answer) VALUES (4, '利用料金はかかりますか？', '基本的な機能は無料でご利用いただけます。一部のプレミアム機能やマーケットプレイスでのシナリオ購入には料金が発生する場合があります。');
+INSERT IGNORE INTO faqs (id, question, answer) VALUES (5, '動作環境を教えてください。', 'Webブラウザからアクセスできるため、特別なソフトウェアのインストールは不要です。最新のChrome、Firefox、Edge、Safariでの動作を推奨しています。');

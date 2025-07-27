@@ -6,7 +6,7 @@
 私からの要望：情報GMタブをシナリオ内情報タブに変更し、シナリオ全体の情報を一覧できるようにする
 実行した実装：
 - SceneInfoRepositoryにfindByScene_ScenarioIdメソッドを追加
-- SceneInfoServiceにfindByScenarioIdメソッドを追加
+- SceneInfoServiceにfindByScene_ScenarioIdメソッドを追加
 - SceneControllerでシナリオ全体の情報を取得し、ビューに渡すよう変更
 - scenes/edit.htmlを修正し、「情報GM」タブを「シナリオ内情報」タブに変更
 - シナリオ内情報タブに、シナリオ全体の情報をテーブルで一覧表示する機能を追加
@@ -49,3 +49,12 @@
   - deleteInfoConfirmModalの表示ロジックを実装し、isFormDirtyに応じてボタン表示を切り替え
   - 削除処理をfetchWithCsrf経由で実行するように変更
   - デバッグ用のconsole.logを削除
+
+2025年7月26日：8回目の作業
+私からの要望：よくあるご質問（FAQ）機能の実装
+実行した実装：
+- Faq.java: FAQエンティティを作成（質問、回答、タイムスタンプ）
+- FaqRepository.java: FAQのデータベース操作用リポジトリを作成
+- FaqService.java: FAQのビジネスロジック用サービスを作成（全件取得メソッド）
+- FaqController.java: /faqsへのリクエストを処理し、FAQ一覧をビューに渡すコントローラを作成
+- faqs/index.html: FAQを一覧表示するHTMLテンプレートを作成
