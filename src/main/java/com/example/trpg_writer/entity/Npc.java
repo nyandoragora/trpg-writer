@@ -35,10 +35,10 @@ public class Npc {
     private Integer level;
 
     @Column(name = "intelligence")
-    private Integer intelligence;
+    private String intelligence;
 
     @Column(name = "perception")
-    private Integer perception;
+    private String perception;
 
     @Column(name = "position")
     private String position;
@@ -47,13 +47,13 @@ public class Npc {
     private String language;
 
     @Column(name = "popularity")
-    private Integer popularity;
+    private String popularity;
 
     @Column(name = "weakness")
     private String weakness;
 
     @Column(name = "preemptive")
-    private String preemptive;
+    private Integer preemptive;
 
     @Column(name = "movement")
     private String movement;
@@ -63,6 +63,12 @@ public class Npc {
 
     @Column(name = "mind_resist")
     private Integer mindResist;
+
+    @Column(name = "impurity") // 追加
+    private Integer impurity;
+
+    @Column(name = "habitat") // 追加
+    private String habitat;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Timestamp createdAt;

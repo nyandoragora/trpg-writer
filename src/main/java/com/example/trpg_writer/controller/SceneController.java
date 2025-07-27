@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.form.SceneForm;
+import com.example.trpg_writer.form.NpcForm; // NpcFormをインポート
 import com.example.trpg_writer.service.ScenarioService;
 import com.example.trpg_writer.service.SceneService;
 import com.example.trpg_writer.service.NpcService;
@@ -143,7 +144,11 @@ public class SceneController {
         model.addAttribute("scene", scene); 
         model.addAttribute("tinymceApiKey", tinymceApiKey); 
 
-   
+        // NpcFormをModelに追加
+        NpcForm npcForm = new NpcForm();
+        npcForm.setScenarioId(scenarioId); // シナリオIDを設定
+        model.addAttribute("npcForm", npcForm);
+
         model.addAttribute("gmRoleId", roleService.findByRole("ROLE_GM").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GM Role not found")).getId());
         model.addAttribute("plRoleId", roleService.findByRole("ROLE_PL").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PL Role not found")).getId()); 
 
