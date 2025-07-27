@@ -64,10 +64,10 @@ public class Npc {
     @Column(name = "mind_resist")
     private Integer mindResist;
 
-    @Column(name = "impurity") // 追加
+    @Column(name = "impurity") 
     private Integer impurity;
 
-    @Column(name = "habitat") // 追加
+    @Column(name = "habitat") 
     private String habitat;
 
     @Column(name = "created_at", insertable = false, updatable = false)

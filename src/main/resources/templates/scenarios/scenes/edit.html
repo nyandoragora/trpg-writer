@@ -12,7 +12,8 @@
     </head>
     <body th:data-tinymce-api-key="${tinymceApiKey}"
           th:data-update-url-template="@{/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER/update(scenarioId=${scenario.id})}"
-          th:data-store-url="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}">
+          th:data-store-url="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}"
+          th:data-npc-form-has-errors="${#fields.hasErrors('npcForm.*')}"> <!-- ここにデータ属性を追加 -->
         <div class="trpg-wrapper">
            <div th:replace="~{fragment :: header}"></div>
 
@@ -346,8 +347,6 @@
         <!-- Swiper -->
         <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
-        <script th:src="@{/js/scene-editor.js}"></script>
-
         <!-- NPC Modal -->
         <div class="modal fade" id="npcModal" tabindex="-1" aria-labelledby="npcModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl"> 
@@ -363,12 +362,12 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">名前</label>
-                                    <input type="text" id="name" th:field="*{name}" class="form-control">
+                                    <input type="text" id="name" th:field="*{name}" class="form-control" required>
                                     <div th:errors="*{name}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="level" class="form-label">レベル</label>
-                                    <input type="number" id="level" th:field="*{level}" class="form-control">
+                                    <input type="number" id="level" th:field="*{level}" class="form-control" required>
                                     <div th:errors="*{level}" class="text-danger"></div>
                                 </div>
                             </div>
@@ -376,17 +375,17 @@
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <label for="intelligence" class="form-label">知能</label>
-                                    <input type="text" id="intelligence" th:field="*{intelligence}" class="form-control">
+                                    <input type="text" id="intelligence" th:field="*{intelligence}" class="form-control" required>
                                     <div th:errors="*{intelligence}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="perception" class="form-label">知覚</label>
-                                    <input type="text" id="perception" th:field="*{perception}" class="form-control">
+                                    <input type="text" id="perception" th:field="*{perception}" class="form-control" required>
                                     <div th:errors="*{perception}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="position" class="form-label">反応</label>
-                                    <input type="text" id="position" th:field="*{position}" class="form-control">
+                                    <input type="text" id="position" th:field="*{position}" class="form-control" required>
                                     <div th:errors="*{position}" class="text-danger"></div>
                                 </div>
                             </div>
@@ -394,12 +393,12 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="impurity" class="form-label">穢れ</label>
-                                    <input type="number" id="impurity" th:field="*{impurity}" class="form-control">
+                                    <input type="number" id="impurity" th:field="*{impurity}" class="form-control" required>
                                     <div th:errors="*{impurity}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="language" class="form-label">言語</label>
-                                    <input type="text" id="language" th:field="*{language}" class="form-control">
+                                    <input type="text" id="language" th:field="*{language}" class="form-control" required>
                                     <div th:errors="*{language}" class="text-danger"></div>
                                 </div>
                             </div>
@@ -407,43 +406,43 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="habitat" class="form-label">生息地</label>
-                                    <input type="text" id="habitat" th:field="*{habitat}" class="form-control">
+                                    <input type="text" id="habitat" th:field="*{habitat}" class="form-control" required>
                                     <div th:errors="*{habitat}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="popularity" class="form-label">知名度</label>
-                                    <input type="text" id="popularity" th:field="*{popularity}" class="form-control">
+                                    <input type="text" id="popularity" th:field="*{popularity}" class="form-control" required>
                                     <div th:errors="*{popularity}" class="text-danger"></div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="weakness" class="form-label">弱点</label>
-                                <input type="text" id="weakness" th:field="*{weakness}" class="form-control">
+                                <input type="text" id="weakness" th:field="*{weakness}" class="form-control" required>
                                 <div th:errors="*{weakness}" class="text-danger"></div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <label for="preemptive" class="form-label">先制値</label>
-                                    <input type="number" id="preemptive" th:field="*{preemptive}" class="form-control">
+                                    <input type="number" id="preemptive" th:field="*{preemptive}" class="form-control" required>
                                     <div th:errors="*{preemptive}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="movement" class="form-label">移動速度</label>
-                                    <input type="text" id="movement" th:field="*{movement}" class="form-control">
+                                    <input type="text" id="movement" th:field="*{movement}" class="form-control" required>
                                     <div th:errors="*{movement}" class="text-danger"></div>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="lifeResist" class="form-label">生命抵抗力</label>
-                                    <input type="number" id="lifeResist" th:field="*{lifeResist}" class="form-control">
+                                    <input type="number" id="lifeResist" th:field="*{lifeResist}" class="form-control" required>
                                     <div th:errors="*{lifeResist}" class="text-danger"></div>
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="mindResist" class="form-label">精神抵抗力</label>
-                                <input type="number" id="mindResist" th:field="*{mindResist}" class="form-control">
+                                <input type="number" id="mindResist" th:field="*{mindResist}" class="form-control" required>
                                 <div th:errors="*{mindResist}" class="text-danger"></div>
                             </div>
 
@@ -476,5 +475,7 @@
                 </div>
             </div>
         </div>
+
+        <script th:src="@{/js/scene-editor.js}"></script> <!-- scene-editor.jsを読み込む -->
     </body>
 </html>
