@@ -64,11 +64,13 @@ public class NpcController {
         npcForm.setScenarioId(scenarioId);
         model.addAttribute("npcForm", npcForm);
         model.addAttribute("sceneId", sceneId);
-        // このGETリクエストは、モーダルを開くためのもので、直接テンプレートをレンダリングするわけではないため、
-        // ここで全てのModel属性を設定する必要はない。
-        // ただし、Thymeleafのパス解決のために、edit.htmlを返すようにする。
-        // 実際には、edit.htmlが読み込まれた際に、npcFormがModelに存在すればモーダルが開く。
-        return "scenarios/scenes/edit";
+
+        // Part, Skill, BootyのリストをModelに追加
+        model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
+        model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
+        model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
+
+        return "npcs/create"; // テンプレート名を変更
     }
 
     @PostMapping("/create")
@@ -84,42 +86,18 @@ public class NpcController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scene not found"));
 
         if (bindingResult.hasErrors()) {
-            // エラー時はシーン編集画面に直接戻る
+            // エラー時はnpcs/create.htmlに直接戻る
             model.addAttribute("scenario", scenario);
             model.addAttribute("scene", scene);
             
-            // SceneFormをModelに追加 (SceneController.editからコピー)
-            SceneForm sceneForm = new SceneForm();
-            sceneForm.setId(scene.getId());
-            sceneForm.setTitle(scene.getTitle());
-            sceneForm.setContent(scene.getContent());
-            sceneForm.setGmInfo(scene.getGmInfo());
-            sceneForm.setExistingImagePath(scene.getImagePath());
-            model.addAttribute("sceneForm", sceneForm);
-
-            // SceneController.editが追加する他の全ての属性を追加
-            model.addAttribute("allNpcs", npcService.findByScenarioId(scenarioId));
-            model.addAttribute("allInfos", infoService.findByScenarioId(scenarioId));
-            List<String> infoNames = sceneInfoService.findBySceneId(sceneId).stream()
-                                                     .map(sceneInfo -> sceneInfo.getInfo().getName())
-                                                     .collect(Collectors.toList());
-            model.addAttribute("infoNames", infoNames);
+            // Part, Skill, BootyのリストをModelに追加
             model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
-            model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
             model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
-            model.addAttribute("sceneNpcs", sceneNpcService.findBySceneId(sceneId));
-            model.addAttribute("sceneInfos", sceneInfoService.findBySceneId(sceneId));
-            model.addAttribute("allSceneInfos", infoService.findByScenarioId(scenarioId)); // ここを修正
-            model.addAttribute("npcParts", npcPartService.findByNpcScenarioId(scenarioId));
-            model.addAttribute("npcSkills", npcSkillService.findByNpcScenarioId(scenarioId));
-            model.addAttribute("npcBootys", npcBootyService.findByNpcScenarioId(scenarioId));
-            model.addAttribute("allScenes", sceneService.findByScenario(scenario));
-            model.addAttribute("gmRoleId", roleService.findByRole("ROLE_GM").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GM Role not found")).getId());
-            model.addAttribute("plRoleId", roleService.findByRole("ROLE_PL").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PL Role not found")).getId());
+            model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
 
             // エラー情報を含むnpcFormをModelに追加
             model.addAttribute("npcForm", npcForm);
-            return "scenarios/scenes/edit";
+            return "npcs/create"; // テンプレート名を変更
         }
 
         npcForm.setScenarioId(scenarioId);

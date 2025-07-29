@@ -48,9 +48,9 @@ INSERT IGNORE INTO skills (id, scenario_id, name, content) VALUES (2, 2, 'ハッ
 INSERT IGNORE INTO skills (id, scenario_id, name, content) VALUES (3, 3, '応急手当', '自分や他人の傷を癒す。');
 
 -- bootys
-INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (1, 1, 6, 'ゴブリンの耳。換金アイテム。');
-INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (2, 1, 4, '魔法のポーション。ライフを回復する。');
-INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (3, 2, 10, '謎のデータチップ。');
+INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (1, 1, '2～6', 'ゴブリンの耳。換金アイテム。');
+INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (2, 1, '2～4', '魔法のポーション。ライフを回復する。');
+INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (3, 2, '7～10', '謎のデータチップ。');
 
 -- The following tables are join tables and do not have an 'id' column.
 -- They are not included in this modification.

@@ -26,7 +26,7 @@ public class Booty {
     private Scenario scenario;
 
     @Column(name = "dice_num")
-    private Integer diceNum;
+    private String diceNum;
 
     @Column(name = "content")
     private String content;

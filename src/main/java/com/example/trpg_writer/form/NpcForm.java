@@ -4,11 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List; // Listをインポート
+
 @Data
 public class NpcForm {
-    private Integer id; 
+    private Integer id; // 編集時に使用
 
-    @NotNull(message = "シナリオIDは必須です。") 
+    @NotNull(message = "シナリオIDは必須です。")
     private Integer scenarioId;
 
     @NotBlank(message = "名前は必須です。")
@@ -23,8 +26,8 @@ public class NpcForm {
     @NotBlank(message = "知覚は必須です。")
     private String perception;
 
-    @NotBlank(message = "反応は必須です。") 
-    private String position; 
+    @NotBlank(message = "反応は必須です。")
+    private String position;
 
     @NotNull(message = "穢れは必須です。")
     private Integer impurity;
@@ -35,28 +38,28 @@ public class NpcForm {
     @NotBlank(message = "生息地は必須です。")
     private String habitat;
 
-    @NotBlank(message = "知名度は必須です。") 
-    private String popularity; 
+    @NotBlank(message = "知名度は必須です。")
+    private String popularity;
 
-    private String weakness; 
+    private String weakness;
 
     @NotNull(message = "先制値は必須です。")
     private Integer preemptive;
 
     @NotBlank(message = "移動速度は必須です。")
-    private String movement; 
+    private String movement;
 
     @NotNull(message = "生命抵抗力は必須です。")
-    private Integer lifeResist; 
+    private Integer lifeResist;
 
     @NotNull(message = "精神抵抗力は必須です。")
-    private Integer mindResist; 
+    private Integer mindResist;
 
-    
+    // 説明
     private String description;
 
-    
-    private String attackMethod;
-    private String specialAbilities;
-    private String booty;
+    // 攻撃方法、特殊能力、戦利品は、IDのリストで保持するように変更
+    private List<Integer> partIds = new ArrayList<>(); // 攻撃方法・部位のIDリスト
+    private List<Integer> skillIds = new ArrayList<>(); // 特殊能力のIDリスト
+    private List<Integer> bootyIds = new ArrayList<>(); // 戦利品のIDリスト
 }

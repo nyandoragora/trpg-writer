@@ -6,14 +6,12 @@
         <div th:replace="~{fragment :: styles}"></div>
 
         <title>シーン編集ページ</title>
-        <meta name="_csrf" th:content="${_csrf.token}"/>
-        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
         <script th:src="@{'https://cdn.tiny.cloud/1/' + ${tinymceApiKey} + '/tinymce/6/tinymce.min.js'}" referrerpolicy="origin"></script>
     </head>
     <body th:data-tinymce-api-key="${tinymceApiKey}"
           th:data-update-url-template="@{/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER/update(scenarioId=${scenario.id})}"
-          th:data-store-url="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}"
-          th:data-npc-form-has-errors="${#fields.hasErrors('npcForm.*')}"> <!-- ここにデータ属性を追加 -->
+          th:data-store-url="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}">
+           <!-- ここにデータ属性を追加 -->
         <div class="trpg-wrapper">
            <div th:replace="~{fragment :: header}"></div>
 
@@ -76,9 +74,9 @@
                           <div class="tab-pane fade show active" id="npc" role="tabpanel" aria-labelledby="npc-tab">
                             <!-- NPC管理コンテンツ -->
                             <div class="mt-3">
-                              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#npcModal" th:data-scenario-id="${scenario.id}" th:data-scene-id="${scene.id}">
+                              <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/create(scenarioId=${scenario.id}, sceneId=${scene.id})}" class="btn btn-primary">
                                 NPCを追加
-                              </button>
+                              </a>
                             </div>
                             <p class="mt-3">NPCリストエリア（未実装）</p>
                           </div>
@@ -347,134 +345,7 @@
         <!-- Swiper -->
         <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
-        <!-- NPC Modal -->
-        <div class="modal fade" id="npcModal" tabindex="-1" aria-labelledby="npcModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl"> 
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="npcModalLabel">NPC作成</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="npcForm" th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/create(scenarioId=${scenario.id}, sceneId=${scene.id})}" th:object="${npcForm}" method="post">
-                            <input type="hidden" th:field="*{scenarioId}">
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label">名前</label>
-                                    <input type="text" id="name" th:field="*{name}" class="form-control" required>
-                                    <div th:errors="*{name}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="level" class="form-label">レベル</label>
-                                    <input type="number" id="level" th:field="*{level}" class="form-control" required>
-                                    <div th:errors="*{level}" class="text-danger"></div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label for="intelligence" class="form-label">知能</label>
-                                    <input type="text" id="intelligence" th:field="*{intelligence}" class="form-control" required>
-                                    <div th:errors="*{intelligence}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="perception" class="form-label">知覚</label>
-                                    <input type="text" id="perception" th:field="*{perception}" class="form-control" required>
-                                    <div th:errors="*{perception}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="position" class="form-label">反応</label>
-                                    <input type="text" id="position" th:field="*{position}" class="form-control" required>
-                                    <div th:errors="*{position}" class="text-danger"></div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="impurity" class="form-label">穢れ</label>
-                                    <input type="number" id="impurity" th:field="*{impurity}" class="form-control" required>
-                                    <div th:errors="*{impurity}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="language" class="form-label">言語</label>
-                                    <input type="text" id="language" th:field="*{language}" class="form-control" required>
-                                    <div th:errors="*{language}" class="text-danger"></div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="habitat" class="form-label">生息地</label>
-                                    <input type="text" id="habitat" th:field="*{habitat}" class="form-control" required>
-                                    <div th:errors="*{habitat}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="popularity" class="form-label">知名度</label>
-                                    <input type="text" id="popularity" th:field="*{popularity}" class="form-control" required>
-                                    <div th:errors="*{popularity}" class="text-danger"></div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="weakness" class="form-label">弱点</label>
-                                <input type="text" id="weakness" th:field="*{weakness}" class="form-control" required>
-                                <div th:errors="*{weakness}" class="text-danger"></div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label for="preemptive" class="form-label">先制値</label>
-                                    <input type="number" id="preemptive" th:field="*{preemptive}" class="form-control" required>
-                                    <div th:errors="*{preemptive}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="movement" class="form-label">移動速度</label>
-                                    <input type="text" id="movement" th:field="*{movement}" class="form-control" required>
-                                    <div th:errors="*{movement}" class="text-danger"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="lifeResist" class="form-label">生命抵抗力</label>
-                                    <input type="number" id="lifeResist" th:field="*{lifeResist}" class="form-control" required>
-                                    <div th:errors="*{lifeResist}" class="text-danger"></div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="mindResist" class="form-label">精神抵抗力</label>
-                                <input type="number" id="mindResist" th:field="*{mindResist}" class="form-control" required>
-                                <div th:errors="*{mindResist}" class="text-danger"></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="description" class="form-label">説明</label>
-                                <textarea id="description" th:field="*{description}" class="form-control" rows="3"></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="attackMethod" class="form-label">攻撃方法</label>
-                                <textarea id="attackMethod" th:field="*{attackMethod}" class="form-control" rows="3"></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="specialAbilities" class="form-label">特殊能力</label>
-                                <textarea id="specialAbilities" th:field="*{specialAbilities}" class="form-control" rows="3"></textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="booty" class="form-label">戦利品</label>
-                                <textarea id="booty" th:field="*{booty}" class="form-control" rows="3"></textarea>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">登録</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
 
         <script th:src="@{/js/scene-editor.js}"></script> <!-- scene-editor.jsを読み込む -->
     </body>

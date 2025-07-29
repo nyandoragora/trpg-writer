@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+
+    <div th:replace="~{fragment :: meta}"></div>
+    <div th:replace="~{fragment :: styles}"></div>
+
+    <title>NPC作成</title>
+
+</head>
+<body>
+    <div th:replace="~{fragment :: header}"></div>
+
+    <main class="container">
+        <h1>NPC作成</h1>
+
+        <form id="npcForm" th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/create(scenarioId=${npcForm.scenarioId}, sceneId=${sceneId})}" th:object="${npcForm}" method="post">
+            <input type="hidden" th:field="*{scenarioId}">
+
+            <!-- 基本情報セクション -->
+            <div class="card mb-4">
+                <div class="card-header">基本情報</div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">名前</label>
+                            <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="ゴブリン">
+                            <div th:errors="*{name}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="level" class="form-label">レベル</label>
+                            <input type="number" id="level" th:field="*{level}" class="form-control" placeholder="1">
+                            <div th:errors="*{level}" class="text-danger"></div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="intelligence" class="form-label">知能</label>
+                            <input type="text" id="intelligence" th:field="*{intelligence}" class="form-control" placeholder="低い">
+                            <div th:errors="*{intelligence}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="perception" class="form-label">知覚</label>
+                            <input type="text" id="perception" th:field="*{perception}" class="form-control" placeholder="五感">
+                            <div th:errors="*{perception}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="position" class="form-label">反応</label>
+                            <input type="text" id="position" th:field="*{position}" class="form-control" placeholder="敵対的">
+                            <div th:errors="*{position}" class="text-danger"></div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="impurity" class="form-label">穢れ</label>
+                            <input type="number" id="impurity" th:field="*{impurity}" class="form-control" placeholder="1">
+                            <div th:errors="*{impurity}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="language" class="form-label">言語</label>
+                            <input type="text" id="language" th:field="*{language}" class="form-control" placeholder="妖魔語">
+                            <div th:errors="*{language}" class="text-danger"></div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="habitat" class="form-label">生息地</label>
+                            <input type="text" id="habitat" th:field="*{habitat}" class="form-control" placeholder="森、山等">
+                            <div th:errors="*{habitat}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="popularity" class="form-label">知名度/弱点値</label>
+                            <input type="text" id="popularity" th:field="*{popularity}" class="form-control" placeholder="6/10">
+                            <div th:errors="*{popularity}" class="text-danger"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="weakness" class="form-label">弱点</label>
+                        <input type="text" id="weakness" th:field="*{weakness}" class="form-control" placeholder="魔法ダメージ+2点">
+                        <div th:errors="*{weakness}" class="text-danger"></div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="preemptive" class="form-label">先制値</label>
+                            <input type="number" id="preemptive" th:field="*{preemptive}" class="form-control" placeholder="8">
+                            <div th:errors="*{preemptive}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="movement" class="form-label">移動速度</label>
+                            <input type="text" id="movement" th:field="*{movement}" class="form-control" placeholder="5/－">
+                            <div th:errors="*{movement}" class="text-danger"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="lifeResist" class="form-label">生命抵抗力</label>
+                            <input type="number" id="lifeResist" th:field="*{lifeResist}" class="form-control" placeholder="2">
+                            <div th:errors="*{lifeResist}" class="text-danger"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mindResist" class="form-label">精神抵抗力</label>
+                        <input type="number" id="mindResist" th:field="*{mindResist}" class="form-control"  placeholder="2">
+                        <div th:errors="*{mindResist}" class="text-danger"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">説明</label>
+                        <textarea id="description" th:field="*{description}" class="form-control" rows="3" placeholder="NPCの詳細な説明を記述します"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 関連情報セクション -->
+            <div class="card mb-4">
+                <div class="card-header">関連情報</div>
+                <div class="card-body">
+                    <!-- 攻撃方法・部位 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>攻撃方法・部位</h5>
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPartModal">新規部位を追加</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="partsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>選択</th>
+                                        <th>部位名</th>
+                                        <th>命中力</th>
+                                        <th>打点</th>
+                                        <th>回避力</th>
+                                        <th>防護点</th>
+                                        <th>HP</th>
+                                        <th>MP</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="part : ${allParts}" th:id="'part-row-' + ${part.id}">
+                                        <td><input type="checkbox" name="partIds" th:value="${part.id}" th:checked="${#lists.contains(npcForm.partIds, part.id)}"></td>
+                                        <td th:text="${part.name}"></td>
+                                        <td th:text="${part.hit}"></td>
+                                        <td th:text="${part.damage}"></td>
+                                        <td th:text="${part.evasion}"></td>
+                                        <td th:text="${part.protection}"></td>
+                                        <td th:text="${part.lifePoint}"></td>
+                                        <td th:text="${part.magicPoint}"></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm delete-part-button" th:data-part-id="${part.id}">削除</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 特殊能力 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>特殊能力</h5>
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSkillModal">新規特殊能力を追加</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="skillsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>選択</th>
+                                        <th>能力名</th>
+                                        <th>内容</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="skill : ${allSkills}" th:id="'skill-row-' + ${skill.id}">
+                                        <td><input type="checkbox" name="skillIds" th:value="${skill.id}" th:checked="${#lists.contains(npcForm.skillIds, skill.id)}"></td>
+                                        <td th:text="${skill.name}"></td>
+                                        <td th:text="${skill.content}"></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm delete-skill-button" th:data-skill-id="${skill.id}">削除</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 戦利品 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>戦利品</h5>
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addBootyModal">新規戦利品を追加</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="bootysTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>選択</th>
+                                        <th>ダイス</th>
+                                        <th>内容</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="booty : ${allBootys}" th:id="'booty-row-' + ${booty.id}">
+                                        <td><input type="checkbox" name="bootyIds" th:value="${booty.id}" th:checked="${#lists.contains(npcForm.bootyIds, booty.id)}"></td>
+                                        <td th:text="${booty.diceNum}"></td>
+                                        <td th:text="${booty.content}"></td>
+                                        <td><button type="button" class="btn btn-danger btn-sm delete-booty-button" th:data-booty-id="${booty.id}">削除</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary me-2">登録</button>
+                <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${npcForm.scenarioId}, sceneId=${sceneId})}" class="btn btn-secondary">キャンセル</a>
+            </div>
+        </form>
+
+        <!-- Add Skill Modal -->
+        <div class="modal fade" id="addSkillModal" tabindex="-1" aria-labelledby="addSkillModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addSkillModalLabel">新規特殊能力の追加</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addSkillForm">
+                            <input type="hidden" id="modalSkillScenarioId" th:value="${npcForm.scenarioId}">
+                            <div class="alert alert-danger" id="skillErrorAlert" style="display: none;"></div>
+                            <div class="mb-3">
+                                <label for="skillName" class="form-label">能力名</label>
+                                <input type="text" id="skillName" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="skillContent" class="form-label">内容</label>
+                                <textarea id="skillContent" class="form-control" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-primary" id="saveSkillButton">登録</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Booty Modal -->
+        <div class="modal fade" id="addBootyModal" tabindex="-1" aria-labelledby="addBootyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addBootyModalLabel">新規戦利品の追加</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addBootyForm">
+                            <input type="hidden" id="modalBootyScenarioId" th:value="${npcForm.scenarioId}">
+                            <div class="alert alert-danger" id="bootyErrorAlert" style="display: none;"></div>
+                            <div class="mb-3">
+                                <label for="bootyDiceNum" class="form-label">ダイス</label>
+                                <input type="text" id="bootyDiceNum" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="bootyContent" class="form-label">内容</label>
+                                <textarea id="bootyContent" class="form-control" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-primary" id="saveBootyButton">登録</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Part Modal -->
+        <div class="modal fade" id="addPartModal" tabindex="-1" aria-labelledby="addPartModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addPartModalLabel">新規部位の追加</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addPartForm">
+                            <input type="hidden" id="modalScenarioId" th:value="${npcForm.scenarioId}">
+                            <div class="alert alert-danger" id="partErrorAlert" style="display: none;"></div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="partName" class="form-label">部位名</label>
+                                    <input type="text" id="partName" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="partHit" class="form-label">命中力</label>
+                                    <input type="number" id="partHit" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="partDamage" class="form-label">打点</label>
+                                    <input type="text" id="partDamage" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="partEvasion" class="form-label">回避力</label>
+                                    <input type="number" id="partEvasion" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="partProtection" class="form-label">防護点</label>
+                                    <input type="number" id="partProtection" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="partLifePoint" class="form-label">HP</label>
+                                    <input type="number" id="partLifePoint" class="form-control">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partMagicPoint" class="form-label">MP</label>
+                                <input type="number" id="partMagicPoint" class="form-control">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-primary" id="savePartButton">登録</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragment :: footer}"></div>
+    <div th:replace="~{fragment :: scripts}"></div>
+    <script th:src="@{/js/npc-create.js}"></script>
+</body>
+</html>

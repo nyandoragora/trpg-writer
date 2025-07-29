@@ -199,10 +199,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // NPCモーダルのバリデーションエラー表示
-    const npcFormHasErrors = body.getAttribute('data-npc-form-has-errors');
-    if (npcFormHasErrors === 'true') {
-        const npcModal = new bootstrap.Modal(document.getElementById('npcModal'), { keyboard: false });
-        npcModal.show();
-    }
+    
 });
