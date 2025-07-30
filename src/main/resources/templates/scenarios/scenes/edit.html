@@ -241,27 +241,6 @@
                             </div>
                           </div>
 
-                          <script th:inline="javascript">
-                            document.addEventListener('DOMContentLoaded', function() {
-                                var scenarioInfoModal = document.getElementById('scenarioInfoModal');
-                                if (scenarioInfoModal) {
-                                    scenarioInfoModal.addEventListener('show.bs.modal', function (event) {
-                                        var button = event.relatedTarget;
-                                        var infoName = button.getAttribute('data-info-name');
-                                        var infoContent = button.getAttribute('data-info-content');
-                                        var sceneEditUrl = button.getAttribute('data-scene-edit-url');
-    
-                                        var modalTitle = scenarioInfoModal.querySelector('.modal-title');
-                                        var modalContent = scenarioInfoModal.querySelector('#scenarioInfoModalContent');
-                                        var modalEditButton = scenarioInfoModal.querySelector('#scenarioInfoModalEditButton');
-    
-                                        modalTitle.textContent = infoName;
-                                        modalContent.textContent = infoContent;
-                                        modalEditButton.href = sceneEditUrl;
-                                    });
-                                }
-                            });
-                          </script>
                           <div class="tab-pane fade" id="background" role="tabpanel" aria-labelledby="background-tab">
                             <!-- 背景挿入コンテンツ -->
                             <div class="mt-3">
@@ -361,9 +340,24 @@
         <!-- Swiper -->
         <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
 
-        
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // ThymeleafからJSへデータを渡すための、純粋なデータオブジェクト
+            window.trpgWriterData = {
+                scenarioId: /*[[${scenario.id}]]*/ null,
+                sceneId: /*[[${scene.id}]]*/ null,
+                allNpcs: /*[[${allNpcs}]]*/ [],
+                allParts: /*[[${allParts}]]*/ [],
+                allSkills: /*[[${allSkills}]]*/ [],
+                allBootys: /*[[${allBootys}]]*/ []
+            };
+            /*]]>*/
+        </script>
 
-        <script th:src="@{/js/scene-editor.js}"></script> <!-- scene-editor.jsを読み込む -->
+        <!-- 専用のJSファイルを読み込む（scene-editor.jsが最初に読み込まれることが重要） -->
+        <script th:src="@{/js/scene-editor.js}"></script>
+        <script th:src="@{/js/info-handler.js}"></script>
+        <script th:src="@{/js/npc-handler.js}"></script>
 
         <!-- NPC Detail Modal -->
         <div class="modal fade" id="npcDetailModal" tabindex="-1" aria-labelledby="npcDetailModalLabel" aria-hidden="true">
@@ -402,135 +396,5 @@
                 </div>
             </div>
         </div>
-
-        <script th:inline="javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                const npcDetailModal = document.getElementById('npcDetailModal');
-                if (npcDetailModal) {
-                    npcDetailModal.addEventListener('show.bs.modal', function(event) {
-                        const button = event.relatedTarget;
-                        const npcId = button.getAttribute('data-npc-id');
-                        const modalBody = npcDetailModal.querySelector('.modal-body');
-                        modalBody.innerHTML = '<p>読み込み中...</p>'; // ローディング表示
-
-                        // allNpcs, allParts, allSkills, allBootysをJavaScript変数に変換
-                        const allNpcs = /*[[${allNpcs}]]*/ [];
-                        const allParts = /*[[${allParts}]]*/ [];
-                        const allSkills = /*[[${allSkills}]]*/ [];
-                        const allBootys = /*[[${allBootys}]]*/ [];
-
-                        const npc = allNpcs.find(n => n.id == npcId);
-
-                        // 削除処理用のイベントリスナーを設定
-                        const deleteNpcBtn = document.getElementById('deleteNpcBtn');
-                        const confirmNpcDeleteBtn = document.getElementById('confirmNpcDeleteBtn');
-                        const deleteNpcConfirmModal = new bootstrap.Modal(document.getElementById('deleteNpcConfirmModal'));
-
-                        // 削除ボタンクリックで確認モーダル表示
-                        deleteNpcBtn.onclick = () => {
-                            // npcIdを確定ボタンにセット
-                            confirmNpcDeleteBtn.setAttribute('data-npc-id-to-delete', npcId);
-                            deleteNpcConfirmModal.show();
-                        };
-
-                        // 確定ボタンクリックで削除実行
-                        confirmNpcDeleteBtn.onclick = async () => {
-                            const npcIdToDelete = confirmNpcDeleteBtn.getAttribute('data-npc-id-to-delete');
-                            if (npcIdToDelete) {
-                                const scenarioId = /*[[${scenario.id}]]*/ 0;
-                                const sceneId = /*[[${scene.id}]]*/ 0;
-                                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-                                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-                                try {
-                                    const response = await fetch(`/scenarios/${scenarioId}/scenes/${sceneId}/npcs/${npcIdToDelete}/delete`, {
-                                        method: 'POST',
-                                        headers: {
-                                            [csrfHeader]: csrfToken
-                                        }
-                                    });
-
-                                    if (response.ok) {
-                                        window.location.reload();
-                                    } else {
-                                        alert('NPCの削除に失敗しました。');
-                                    }
-                                } catch (error) {
-                                    console.error('Error:', error);
-                                    alert('エラーが発生しました。');
-                                }
-                            }
-                        };
-
-                        if (npc) {
-                            let content = `
-                                <h4>${npc.name} (Lv: ${npc.level})</h4>
-                                <p><strong>説明:</strong> ${npc.description || 'なし'}</p>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-md-6"><strong>知能:</strong> ${npc.intelligence}</div>
-                                    <div class="col-md-6"><strong>知覚:</strong> ${npc.perception}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6"><strong>反応:</strong> ${npc.position}</div>
-                                    <div class="col-md-6"><strong>穢れ:</strong> ${npc.impurity}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6"><strong>言語:</strong> ${npc.language}</div>
-                                    <div class="col-md-6"><strong>生息地:</strong> ${npc.habitat}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6"><strong>知名度/弱点値:</strong> ${npc.popularity}</div>
-                                    <div class="col-md-6"><strong>弱点:</strong> ${npc.weakness}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4"><strong>先制値:</strong> ${npc.preemptive}</div>
-                                    <div class="col-md-4"><strong>移動速度:</strong> ${npc.movement}</div>
-                                    <div class="col-md-4"><strong>生命抵抗力:</strong> ${npc.lifeResist}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4"><strong>精神抵抗力:</strong> ${npc.mindResist}</div>
-                                </div>
-                                <hr>
-                            `;
-
-                            // 部位
-                            const parts = allParts.filter(p => npc.partIds.includes(p.id));
-                            if(parts.length > 0) {
-                                content += '<h5>部位・攻撃方法</h5><table class="table table-sm"><thead><tr><th>部位名</th><th>命中力</th><th>打点</th><th>回避力</th><th>防護点</th><th>HP</th><th>MP</th></tr></thead><tbody>';
-                                parts.forEach(part => {
-                                    content += `<tr><td>${part.name}</td><td>${part.hit}</td><td>${part.damage}</td><td>${part.evasion}</td><td>${part.protection}</td><td>${part.lifePoint}</td><td>${part.magicPoint}</td></tr>`;
-                                });
-                                content += '</tbody></table>';
-                            }
-
-                            // 特殊能力
-                            const skills = allSkills.filter(s => npc.skillIds.includes(s.id));
-                            if(skills.length > 0) {
-                                content += '<h5>特殊能力</h5><table class="table table-sm"><thead><tr><th>能力名</th><th>内容</th></tr></thead><tbody>';
-                                skills.forEach(skill => {
-                                    content += `<tr><td>${skill.name}</td><td>${skill.content}</td></tr>`;
-                                });
-                                content += '</tbody></table>';
-                            }
-
-                            // 戦利品
-                            const bootys = allBootys.filter(b => npc.bootyIds.includes(b.id));
-                            if(bootys.length > 0) {
-                                content += '<h5>戦利品</h5><table class="table table-sm"><thead><tr><th>ダイス</th><th>内容</th></tr></thead><tbody>';
-                                bootys.forEach(booty => {
-                                    content += `<tr><td>${booty.diceNum}</td><td>${booty.content}</td></tr>`;
-                                });
-                                content += '</tbody></table>';
-                            }
-
-                            modalBody.innerHTML = content;
-                        } else {
-                            modalBody.innerHTML = '<p>NPC情報が見つかりませんでした。</p>';
-                        }
-                    });
-                }
-            });
-        </script>
     </body>
 </html>
