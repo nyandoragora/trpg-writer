@@ -54,4 +54,9 @@ public class NpcService {
 
         return npcRepository.save(npc);
     }
+
+    @Transactional
+    public void delete(Integer id) {
+        npcRepository.deleteById(id);
+    }
 }

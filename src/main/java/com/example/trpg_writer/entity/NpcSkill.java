@@ -1,5 +1,7 @@
 package com.example.trpg_writer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -16,6 +18,7 @@ public class NpcSkill {
     @Id
     @ManyToOne
     @JoinColumn(name = "npc_id")
+    @JsonIgnore
     private Npc npc;
 
     @Id

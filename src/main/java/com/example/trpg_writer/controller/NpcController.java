@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.example.trpg_writer.entity.Npc;
 import com.example.trpg_writer.entity.Scenario;
@@ -105,5 +106,11 @@ public class NpcController {
 
         redirectAttributes.addFlashAttribute("successMessage", "NPCを登録しました。");
         return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit";
+    }
+
+    @PostMapping("/{npcId}/delete")
+    public ResponseEntity<Void> delete(@PathVariable("npcId") Integer npcId) {
+        npcService.delete(npcId);
+        return ResponseEntity.ok().build();
     }
 }

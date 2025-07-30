@@ -1,7 +1,10 @@
 package com.example.trpg_writer.entity;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,12 +12,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "npcs")
 @Data
+@ToString(exclude = {"parts", "skills", "bootys"})
 public class Npc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,4 +81,34 @@ public class Npc {
 
     @Column(name = "updated_at", insertable = false, updatable = false)
     private Timestamp updatedAt;
+
+    @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NpcPart> parts;
+
+    @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NpcSkill> skills;
+
+    @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NpcBooty> bootys;
+
+    public List<Integer> getPartIds() {
+        if (parts == null) {
+            return List.of();
+        }
+        return parts.stream().map(p -> p.getPart().getId()).collect(Collectors.toList());
+    }
+
+    public List<Integer> getSkillIds() {
+        if (skills == null) {
+            return List.of();
+        }
+        return skills.stream().map(s -> s.getSkill().getId()).collect(Collectors.toList());
+    }
+
+    public List<Integer> getBootyIds() {
+        if (bootys == null) {
+            return List.of();
+        }
+        return bootys.stream().map(b -> b.getBooty().getId()).collect(Collectors.toList());
+    }
 }
