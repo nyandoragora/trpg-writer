@@ -92,8 +92,10 @@ public class NpcController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
     }
 
-    @PostMapping("/npcs/{npcId}/delete")
-    public ResponseEntity<Void> delete(@PathVariable("npcId") Integer npcId) {
+    @PostMapping("/scenes/{sceneId}/npcs/{npcId}/delete")
+    public ResponseEntity<Void> delete(@PathVariable("scenarioId") Integer scenarioId,
+                                     @PathVariable("sceneId") Integer sceneId,
+                                     @PathVariable("npcId") Integer npcId) {
         npcService.delete(npcId);
         return ResponseEntity.ok().build();
     }
