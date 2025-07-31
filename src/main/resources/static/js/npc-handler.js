@@ -177,6 +177,51 @@ document.addEventListener('DOMContentLoaded', function() {
             window.trpgWriter.isFormDirty = false; // 変更を破棄
             await deleteNpcAction(npcIdToDelete);
         });
+    document.querySelectorAll('.add-npc-to-scene-btn').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const npcId = event.currentTarget.getAttribute('data-npc-id');
+                const { scenarioId, sceneId } = window.trpgWriter.data;
+                
+                try {
+                    const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/npcs/${npcId}/add`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        // 成功したらページをリロードして変更を反映
+                        window.location.reload();
+                    } else {
+                        alert('NPCのシーンへの追加に失敗しました。');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました。');
+                }
+            });
+        });
+
+        document.querySelectorAll('.remove-npc-from-scene-btn').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const sceneNpcId = event.currentTarget.getAttribute('data-scene-npc-id');
+                const { scenarioId, sceneId } = window.trpgWriter.data;
+
+                try {
+                    const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/scene-npcs/${sceneNpcId}/remove`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        // 成功したらページをリロードして変更を反映
+                        window.location.reload();
+                    } else {
+                        alert('NPCのシーンからの削除に失敗しました。');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました。');
+                }
+            });
+        });
     }
 });
 

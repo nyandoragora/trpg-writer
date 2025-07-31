@@ -102,10 +102,10 @@ CREATE TABLE IF NOT EXISTS bootys (
 );
 
 CREATE TABLE IF NOT EXISTS scene_npcs (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     scene_id INT NOT NULL,
     npc_id INT NOT NULL,
     appearance_notes TEXT,
-    PRIMARY KEY (scene_id, npc_id),
     FOREIGN KEY (scene_id) REFERENCES scenes(id),
     FOREIGN KEY (npc_id) REFERENCES npcs(id)
 );

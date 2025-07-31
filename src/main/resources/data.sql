@@ -56,9 +56,9 @@ INSERT IGNORE INTO bootys (id, scenario_id, dice_num, content) VALUES (3, 2, '7�
 -- They are not included in this modification.
 
 -- scene_npcs
-INSERT IGNORE INTO scene_npcs (scene_id, npc_id, appearance_notes) VALUES (1, 1, '城門を守っている。');
-INSERT IGNORE INTO scene_npcs (scene_id, npc_id, appearance_notes) VALUES (2, 2, '玉座の間に潜んでいる。');
-INSERT IGNORE INTO scene_npcs (scene_id, npc_id, appearance_notes) VALUES (3, 3, 'バーのカウンターに座っている。');
+INSERT IGNORE INTO scene_npcs (id, scene_id, npc_id, appearance_notes) VALUES (1, 1, 1, '城門を守っている。');
+INSERT IGNORE INTO scene_npcs (id, scene_id, npc_id, appearance_notes) VALUES (2, 2, 2, '玉座の間に潜んでいる。');
+INSERT IGNORE INTO scene_npcs (id, scene_id, npc_id, appearance_notes) VALUES (3, 3, 3, 'バーのカウンターに座っている。');
 
 -- scene_infos
 INSERT IGNORE INTO scene_infos (scene_id, info_id, display_condition) VALUES (1, 1, '城門を調べるとわかる。');
