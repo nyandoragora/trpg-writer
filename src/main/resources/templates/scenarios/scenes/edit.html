@@ -61,6 +61,9 @@
                             <button class="nav-link active" id="npc-tab" data-bs-toggle="tab" data-bs-target="#npc" type="button" role="tab" aria-controls="npc" aria-selected="true">NPC</button>
                           </li>
                           <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="scene-npc-tab" data-bs-toggle="tab" data-bs-target="#scene-npc" type="button" role="tab" aria-controls="scene-npc" aria-selected="false">シーン内NPC</button>
+                          </li>
+                          <li class="nav-item" role="presentation">
                             <button class="nav-link" id="scenario-info-tab" data-bs-toggle="tab" data-bs-target="#scenario-info" type="button" role="tab" aria-controls="scenario-info" aria-selected="false">シナリオ内情報</button>
                           </li>
                           <li class="nav-item" role="presentation">
@@ -94,6 +97,11 @@
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                          </div>
+                          <div class="tab-pane fade" id="scene-npc" role="tabpanel" aria-labelledby="scene-npc-tab">
+                            <div class="mt-3">
+                              <p>ここに、このシーンに登場するNPCを管理する��能が入ります。</p>
                             </div>
                           </div>
                           <div class="tab-pane fade" id="scenario-info" role="tabpanel" aria-labelledby="scenario-info-tab">
@@ -282,20 +290,7 @@
                       </div>
                     </div>
 
-                    <div class="card mb-4">
-                      <div class="card-header">シーンに紐づく情報</div>
-                      <div class="card-body">
-                        <p>情報リストエリア（未実装）</p>
-                      </div>
                     </div>
-
-                    <div class="card">
-                      <div class="card-header">シーンに紐づくNPC</div>
-                      <div class="card-body">
-                        <p>NPCリストエリア（未実装）</p>
-                      </div>
-                    </div>
-                  </div>
 
                   <!-- Rightmost Pane: Scene List -->
                   <div class="col-lg-2">
@@ -388,13 +383,41 @@
                     </div>
                     <div class="modal-body">
                         <p>本当にこのNPCを削除しますか？<br>この操作は元に戻せません。</p>
+                        <div id="deleteNpcUnsavedWarning" class="alert alert-warning" style="display: none;">
+                            注意：シーン本文に未保存の変更があります。
+                        </div>
                     </div>
                     <div class="modal-footer">
+                        <!-- 通常時 -->
                         <button type="button" class="btn btn-danger" id="confirmNpcDeleteBtn">はい、削除します</button>
+                        <!-- 変更あり時 -->
+                        <button type="button" class="btn btn-success" id="saveAndNpcDeleteBtn" style="display: none;">本文を保存して削除</button>
+                        <button type="button" class="btn btn-warning" id="discardAndNpcDeleteBtn" style="display: none;">本文を破棄して削除</button>
+                        
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
                     </div>
                 </div>
             </div>
         </div>
+    <!-- Unsaved Changes Modal -->
+        <div class="modal fade" id="unsavedChangesModal" tabindex="-1" aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="unsavedChangesModalLabel">未保存の変更があります</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>本文が変更されています。ページを移動する前に保存しますか？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="saveAndNavigateBtn">保存して移動</button>
+                        <button type="button" class="btn btn-warning" id="discardAndNavigateBtn">変更を破棄して移動</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </body>
 </html>

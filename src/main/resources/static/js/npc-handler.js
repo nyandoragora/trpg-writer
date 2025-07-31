@@ -91,16 +91,38 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('deleteNpcBtn').addEventListener('click', (event) => {
             const npcId = event.currentTarget.getAttribute('data-npc-id-to-delete');
             const confirmBtn = document.getElementById('confirmNpcDeleteBtn');
+            const saveAndNpcDeleteBtn = document.getElementById('saveAndNpcDeleteBtn');
+            const discardAndNpcDeleteBtn = document.getElementById('discardAndNpcDeleteBtn');
+            const warningDiv = document.getElementById('deleteNpcUnsavedWarning');
+
             confirmBtn.setAttribute('data-npc-id-to-delete', npcId);
+            saveAndNpcDeleteBtn.setAttribute('data-npc-id-to-delete', npcId);
+            discardAndNpcDeleteBtn.setAttribute('data-npc-id-to-delete', npcId);
+
+            if (window.trpgWriter.isFormDirty) {
+                // 変更がある場合
+                warningDiv.style.display = 'block';
+                confirmBtn.style.display = 'none';
+                saveAndNpcDeleteBtn.style.display = 'inline-block';
+                discardAndNpcDeleteBtn.style.display = 'inline-block';
+            } else {
+                // 変更がない場合
+                warningDiv.style.display = 'none';
+                confirmBtn.style.display = 'inline-block';
+                saveAndNpcDeleteBtn.style.display = 'none';
+                discardAndNpcDeleteBtn.style.display = 'none';
+            }
+
             deleteNpcConfirmModal.show();
         });
 
-        document.getElementById('confirmNpcDeleteBtn').addEventListener('click', async (event) => {
-            const npcIdToDelete = event.currentTarget.getAttribute('data-npc-id-to-delete');
+        // 削除処理を共通化
+        const deleteNpcAction = async (npcIdToDelete) => {
             if (npcIdToDelete) {
-                const { scenarioId, sceneId } = data;
                 try {
-                    const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/npcs/${npcIdToDelete}/delete`, {
+                    // 実行時の最新のグローバルデータを参照する
+                    const { scenarioId, sceneId } = window.trpgWriter.data;
+                    const response = await window.trpgWriter.fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/npcs/${npcIdToDelete}/delete`, {
                         method: 'POST'
                     });
 
@@ -114,6 +136,46 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert('エラーが発生しました。');
                 }
             }
+        };
+
+        // 通常の削除ボタン
+        document.getElementById('confirmNpcDeleteBtn').addEventListener('click', async (event) => {
+            const npcIdToDelete = event.currentTarget.getAttribute('data-npc-id-to-delete');
+            await deleteNpcAction(npcIdToDelete);
+        });
+
+        // 保存して削除ボタン
+        document.getElementById('saveAndNpcDeleteBtn').addEventListener('click', async (event) => {
+            const npcIdToDelete = event.currentTarget.getAttribute('data-npc-id-to-delete'); // 先にIDを取得
+            const form = window.trpgWriter.sceneEditForm;
+            if (form) {
+                tinymce.get('sceneContent').save();
+                const formData = new FormData(form);
+                
+                try {
+                    const response = await window.trpgWriter.fetchWithCsrf(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        window.trpgWriter.isFormDirty = false;
+                        await deleteNpcAction(npcIdToDelete);
+                    } else {
+                        alert('本文の保存に失敗しました。');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました。');
+                }
+            }
+        });
+
+        // 破棄して削除ボタン
+        document.getElementById('discardAndNpcDeleteBtn').addEventListener('click', async (event) => {
+            const npcIdToDelete = event.currentTarget.getAttribute('data-npc-id-to-delete'); // 先にIDを取得
+            window.trpgWriter.isFormDirty = false; // 変更を破棄
+            await deleteNpcAction(npcIdToDelete);
         });
     }
 });

@@ -64,4 +64,63 @@ document.addEventListener('DOMContentLoaded', function() {
             e.returnValue = '';
         }
     });
+
+    // 未保存時のナビゲーション警告モーダル処理
+    const unsavedChangesModalElement = document.getElementById('unsavedChangesModal');
+    if (unsavedChangesModalElement) {
+        const unsavedChangesModal = new bootstrap.Modal(unsavedChangesModalElement);
+        let targetUrl = null; // 移動先のURLを保持する変数
+
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function (e) {
+                // 外部リンクや特殊なリンクは対象外
+                if (link.target === '_blank' || link.href.startsWith('javascript:') || link.href.includes('#')) {
+                    return;
+                }
+                if (window.trpgWriter.isFormDirty) {
+                    e.preventDefault();
+                    targetUrl = link.href;
+                    unsavedChangesModal.show();
+                }
+            });
+        });
+
+        document.getElementById('saveAndNavigateBtn').addEventListener('click', async () => {
+            const form = window.trpgWriter.sceneEditForm;
+            if (form) {
+                // TinyMCEのコンテンツをtextareaに反映
+                tinymce.get('sceneContent').save();
+                
+                const formData = new FormData(form);
+                
+                try {
+                    const response = await window.trpgWriter.fetchWithCsrf(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        window.trpgWriter.isFormDirty = false; // 保存成功したのでフラグを下ろす
+                        if (targetUrl) {
+                            window.location.href = targetUrl;
+                        }
+                    } else {
+                        alert('保存に失敗しました。');
+                        unsavedChangesModal.hide();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました。');
+                    unsavedChangesModal.hide();
+                }
+            }
+        });
+
+        document.getElementById('discardAndNavigateBtn').addEventListener('click', () => {
+            window.trpgWriter.isFormDirty = false; // 変更を破棄するのでフラグを下ろす
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
+    }
 });
