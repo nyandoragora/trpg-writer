@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title th:text="${scenario.title}"></title>
     <style>
         @font-face {
@@ -50,7 +50,7 @@
 </head>
 <body>
     <h1 class="scenario-title" th:text="${scenario.title}"></h1>
-    <p class="scenario-description" th:text="${scenario.description}"></p>
+    <p class="scenario-description" th:text="${scenario.introduction}"></p>
 
     <div th:each="scene : ${scenes}" class="scene">
         <h2 class="scene-title" th:text="${scene.title}"></h2>
