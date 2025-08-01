@@ -177,48 +177,63 @@ document.addEventListener('DOMContentLoaded', function() {
             window.trpgWriter.isFormDirty = false; // 変更を破棄
             await deleteNpcAction(npcIdToDelete);
         });
-    document.querySelectorAll('.add-npc-to-scene-btn').forEach(button => {
-            button.addEventListener('click', async (event) => {
-                const npcId = event.currentTarget.getAttribute('data-npc-id');
-                const { scenarioId, sceneId } = window.trpgWriter.data;
-                
-                try {
-                    const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/npcs/${npcId}/add`, {
-                        method: 'POST'
-                    });
 
-                    if (response.ok) {
-                        // 成功したらページをリロードして変更を反映
-                        window.location.reload();
-                    } else {
-                        alert('NPCのシーンへの追加に失敗しました。');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('エラーが発生しました。');
+        // シーンにNPCを追加する処理
+        const addNpcToSceneAction = async (npcId) => {
+            const { scenarioId, sceneId } = window.trpgWriter.data;
+            try {
+                const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/npcs/${npcId}/add`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('NPCのシーンへの追加に失敗しました。');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('エラーが発生しました。');
+            }
+        };
+
+        // シーンからNPCを削除する処理
+        const removeNpcFromSceneAction = async (sceneNpcId) => {
+            const { scenarioId, sceneId } = window.trpgWriter.data;
+            try {
+                const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/scene-npcs/${sceneNpcId}/remove`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('NPCのシーンからの削除に失敗しました。');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('エラーが発生しました。');
+            }
+        };
+
+        // 「シーンに追加」ボタンのイベントリスナー
+        document.querySelectorAll('.add-npc-to-scene-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const npcId = event.currentTarget.getAttribute('data-npc-id');
+                if (window.trpgWriter.isFormDirty) {
+                    window.trpgWriter.showUnsavedChangesModal(() => addNpcToSceneAction(npcId));
+                } else {
+                    addNpcToSceneAction(npcId);
                 }
             });
         });
 
+        // 「削除」ボタン（シーン内NPCリスト）のイベントリスナー
         document.querySelectorAll('.remove-npc-from-scene-btn').forEach(button => {
-            button.addEventListener('click', async (event) => {
+            button.addEventListener('click', (event) => {
                 const sceneNpcId = event.currentTarget.getAttribute('data-scene-npc-id');
-                const { scenarioId, sceneId } = window.trpgWriter.data;
-
-                try {
-                    const response = await fetchWithCsrf(`/scenarios/${scenarioId}/scenes/${sceneId}/scene-npcs/${sceneNpcId}/remove`, {
-                        method: 'POST'
-                    });
-
-                    if (response.ok) {
-                        // 成功したらページをリロードして変更を反映
-                        window.location.reload();
-                    } else {
-                        alert('NPCのシーンからの削除に失敗しました。');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('エラーが発生しました。');
+                if (window.trpgWriter.isFormDirty) {
+                    window.trpgWriter.showUnsavedChangesModal(() => removeNpcFromSceneAction(sceneNpcId));
+                } else {
+                    removeNpcFromSceneAction(sceneNpcId);
                 }
             });
         });

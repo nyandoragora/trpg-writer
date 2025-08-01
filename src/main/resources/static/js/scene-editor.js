@@ -68,19 +68,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // 未保存時のナビゲーション警告モーダル処理
     const unsavedChangesModalElement = document.getElementById('unsavedChangesModal');
     if (unsavedChangesModalElement) {
-        const unsavedChangesModal = new bootstrap.Modal(unsavedChangesModalElement);
+        window.trpgWriter.unsavedChangesModal = new bootstrap.Modal(unsavedChangesModalElement);
         let targetUrl = null; // 移動先のURLを保持する変数
+        let actionCallback = null; // リンク遷移以外の操作（NPC追加など）のためのコールバック
+
+        // モーダルを表示するグローバル関数を定義
+        window.trpgWriter.showUnsavedChangesModal = (callback) => {
+            actionCallback = callback;
+            window.trpgWriter.unsavedChangesModal.show();
+        };
 
         document.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', function (e) {
-                // 外部リンクや特殊なリンクは対象外
                 if (link.target === '_blank' || link.href.startsWith('javascript:') || link.href.includes('#')) {
                     return;
                 }
                 if (window.trpgWriter.isFormDirty) {
                     e.preventDefault();
                     targetUrl = link.href;
-                    unsavedChangesModal.show();
+                    actionCallback = () => { window.location.href = targetUrl; }; // リンク遷移をコールバックとして設定
+                    window.trpgWriter.unsavedChangesModal.show();
                 }
             });
         });
@@ -88,9 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('saveAndNavigateBtn').addEventListener('click', async () => {
             const form = window.trpgWriter.sceneEditForm;
             if (form) {
-                // TinyMCEのコンテンツをtextareaに反映
                 tinymce.get('sceneContent').save();
-                
                 const formData = new FormData(form);
                 
                 try {
@@ -100,27 +105,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     if (response.ok) {
-                        window.trpgWriter.isFormDirty = false; // 保存成功したのでフラグを下ろす
-                        if (targetUrl) {
-                            window.location.href = targetUrl;
+                        window.trpgWriter.isFormDirty = false;
+                        if (actionCallback) {
+                            actionCallback();
                         }
                     } else {
                         alert('保存に失敗しました。');
-                        unsavedChangesModal.hide();
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     alert('エラーが発生しました。');
-                    unsavedChangesModal.hide();
+                } finally {
+                    window.trpgWriter.unsavedChangesModal.hide();
                 }
             }
         });
 
         document.getElementById('discardAndNavigateBtn').addEventListener('click', () => {
-            window.trpgWriter.isFormDirty = false; // 変更を破棄するのでフラグを下ろす
-            if (targetUrl) {
-                window.location.href = targetUrl;
+            window.trpgWriter.isFormDirty = false;
+            if (actionCallback) {
+                actionCallback();
             }
+            window.trpgWriter.unsavedChangesModal.hide();
         });
     }
 });
