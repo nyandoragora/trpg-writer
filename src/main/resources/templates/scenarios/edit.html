@@ -29,10 +29,13 @@
 
                     <h3 class="mb-3">シーン一覧</h3>
 
-                    <!-- New Scene Button -->
-                    <div class="d-grid gap-2 mb-4">
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
                         <a th:href="@{/scenarios/{scenarioId}/scenes/create(scenarioId=${scenario.id})}" class="btn btn-primary btn-lg">
                             <i class="fas fa-plus-circle me-2"></i>新しいシーンを追加する
+                        </a>
+                        <a th:href="@{/scenarios/{id}/pdf(id=${scenario.id})}" class="btn btn-success btn-lg" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i>PDFをダウンロード
                         </a>
                     </div>
 

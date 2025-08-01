@@ -11,5 +11,6 @@ import com.example.trpg_writer.entity.Scenario;
 
 public interface SceneRepository extends JpaRepository<Scene, Integer> {
     Page<Scene> findByScenarioOrderByCreatedAtAsc(Scenario scenario , Pageable pageable);
+    List<Scene> findByScenarioOrderByCreatedAtAsc(Scenario scenario);
     List<Scene> findByScenario(Scenario scenario);
 }

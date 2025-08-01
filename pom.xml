@@ -96,6 +96,13 @@
             <artifactId>jsoup</artifactId>
             <version>1.21.1</version>
         </dependency>
+
+        <!-- Flying Saucer with OpenPDF for PDF Generation -->
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf-openpdf</artifactId>
+            <version>9.1.22</version>
+        </dependency>
 	</dependencies>
 
 	<build>

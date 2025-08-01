@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${scenario.title}"></title>
+    <style>
+        @font-face {
+            font-family: 'HannariMincho';
+            src: url('/fonts/HannariMincho-Regular.otf') format('opentype');
+            -fs-pdf-font-embed: embed;
+            -fs-pdf-font-encoding: Identity-H;
+        }
+        body {
+            font-family: 'HannariMincho', sans-serif;
+            line-height: 1.6;
+        }
+        .scenario-title {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .scenario-description {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+        .scene {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+        .scene-title {
+            font-size: 1.8em;
+            color: #444;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .scene-content {
+            margin-top: 10px;
+        }
+        .scene-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="scenario-title" th:text="${scenario.title}"></h1>
+    <p class="scenario-description" th:text="${scenario.description}"></p>
+
+    <div th:each="scene : ${scenes}" class="scene">
+        <h2 class="scene-title" th:text="${scene.title}"></h2>
+        <div class="scene-content" th:utext="${scene.content}"></div>
+    </div>
+</body>
+</html>

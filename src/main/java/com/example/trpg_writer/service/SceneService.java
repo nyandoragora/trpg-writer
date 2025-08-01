@@ -112,6 +112,10 @@ public class SceneService {
         return sceneRepository.findByScenarioOrderByCreatedAtAsc(scenario , pageable);
     }
 
+    public List<Scene> findByScenarioOrderByCreatedAtAsc(Scenario scenario) {
+        return sceneRepository.findByScenarioOrderByCreatedAtAsc(scenario);
+    }
+
     public List<Scene> findByScenario(Scenario scenario) {
         return sceneRepository.findByScenario(scenario);
     }
