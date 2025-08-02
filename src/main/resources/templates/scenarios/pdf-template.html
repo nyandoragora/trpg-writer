@@ -12,10 +12,20 @@
     <div th:each="scene : ${scenes}" class="scene">
         <h2 class="scene-title" th:text="${scene.title}"></h2>
         <div class="scene-content" th:utext="${scene.content}"></div>
+
         <!-- GM Info Section -->
         <div th:if="${scene.gmInfo != null and !scene.gmInfo.isEmpty()}" class="gm-info">
             <h4>GM向け情報</h4>
             <p th:text="${scene.gmInfo}"></p>
+        </div>
+
+        <!-- Scene Infos Section -->
+        <div th:if="${sceneInfosMap.containsKey(scene.id) and !sceneInfosMap.get(scene.id).isEmpty()}" class="scene-info-section">
+            <h4>シーン内情報</h4>
+            <div th:each="info : ${sceneInfosMap.get(scene.id)}" class="info-card">
+                <h5 class="info-title" th:text="${info.name}"></h5>
+                <p class="info-content" th:text="${info.content}"></p>
+            </div>
         </div>
     </div>
 </body>

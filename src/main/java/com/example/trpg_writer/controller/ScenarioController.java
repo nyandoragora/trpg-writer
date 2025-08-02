@@ -3,6 +3,8 @@ package com.example.trpg_writer.controller;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import com.example.trpg_writer.entity.Info;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.entity.User;
@@ -33,6 +36,7 @@ import com.example.trpg_writer.form.ScenarioForm;
 import com.example.trpg_writer.security.UserDetailsImpl;
 import com.example.trpg_writer.service.PdfService;
 import com.example.trpg_writer.service.ScenarioService;
+import com.example.trpg_writer.service.SceneInfoService;
 import com.example.trpg_writer.service.SceneService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +50,7 @@ public class ScenarioController {
     private final SceneService sceneService;
     private final PdfService pdfService;
     private final TemplateEngine templateEngine;
+    private final SceneInfoService sceneInfoService;
 
     @GetMapping("/create")
     public String create(@ModelAttribute ScenarioForm scenarioForm) {
@@ -86,9 +91,19 @@ public class ScenarioController {
         
         List<Scene> scenes = sceneService.findByScenarioOrderByCreatedAtAsc(scenario);
 
+        // Fetch scene-specific infos
+        Map<Integer, List<Info>> sceneInfosMap = scenes.stream()
+            .collect(Collectors.toMap(
+                Scene::getId,
+                scene -> sceneInfoService.findBySceneId(scene.getId()).stream()
+                                        .map(si -> si.getInfo())
+                                        .collect(Collectors.toList())
+            ));
+
         Context context = new Context();
         context.setVariable("scenario", scenario);
         context.setVariable("scenes", scenes);
+        context.setVariable("sceneInfosMap", sceneInfosMap);
 
         String html = templateEngine.process("scenarios/pdf-template", context);
         byte[] pdf = pdfService.generatePdfFromHtml(html);
