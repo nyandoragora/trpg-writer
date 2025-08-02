@@ -29,12 +29,16 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import com.example.trpg_writer.entity.Info;
+import com.example.trpg_writer.entity.Npc;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.entity.SceneInfo;
+import com.example.trpg_writer.entity.SceneNpc;
 import com.example.trpg_writer.entity.User;
 import com.example.trpg_writer.form.ScenarioForm;
+import com.example.trpg_writer.repository.SceneNpcRepository;
 import com.example.trpg_writer.security.UserDetailsImpl;
+import com.example.trpg_writer.service.NpcService;
 import com.example.trpg_writer.service.PdfService;
 import com.example.trpg_writer.service.ScenarioService;
 import com.example.trpg_writer.service.SceneInfoService;
@@ -52,6 +56,8 @@ public class ScenarioController {
     private final PdfService pdfService;
     private final TemplateEngine templateEngine;
     private final SceneInfoService sceneInfoService;
+    private final NpcService npcService;
+    private final SceneNpcRepository sceneNpcRepository;
 
     @GetMapping("/create")
     public String create(@ModelAttribute ScenarioForm scenarioForm) {
@@ -104,11 +110,27 @@ public class ScenarioController {
         // Fetch all scene infos for the summary page
         List<SceneInfo> allSceneInfos = sceneInfoService.findByScenarioId(id);
 
+        // Fetch all unique NPCs for the NPC summary page
+        List<Npc> allNpcs = npcService.findUniqueNpcsByScenarioId(id);
+
+        // Fetch all scene-npc relations to count NPCs per scene
+        List<SceneNpc> allSceneNpcs = sceneNpcRepository.findByScene_ScenarioId(id);
+        Map<Integer, Map<Npc, Long>> sceneNpcCountMap = allSceneNpcs.stream()
+            .collect(Collectors.groupingBy(
+                sceneNpc -> sceneNpc.getScene().getId(),
+                Collectors.groupingBy(
+                    SceneNpc::getNpc,
+                    Collectors.counting()
+                )
+            ));
+
         Context context = new Context();
         context.setVariable("scenario", scenario);
         context.setVariable("scenes", scenes);
         context.setVariable("sceneInfosMap", sceneInfosMap);
         context.setVariable("allSceneInfos", allSceneInfos);
+        context.setVariable("allNpcs", allNpcs);
+        context.setVariable("sceneNpcCountMap", sceneNpcCountMap);
 
         String html = templateEngine.process("scenarios/pdf-template", context);
         byte[] pdf = pdfService.generatePdfFromHtml(html);

@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SceneNpcRepository extends JpaRepository<SceneNpc, Long> {
     List<SceneNpc> findBySceneId(Integer sceneId);
+    List<SceneNpc> findByScene_ScenarioId(Integer scenarioId);
 }

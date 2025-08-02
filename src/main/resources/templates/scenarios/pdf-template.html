@@ -13,6 +13,17 @@
         <h2 class="scene-title" th:text="${scene.title}"></h2>
         <div class="scene-content" th:utext="${scene.content}"></div>
 
+        <!-- Scene NPC Summary -->
+        <div th:if="${sceneNpcCountMap.containsKey(scene.id)}" class="scene-npc-summary">
+            <h4>登場NPC</h4>
+            <ul>
+                <li th:each="entry : ${sceneNpcCountMap.get(scene.id)}">
+                    <span th:text="${entry.key.name} + ' (Lv.' + ${entry.key.level} + ')'"></span>
+                    <span th:if="${entry.value > 1}" th:text="' x' + ${entry.value}"></span>
+                </li>
+            </ul>
+        </div>
+
         <!-- GM Info Section -->
         <div th:if="${scene.gmInfo != null and !scene.gmInfo.isEmpty()}" class="gm-info">
             <h4>GM向け情報</h4>
@@ -46,6 +57,60 @@
             <div th:each="sceneInfo : ${allSceneInfos}" class="handout-card">
                 <div class="handout-header" th:text="${sceneInfo.info.name}"></div>
                 <div class="handout-body" th:text="${sceneInfo.info.content}"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NPC Summary Page -->
+    <div th:if="${allNpcs != null and !allNpcs.isEmpty()}" class="npc-summary-page">
+        <h2 class="summary-title">登場NPC一覧</h2>
+        <div th:each="npc : ${allNpcs}" class="npc-data-sheet">
+            <h3 class="npc-name" th:text="${npc.name} + ' (Lv.' + ${npc.level} + ')'"></h3>
+            <div class="npc-details">
+                <p th:if="${npc.description != null and !npc.description.isEmpty()}" th:text="${npc.description}"></p>
+                <table class="status-table">
+                    <tr>
+                        <th>知能</th><td th:text="${npc.intelligence}"></td>
+                        <th>穢れ</th><td th:text="${npc.impurity}"></td>
+                        <th>生命抵抗</th><td th:text="${npc.lifeResist}"></td>
+                    </tr>
+                    <tr>
+                        <th>知覚</th><td th:text="${npc.perception}"></td>
+                        <th>言語</th><td th:text="${npc.language}"></td>
+                        <th>精神抵抗</th><td th:text="${npc.mindResist}"></td>
+                    </tr>
+                     <tr>
+                        <th>反応</th><td th:text="${npc.position}"></td>
+                        <th>生息地</th><td th:text="${npc.habitat}"></td>
+                        <th>先制値</th><td th:text="${npc.preemptive}"></td>
+                    </tr>
+                     <tr>
+                        <th>知名度</th><td th:text="${npc.popularity}"></td>
+                        <th>弱点</th><td th:text="${npc.weakness}"></td>
+                        <th>移動速度</th><td th:text="${npc.movement}"></td>
+                    </tr>
+                </table>
+
+                <div th:if="${npc.parts != null and !npc.parts.isEmpty()}">
+                    <h4>部位</h4>
+                    <ul class="part-list">
+                        <li th:each="part : ${npc.parts}" th:text="${part.part.name} + ' (命中力:' + ${part.part.hit} + ', ダメージ:' + ${part.part.damage} + ', HP:' + ${part.part.lifePoint} + ', MP:' + ${part.part.magicPoint} + ', 防護点:' + ${part.part.protection} + ', 回避力:' + ${part.part.evasion} + ')'"></li>
+                    </ul>
+                </div>
+
+                <div th:if="${npc.skills != null and !npc.skills.isEmpty()}">
+                    <h4>特殊能力</h4>
+                    <ul class="skill-list">
+                        <li th:each="skill : ${npc.skills}" th:text="${skill.skill.name} + ': ' + ${skill.skill.content}"></li>
+                    </ul>
+                </div>
+
+                <div th:if="${npc.bootys != null and !npc.bootys.isEmpty()}">
+                    <h4>戦利品</h4>
+                    <ul class="booty-list">
+                        <li th:each="booty : ${npc.bootys}" th:text="${booty.booty.content} + ' (' + ${booty.booty.diceNum} + ')'"></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
