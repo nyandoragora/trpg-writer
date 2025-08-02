@@ -78,3 +78,61 @@ body {
     margin-bottom: 0;
     white-space: pre-wrap; /* Preserve line breaks */
 }
+
+/* Info Summary Page Styles */
+.info-summary-page {
+    page-break-before: always;
+}
+.summary-title {
+    font-size: 2em;
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.summary-item {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+.summary-info-title {
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+.summary-info-content {
+    margin-top: 0;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+}
+.summary-scene-ref {
+    text-align: right;
+    font-size: 0.9em;
+    color: #777;
+    margin: 0;
+}
+
+/* Handout Page Styles */
+.handout-page {
+    page-break-before: always;
+}
+.handout-container {
+    /* Using simple block layout for cards */
+}
+.handout-card {
+    border: 2px dashed #888;
+    background-color: #fafafa;
+    padding: 15px;
+    margin-bottom: 20px;
+    page-break-inside: avoid; /* Try to keep card content on one page */
+}
+.handout-header {
+    font-size: 1.3em;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+.handout-body {
+    white-space: pre-wrap;
+}

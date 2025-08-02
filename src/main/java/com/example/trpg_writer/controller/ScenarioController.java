@@ -31,6 +31,7 @@ import org.thymeleaf.context.Context;
 import com.example.trpg_writer.entity.Info;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
+import com.example.trpg_writer.entity.SceneInfo;
 import com.example.trpg_writer.entity.User;
 import com.example.trpg_writer.form.ScenarioForm;
 import com.example.trpg_writer.security.UserDetailsImpl;
@@ -99,11 +100,15 @@ public class ScenarioController {
                                         .map(si -> si.getInfo())
                                         .collect(Collectors.toList())
             ));
+        
+        // Fetch all scene infos for the summary page
+        List<SceneInfo> allSceneInfos = sceneInfoService.findByScenarioId(id);
 
         Context context = new Context();
         context.setVariable("scenario", scenario);
         context.setVariable("scenes", scenes);
         context.setVariable("sceneInfosMap", sceneInfosMap);
+        context.setVariable("allSceneInfos", allSceneInfos);
 
         String html = templateEngine.process("scenarios/pdf-template", context);
         byte[] pdf = pdfService.generatePdfFromHtml(html);

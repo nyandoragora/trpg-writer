@@ -28,5 +28,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Info Summary Page -->
+    <div th:if="${allSceneInfos != null and !allSceneInfos.isEmpty()}" class="info-summary-page">
+        <h2 class="summary-title">情報一覧</h2>
+        <div th:each="sceneInfo : ${allSceneInfos}" class="summary-item">
+            <h4 class="summary-info-title" th:text="${sceneInfo.info.name}"></h4>
+            <p class="summary-info-content" th:text="${sceneInfo.info.content}"></p>
+            <p class="summary-scene-ref">（登場シーン： <span th:text="${sceneInfo.scene.title}"></span>）</p>
+        </div>
+    </div>
+
+    <!-- Handout Page -->
+    <div th:if="${allSceneInfos != null and !allSceneInfos.isEmpty()}" class="handout-page">
+        <h2 class="summary-title">配布資料</h2>
+        <div class="handout-container">
+            <div th:each="sceneInfo : ${allSceneInfos}" class="handout-card">
+                <div class="handout-header" th:text="${sceneInfo.info.name}"></div>
+                <div class="handout-body" th:text="${sceneInfo.info.content}"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
