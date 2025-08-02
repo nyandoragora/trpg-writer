@@ -1,5 +1,7 @@
 package com.example.trpg_writer.controller;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -94,7 +96,9 @@ public class ScenarioController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         String filename = scenario.getTitle() + ".pdf";
-        headers.setContentDispositionFormData("attachment", filename);
+        // Encode filename for non-ASCII characters
+        String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFilename);
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
         return new ResponseEntity<>(pdf, headers, HttpStatus.OK);

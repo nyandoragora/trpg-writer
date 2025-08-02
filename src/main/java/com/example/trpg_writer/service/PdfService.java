@@ -4,13 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.BaseFont;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class PdfService {
 
     private static final String FONT_PATH = "src/main/resources/static/fonts/HannariMincho-Regular.otf";
@@ -28,9 +32,13 @@ public class PdfService {
             ITextRenderer renderer = new ITextRenderer();
 
             // Add font for Japanese characters
-            renderer.getFontResolver().addFont(FONT_PATH, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            // Use ClassPathResource to get a reliable path to the font file
+            File fontFile = new ClassPathResource("static/fonts/HannariMincho-Regular.otf").getFile();
+            renderer.getFontResolver().addFont(fontFile.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
 
-            renderer.setDocumentFromString(htmlContent);
+            // Set base URL to resolve relative paths for CSS, images, etc.
+            String baseUrl = new ClassPathResource("static/").getURL().toString();
+            renderer.setDocumentFromString(htmlContent, baseUrl);
             renderer.layout();
             renderer.createPDF(outputStream);
 
