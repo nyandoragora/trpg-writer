@@ -99,6 +99,9 @@
                                         <button type="button" class="btn btn-sm btn-info mt-2" data-bs-toggle="modal" data-bs-target="#npcDetailModal" th:data-npc-id="${npc.id}">
                                             詳細
                                         </button>
+                                        <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/{npcId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id}, npcId=${npc.id})}" class="btn btn-sm btn-warning mt-2">
+                                            編集
+                                        </a>
                                         <button type="button" class="btn btn-sm btn-success mt-2 add-npc-to-scene-btn" th:data-npc-id="${npc.id}">
                                             シーンに追加
                                         </button>
@@ -118,6 +121,9 @@
                                             <small th:text="'Lv: ' + ${sceneNpc.npc.level}"></small>
                                         </div>
                                         <p class="mb-1" th:text="${sceneNpc.npc.description}"></p>
+                                        <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/{npcId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id}, npcId=${sceneNpc.npc.id})}" class="btn btn-sm btn-warning mt-2">
+                                            編集
+                                        </a>
                                         <button type="button" class="btn btn-sm btn-danger mt-2 remove-npc-from-scene-btn" th:data-scene-npc-id="${sceneNpc.id}">
                                             削除
                                         </button>
@@ -413,7 +419,7 @@
                         <button type="button" class="btn btn-danger" id="confirmNpcDeleteBtn">はい、削除します</button>
                         <!-- 変更あり時 -->
                         <button type="button" class="btn btn-success" id="saveAndNpcDeleteBtn" style="display: none;">本文を保存して削除</button>
-                        <button type="button" class="btn btn-warning" id="discardAndNpcDeleteBtn" style="display: none;">本文を破棄して削除</button>
+                        <button type="button" id="discardAndNpcDeleteBtn" class="btn btn-warning" style="display: none;">本文を破棄して削除</button>
                         
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
                     </div>
@@ -442,3 +448,67 @@
 
     </body>
 </html>
+<!-- NPC Edit Modal -->
+<div class="modal fade" id="npcEditModal" tabindex="-1" aria-labelledby="npcEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="npcEditModalLabel">NPCの編集</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="npcEditForm" method="post">
+                    <input type="hidden" id="editNpcId" name="id">
+                    <!-- NPC基本情報 -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editNpcName" class="form-label">名前</label>
+                            <input type="text" class="form-control" id="editNpcName" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editNpcLevel" class="form-label">レベル</label>
+                            <input type="number" class="form-control" id="editNpcLevel" name="level">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNpcDescription" class="form-label">概要</label>
+                        <textarea class="form-control" id="editNpcDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editNpcImage" class="form-label">画像</label>
+                        <input class="form-control" type="file" id="editNpcImage" name="imageFile">
+                        <div id="editNpcImagePreview" class="mt-2"></div>
+                    </div>
+
+                    <!-- 部位 -->
+                    <hr>
+                    <h5>部位</h5>
+                    <div id="edit-parts-container">
+                        <!-- 部位フォームがここに追加されます -->
+                    </div>
+                    <button type="button" id="add-edit-part-btn" class="btn btn-sm btn-outline-primary mt-2">部位を追加</button>
+
+                    <!-- 特殊能力 -->
+                    <hr>
+                    <h5>特殊能力</h5>
+                    <div id="edit-skills-container">
+                        <!-- 特殊能力フォームがここに追加されます -->
+                    </div>
+                    <button type="button" id="add-edit-skill-btn" class="btn btn-sm btn-outline-primary mt-2">特殊能力を追加</button>
+
+                    <!-- 戦利品 -->
+                    <hr>
+                    <h5>戦利品</h5>
+                    <div id="edit-bootys-container">
+                        <!-- 戦利品フォームがここに追加されます -->
+                    </div>
+                    <button type="button" id="add-edit-booty-btn" class="btn btn-sm btn-outline-primary mt-2">戦利品を追加</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="submit" form="npcEditForm" class="btn btn-primary">更新</button>
+            </div>
+        </div>
+    </div>
+</div>

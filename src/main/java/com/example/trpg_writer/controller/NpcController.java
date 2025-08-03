@@ -99,4 +99,53 @@ public class NpcController {
         npcService.delete(npcId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/scenes/{sceneId}/npcs/{npcId}/edit")
+    public String edit(@PathVariable("scenarioId") Integer scenarioId,
+                       @PathVariable("sceneId") Integer sceneId,
+                       @PathVariable("npcId") Integer npcId,
+                       Model model) {
+        Npc npc = npcService.findById(npcId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
+        
+        NpcForm npcForm = npcService.convertEntityToForm(npc);
+
+        model.addAttribute("npcForm", npcForm);
+        model.addAttribute("scenarioId", scenarioId);
+        model.addAttribute("sceneId", sceneId);
+        model.addAttribute("npcId", npcId);
+        
+        model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
+        model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
+        model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
+
+        return "npcs/edit";
+    }
+
+    @PostMapping("/scenes/{sceneId}/npcs/{npcId}/update")
+    public String update(@PathVariable("scenarioId") Integer scenarioId,
+                         @PathVariable("sceneId") Integer sceneId,
+                         @PathVariable("npcId") Integer npcId,
+                         @ModelAttribute @Validated NpcForm npcForm,
+                         BindingResult bindingResult,
+                         RedirectAttributes redirectAttributes,
+                         Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("scenarioId", scenarioId);
+            model.addAttribute("sceneId", sceneId);
+            model.addAttribute("npcId", npcId);
+            model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
+            model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
+            model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
+            return "npcs/edit";
+        }
+
+        npcForm.setScenarioId(scenarioId);
+        npcForm.setId(npcId);
+        npcService.update(npcForm);
+
+        redirectAttributes.addFlashAttribute("successMessage", "NPCを更新しました。");
+        return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit";
+    }
 }

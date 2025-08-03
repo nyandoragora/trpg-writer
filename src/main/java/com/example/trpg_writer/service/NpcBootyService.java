@@ -1,5 +1,7 @@
 package com.example.trpg_writer.service;
 
+import com.example.trpg_writer.entity.Booty;
+import com.example.trpg_writer.entity.Npc;
 import com.example.trpg_writer.entity.NpcBooty;
 import com.example.trpg_writer.entity.NpcBootyId;
 import com.example.trpg_writer.repository.NpcBootyRepository;
@@ -11,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class NpcBootyService {
 
@@ -23,5 +24,18 @@ public class NpcBootyService {
 
     public List<NpcBooty> findByNpcScenarioId(Integer scenarioId) {
         return npcBootyRepository.findByNpc_ScenarioId(scenarioId);
+    }
+
+    @Transactional
+    public void create(Npc npc, Booty booty) {
+        NpcBooty npcBooty = new NpcBooty();
+        npcBooty.setNpc(npc);
+        npcBooty.setBooty(booty);
+        npcBootyRepository.save(npcBooty);
+    }
+
+    @Transactional
+    public void deleteByNpcId(Integer npcId) {
+        npcBootyRepository.deleteByNpcId(npcId);
     }
 }
