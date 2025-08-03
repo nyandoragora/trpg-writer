@@ -1,9 +1,5 @@
 package com.example.trpg_writer.security;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,10 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("ユーザーが見つかりませんでした。");
         }
-        System.out.println("User found: " + user.getEmail() + ", Enabled: " + user.getEnabled()); // デバッグログ追加
-        System.out.println("User password (hashed): " + user.getPassword()); // 注意: 本番環境では絶対に行わないでください
 
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        return new UserDetailsImpl(user, authorities);
+        return new UserDetailsImpl(user);
     }
 }

@@ -1,18 +1,23 @@
 package com.example.trpg_writer.security;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.trpg_writer.entity.User;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
     private final User user;
     private final Collection<GrantedAuthority> authorities;
+
+    public UserDetailsImpl(User user) {
+        this.user = user;
+        // ここでは単純に "ROLE_GENERAL" を付与する。必要に応じて変更する。
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_GENERAL"));
+    }
 
     public User getUser() {
         return user;
@@ -27,7 +32,7 @@ public class UserDetailsImpl implements UserDetails {
     // ログイン時に利用するユーザー名（メールアドレス）を返す
     @Override
     public String getUsername() {
-        return user.getName();
+        return user.getEmail();
     }
 
     // ロールのコレクションを返す
