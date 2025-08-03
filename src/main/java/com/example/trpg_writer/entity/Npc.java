@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -90,6 +92,10 @@ public class Npc {
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NpcBooty> bootys;
+
+    @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<SceneNpc> sceneNpcs;
 
     public List<Integer> getPartIds() {
         if (parts == null) {

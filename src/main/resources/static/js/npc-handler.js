@@ -6,14 +6,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const { fetchWithCsrf, data } = window.trpgWriter;
 
-    const npcDetailModal = document.getElementById('npcDetailModal');
-    if (npcDetailModal) {
+    const npcDetailModalElement = document.getElementById('npcDetailModal');
+    if (npcDetailModalElement) {
+        const npcDetailModal = new bootstrap.Modal(npcDetailModalElement);
         const deleteNpcConfirmModal = new bootstrap.Modal(document.getElementById('deleteNpcConfirmModal'));
 
-        npcDetailModal.addEventListener('show.bs.modal', function(event) {
+        npcDetailModalElement.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
+            // buttonがない場合は処理を中断
+            if (!button) {
+                return;
+            }
             const npcId = button.getAttribute('data-npc-id');
-            const modalBody = npcDetailModal.querySelector('.modal-body');
+            const modalBody = npcDetailModalElement.querySelector('.modal-body'); //修正箇所
             modalBody.innerHTML = '<p>読み込み中...</p>';
 
             // この時点では `window.trpgWriter.data` は確実に存在しているはず
