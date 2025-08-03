@@ -1,50 +1,164 @@
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head>
-        <div th:replace="~{fragment :: meta}"></div>
 
-        <div th:replace="~{fragment :: styles}"></div>
+<head>
+    <div th:replace="~{fragment :: meta}"></div>
+    <div th:replace="~{fragment :: styles}"></div>
+    <title>TRPG Writer - ソード・ワールド2.5 シナリオ作成支援ツール</title>
+</head>
 
-        <title>HOME</title>
-    </head>
-    <body>
-        <div class="trpg-wrapper">
-           <div th:replace="~{fragment :: header}"></div>
+<body>
+    <div class="trpg-wrapper">
+        <div th:replace="~{fragment :: header}"></div>
 
-            <main>
-                
-
-              <div th:if="${param.loggedIn}" class="container trpg-container pt-2">
-                  <div class="alert alert-info mt-4 mb-0">
-                       ログインしました。
-                  </div>
-              </div>
-
-
-              <div th:if="${param.loggedOut}" class="container trpg-container pt-2">
-                <div class="alert alert-info mt-4 mb-0">
-                  ログアウトしました。
+        <main>
+            <!-- ヒーローセクション -->
+            <section class="py-5 text-center container-fluid hero-section">
+                <div class="hero-overlay"></div>
+                <div class="row py-lg-5 hero-content">
+                    <div class="col-lg-6 col-md-8 mx-auto">
+                        <h1 class="fw-light">その物語は、君の手で紡がれる。</h1>
+                        <p class="lead">ソード・ワールド2.5のシナリオ執筆に特化した、新しいアトリエ。</p>
+                        <div sec:authorize="isAnonymous()">
+                            <p>
+                                <a th:href="@{/signup}" class="btn btn-primary my-2">無料で執筆を始める</a>
+                                <a th:href="@{/login}" class="btn btn-secondary my-2">ログイン</a>
+                            </p>
+                        </div>
+                        <div sec:authorize="isAuthenticated()">
+                            <p>
+                                <a th:href="@{/users}" class="btn btn-primary my-2">シナリオ一覧へ</a>
+                                <a th:href="@{/scenarios/create}" class="btn btn-secondary my-2">新しいシナリオを作成</a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-              </div>
+            </section>
 
-              <div th:if="${successMessage}" class="container trpg-container pt-2">
-                <div class="alert alert-info mt-4 mb-0">
-                  <span th:text="${successMessage}"></span>
+            <div class="album py-5 bg-light">
+                <div class="container">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-light">TRPG Writerでできること</h2>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">直感的なシーン執筆</h5>
+                                    <p class="card-text">物語の断片を組み立てるように、シーン単位でシナリオを構築。プロットの入れ替えも自由自在。</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#sceneModal">
+                                                スクリーンショットを見る
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">SW2.5準拠のデータ管理</h5>
+                                    <p class="card-text">SW2.5のルールに準拠したNPCや戦利品を簡単作成。面倒なデータ管理から解放されます。</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#npcModal">
+                                                スクリーンショットを見る
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">ワンクリックPDF出力</h5>
+                                    <p class="card-text">完成したシナリオは、GM用資料から配布資料まで、ボタン一つで美しいPDFに出力完了。</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#pdfModal">
+                                                スクリーンショットを見る
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+            </div>
 
+            <!-- ロードマップ -->
+            <section class="py-5 hero-section">
+                <div class="hero-overlay"></div>
+                <div class="container hero-content">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-light">進化し続けるアトリエ</h2>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8 mx-auto">
+                            <p class="lead text-center">今後のアップデートでは、以下の機能開発を予定しています。</p>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item bg-transparent text-white"><strong>オンラインセッション機能:</strong> 作成したシナリオで、仲間とオンラインセッション！</li>
+                                <li class="list-group-item bg-transparent text-white"><strong>マーケットプレイス機能:</strong> あなたの自信作を、他の冒険者たちへ！</li>
+                                <li class="list-group-item bg-transparent text-white"><strong>マルチシステム対応:</strong> クトゥルフ神話TRPG（CoC）など、様々なTRPGシステムへの対応を計画中です。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-              <!-- ここから本文 -->
+        </main>
 
-
-            </main>
-
-            <div th:replace="~{fragment :: footer}"></div>
+        <!-- モーダル -->
+        <div class="modal fade" id="sceneModal" tabindex="-1" aria-labelledby="sceneModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="sceneModalLabel">スクリーンショット: シーン執筆</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img th:src="@{/images/write-scene.jpg}" class="img-fluid" alt="シーン執筆画面のスクリーンショット">
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div th:replace="~{fragment :: scripts}"></div>
+        <div class="modal fade" id="npcModal" tabindex="-1" aria-labelledby="npcModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="npcModalLabel">スクリーンショット: NPC作成</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img th:src="@{/images/npc-create.jpg}" class="img-fluid" alt="NPC作成画面のスクリーンショット">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- Swiper -->
-        <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-    </body>
+        <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="pdfModalLabel">スクリーンショット: PDF情報</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img th:src="@{/images/PDF-info.jpg}" class="img-fluid" alt="PDF出力情報のスクリーンショット">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragment :: footer}"></div>
+    </div>
+
+    <div th:replace="~{fragment :: scripts}"></div>
+</body>
+
 </html>

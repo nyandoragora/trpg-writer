@@ -1,0 +1,31 @@
+/* ヒーローセクションのスタイル */
+.hero-section {
+    position: relative;
+    background-image: url('../images/hero-background.jpg');
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: white;
+    padding-top: 10rem;
+    padding-bottom: 10rem;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* 黒いオーバーレイでテキストを読みやすくする */
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content .lead {
+    color: #f8f9fa; /* 明るいグレーで、h1よりは控えめに */
+}
