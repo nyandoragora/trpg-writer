@@ -2,10 +2,14 @@ package com.example.trpg_writer.service;
 
 import com.example.trpg_writer.entity.Part;
 import com.example.trpg_writer.entity.Scenario;
+import com.example.trpg_writer.entity.User;
 import com.example.trpg_writer.form.PartForm;
 import com.example.trpg_writer.repository.PartRepository;
+import com.example.trpg_writer.repository.ScenarioRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -17,6 +21,7 @@ import java.util.Optional;
 public class PartService {
 
     private final PartRepository partRepository;
+    private final ScenarioRepository scenarioRepository;
 
     public Optional<Part> findById(Integer id) {
         return partRepository.findById(id);
@@ -27,11 +32,15 @@ public class PartService {
     }
 
     @Transactional
-    public Part create(PartForm partForm) {
-        Part part = new Part();
-        Scenario scenario = new Scenario();
-        scenario.setId(partForm.getScenarioId());
+    public Part create(PartForm partForm, User user) {
+        Scenario scenario = scenarioRepository.findById(partForm.getScenarioId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "シナリオが見つかりません。"));
 
+        if (!scenario.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "シナリオの所有者が一致しません。");
+        }
+
+        Part part = new Part();
         part.setScenario(scenario);
         part.setName(partForm.getName());
         part.setHit(partForm.getHit());
@@ -45,7 +54,14 @@ public class PartService {
     }
 
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Integer id, User user) {
+        Part part = partRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "部位が見つかりません。"));
+
+        if (!part.getScenario().getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "部位の所有者が一致しません。");
+        }
+
         partRepository.deleteById(id);
     }
 }
