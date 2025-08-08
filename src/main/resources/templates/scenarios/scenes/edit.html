@@ -9,9 +9,9 @@
         <script th:src="@{'https://cdn.tiny.cloud/1/' + ${tinymceApiKey} + '/tinymce/6/tinymce.min.js'}" referrerpolicy="origin"></script>
     </head>
     <body th:data-tinymce-api-key="${tinymceApiKey}"
-          th:data-update-url-template="@{/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER/update(scenarioId=${scenario.id})}"
-          th:data-store-url="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}">
-           <!-- ここにデータ属性を追加 -->
+          th:data-info-store-url="@{/api/scenarios/{scenarioId}/infos(scenarioId=${scenario.id})}"
+          th:data-info-update-url-template="@{/api/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER(scenarioId=${scenario.id})}"
+          th:data-info-delete-url-template="@{/api/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER(scenarioId=${scenario.id})}">
         <div class="trpg-wrapper">
            <div th:replace="~{fragment :: header}"></div>
 
@@ -154,7 +154,7 @@
                           </div>
                           <div class="tab-pane fade" id="scene-info" role="tabpanel" aria-labelledby="scene-info-tab">
                             <div class="mt-3">
-                              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#infoModal" th:data-scenario-id="${scenario.id}" th:data-scene-id="${scene.id}">
+                              <button type="button" class="btn btn-primary" data-bs-target="#infoModal">
                                 シーン内情報を追加
                               </button>
                             </div>
@@ -169,23 +169,17 @@
                                     <p class="card-text" th:text="${#strings.abbreviate(sceneInfo.info.content, 80)}"></p>
                                     <div class="d-flex justify-content-end mt-2">
                                       <button type="button" class="btn btn-sm btn-info me-2 edit-info-btn" 
-                                              data-bs-toggle="modal" 
                                               data-bs-target="#infoModal"
                                               th:data-info-id="${sceneInfo.info.id}"
                                               th:data-info-name="${sceneInfo.info.name}"
-                                              th:data-info-content="${sceneInfo.info.content}"
-                                              th:data-scenario-id="${scenario.id}"
-                                              th:data-scene-id="${scene.id}">
+                                              th:data-info-content="${sceneInfo.info.content}">
                                         編集
                                       </button>
-                                      <form th:action="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}" method="post" style="display:inline;" class="delete-info-form">
-                                        <button type="button" class="btn btn-sm btn-danger delete-info-btn" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteInfoConfirmModal"
-                                                th:data-delete-url="@{/scenarios/{scenarioId}/infos/{infoId}/delete(scenarioId=${scenario.id}, infoId=${sceneInfo.info.id}, sceneId=${scene.id})}">
-                                          削除
-                                        </button>
-                                      </form>
+                                      <button type="button" class="btn btn-sm btn-danger delete-info-btn" 
+                                              data-bs-target="#deleteInfoConfirmModal"
+                                              th:data-info-id="${sceneInfo.info.id}">
+                                        削除
+                                      </button>
                                     </div>
                                   </div>
                                 </div>
@@ -202,9 +196,8 @@
                                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                  <form id="infoForm" th:action="@{/scenarios/{scenarioId}/infos/store(scenarioId=${scenario.id})}" method="post">
+                                  <form id="infoForm">
                                     <input type="hidden" id="infoId" name="id">
-                                    <input type="hidden" id="infoScenarioId" name="scenarioId" th:value="${scenario.id}">
                                     <input type="hidden" id="infoSceneId" name="sceneId" th:value="${scene.id}">
                                     <div class="mb-3">
                                       <label for="infoName" class="form-label">情報名</label>
@@ -214,16 +207,10 @@
                                       <label for="infoContent" class="form-label">内容</label>
                                       <textarea class="form-control" id="infoContent" name="content" rows="5"></textarea>
                                     </div>
-                                    <!-- ボタンはモーダルのフッターに移動 -->
                                   </form>
                                 </div>
                                 <div class="modal-footer">
-                                  <div id="unsaved-warning" class="alert alert-warning me-auto" style="display: none; padding: 0.5rem 1rem;">
-                                    本文に未保存の変更があります
-                                  </div>
-                                  <button type="submit" form="infoForm" id="save-info-btn" class="btn btn-primary">保存</button>
-                                  <button type="button" id="save-all-btn" class="btn btn-success" style="display: none;">本文と情報を保存</button>
-                                  <button type="button" id="save-info-only-btn" class="btn btn-warning" style="display: none;">情報のみ保存</button>
+                                  <button type="button" id="save-info-btn" class="btn btn-primary">保存</button>
                                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
                                 </div>
                               </div>
@@ -259,17 +246,9 @@
                                 </div>
                                 <div class="modal-body">
                                   <p>本当にこの情報を削除しますか？</p>
-                                  <div id="delete-unsaved-warning" class="alert alert-warning" style="display: none;">
-                                    注意：シーン本文に未保存の変更があります。
-                                  </div>
                                 </div>
                                 <div class="modal-footer">
-                                  <!-- 通常時 -->
                                   <button type="button" id="confirm-delete-btn" class="btn btn-danger">削除</button>
-                                  <!-- 変更あり時 -->
-                                  <button type="button" id="save-and-delete-btn" class="btn btn-success" style="display: none;">本文を保存して削除</button>
-                                  <button type="button" id="discard-and-delete-btn" class="btn btn-warning" style="display: none;">本文を破棄して削除</button>
-                                  
                                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
                                 </div>
                               </div>

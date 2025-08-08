@@ -1,133 +1,124 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // グローバルオブジェクトがなければ何もしない
     if (!window.trpgWriter) {
         return;
     }
 
     const body = document.body;
-    const updateUrlTemplate = body.getAttribute('data-update-url-template');
-    const storeUrl = body.getAttribute('data-store-url');
+    const storeUrl = body.getAttribute('data-info-store-url');
+    const updateUrlTemplate = body.getAttribute('data-info-update-url-template');
+    const deleteUrlTemplate = body.getAttribute('data-info-delete-url-template');
 
-    // --- Info Modal (Add/Edit) --- 
-    const infoModal = document.getElementById('infoModal');
+    const infoModalEl = document.getElementById('infoModal');
+    const infoModal = infoModalEl ? new bootstrap.Modal(infoModalEl) : null;
+    
+    const deleteInfoConfirmModalEl = document.getElementById('deleteInfoConfirmModal');
+    const deleteInfoConfirmModal = deleteInfoConfirmModalEl ? new bootstrap.Modal(deleteInfoConfirmModalEl) : null;
+
+    // --- Info Modal (Add/Edit) ---
     if (infoModal) {
-        infoModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const infoId = button.getAttribute('data-info-id');
-            const infoForm = infoModal.querySelector('#infoForm');
-
-            const modalTitle = infoModal.querySelector('.modal-title');
-            const infoNameInput = infoModal.querySelector('#infoName');
-            const infoContentTextarea = infoModal.querySelector('#infoContent');
+        const infoForm = infoModalEl.querySelector('#infoForm');
+        const modalTitle = infoModalEl.querySelector('.modal-title');
+        const infoIdInput = infoModalEl.querySelector('#infoId');
+        const infoNameInput = infoModalEl.querySelector('#infoName');
+        const infoContentTextarea = infoModalEl.querySelector('#infoContent');
+        const saveBtn = infoModalEl.querySelector('#save-info-btn');
+        let currentInfoId = null;
+        
+        const openInfoModal = (button) => {
+            currentInfoId = button.getAttribute('data-info-id');
             
-            if (infoId) {
-                // 編集モード
+            infoForm.reset();
+            infoIdInput.value = '';
+
+            if (currentInfoId) {
                 modalTitle.textContent = '情報編集';
-                infoForm.action = updateUrlTemplate.replace('INFO_ID_PLACEHOLDER', infoId);
-                infoModal.querySelector('#infoId').value = infoId;
-                
+                infoIdInput.value = currentInfoId;
                 infoNameInput.value = button.getAttribute('data-info-name');
                 infoContentTextarea.value = button.getAttribute('data-info-content');
             } else {
-                // 追加モード
                 modalTitle.textContent = '情報追加';
-                infoForm.action = storeUrl;
-                infoForm.reset(); 
-                infoModal.querySelector('#infoId').value = '';
             }
+            infoModal.show();
+        };
 
-            const isDirty = window.trpgWriter.isFormDirty;
-            document.getElementById('unsaved-warning').style.display = isDirty ? 'block' : 'none';
-            document.getElementById('save-info-btn').style.display = isDirty ? 'none' : 'inline-block';
-            document.getElementById('save-all-btn').style.display = isDirty ? 'inline-block' : 'none';
-            document.getElementById('save-info-only-btn').style.display = isDirty ? 'inline-block' : 'none';
+        document.querySelectorAll('[data-bs-target="#infoModal"]').forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault(); 
+                if (window.trpgWriter.isFormDirty) {
+                    window.trpgWriter.showUnsavedChangesModal(() => openInfoModal(button));
+                } else {
+                    openInfoModal(button);
+                }
+            });
         });
 
-        document.getElementById('save-all-btn').addEventListener('click', async function() {
-            tinymce.get('sceneContent').save();
-            const formData = new FormData(window.trpgWriter.sceneEditForm);
+        saveBtn.addEventListener('click', async () => {
+            const formData = new FormData(infoForm);
+            const data = Object.fromEntries(formData.entries());
+            
+            const isUpdate = !!data.id;
+            const url = isUpdate ? updateUrlTemplate.replace('INFO_ID_PLACEHOLDER', data.id) : storeUrl;
+            const method = isUpdate ? 'PUT' : 'POST';
+
             try {
-                const response = await window.trpgWriter.fetchWithCsrf(window.trpgWriter.sceneEditForm.action, { method: 'POST', body: formData });
+                const response = await window.trpgWriter.fetchWithCsrf(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
                 if (response.ok) {
-                    window.trpgWriter.isFormDirty = false;
-                    document.getElementById('infoForm').submit();
+                    window.location.reload();
                 } else {
-                    alert('本文の保存に失敗しました。');
+                    const errorData = await response.json();
+                    alert('保存に失敗しました: ' + JSON.stringify(errorData));
                 }
             } catch (error) {
+                console.error('Error saving info:', error);
                 alert('エラーが発生しました。');
             }
-        });
-
-        document.getElementById('save-info-only-btn').addEventListener('click', function() {
-            window.trpgWriter.isFormDirty = false;
-            document.getElementById('infoForm').submit();
         });
     }
 
     // --- Delete Info Modal ---
-    const deleteInfoConfirmModal = document.getElementById('deleteInfoConfirmModal');
     if (deleteInfoConfirmModal) {
-        let deleteUrl = '';
-        deleteInfoConfirmModal.addEventListener('show.bs.modal', function(event) {
-            deleteUrl = event.relatedTarget.getAttribute('data-delete-url');
-            const warning = document.getElementById('delete-unsaved-warning');
-            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-            const saveAndDeleteBtn = document.getElementById('save-and-delete-btn');
-            const discardAndDeleteBtn = document.getElementById('discard-and-delete-btn');
+        const confirmDeleteBtn = deleteInfoConfirmModalEl.querySelector('#confirm-delete-btn');
+        let infoIdToDelete = null;
 
-            const isDirty = window.trpgWriter.isFormDirty;
-            if (isDirty) {
-                warning.style.display = 'block';
-                confirmDeleteBtn.style.display = 'none';
-                saveAndDeleteBtn.style.display = 'inline-block';
-                discardAndDeleteBtn.style.display = 'inline-block';
-            } else {
-                warning.style.display = 'none';
-                confirmDeleteBtn.style.setProperty('display', 'inline-block', 'important');
-                saveAndDeleteBtn.style.display = 'none';
-                discardAndDeleteBtn.style.display = 'none';
-            }
+        const openDeleteModal = (button) => {
+            infoIdToDelete = button.getAttribute('data-info-id');
+            deleteInfoConfirmModal.show();
+        };
+        
+        document.querySelectorAll('[data-bs-target="#deleteInfoConfirmModal"]').forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (window.trpgWriter.isFormDirty) {
+                    window.trpgWriter.showUnsavedChangesModal(() => openDeleteModal(button));
+                } else {
+                    openDeleteModal(button);
+                }
+            });
         });
 
-        async function performDelete() {
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!infoIdToDelete) return;
+            const url = deleteUrlTemplate.replace('INFO_ID_PLACEHOLDER', infoIdToDelete);
             try {
-                const response = await window.trpgWriter.fetchWithCsrf(deleteUrl, { method: 'POST' });
+                const response = await window.trpgWriter.fetchWithCsrf(url, { method: 'DELETE' });
                 if (response.ok) {
                     window.location.reload();
                 } else {
                     alert(`削除に失敗しました (HTTP ${response.status})`);
                 }
             } catch (error) {
-                alert('エラーが発生しました。');
-            }
-        }
-
-        document.getElementById('confirm-delete-btn').addEventListener('click', performDelete);
-
-        document.getElementById('discard-and-delete-btn').addEventListener('click', () => {
-            window.trpgWriter.isFormDirty = false;
-            performDelete();
-        });
-
-        document.getElementById('save-and-delete-btn').addEventListener('click', async function() {
-            tinymce.get('sceneContent').save();
-            const formData = new FormData(window.trpgWriter.sceneEditForm);
-            try {
-                const response = await window.trpgWriter.fetchWithCsrf(window.trpgWriter.sceneEditForm.action, { method: 'POST', body: formData });
-                if (response.ok) {
-                    window.trpgWriter.isFormDirty = false;
-                    performDelete();
-                } else {
-                    alert(`本文の保存に失敗しました (HTTP ${response.status})`);
-                }
-            } catch (error) {
+                console.error('Error deleting info:', error);
                 alert('エラーが発生しました。');
             }
         });
     }
     
-    // --- Scenario Info Modal ---
+    // --- Scenario Info Modal (No changes needed) ---
     const scenarioInfoModal = document.getElementById('scenarioInfoModal');
     if(scenarioInfoModal) {
         scenarioInfoModal.addEventListener('show.bs.modal', function (event) {
@@ -146,4 +137,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
