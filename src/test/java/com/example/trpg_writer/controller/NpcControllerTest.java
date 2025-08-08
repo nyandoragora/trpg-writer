@@ -38,6 +38,7 @@ public class NpcControllerTest {
     @Autowired
     private NpcRepository npcRepository;
 
+    // --- Create ---
     @Test
     @DisplayName("認証済みユーザーはNPC作成ページを正常に表示できる")
     @WithUserDetails("taro.yamada@example.com")
@@ -53,6 +54,14 @@ public class NpcControllerTest {
         mockMvc.perform(get("/scenarios/1/scenes/1/npcs/create"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
+    }
+
+    @Test
+    @DisplayName("他人のシナリオのNPC作成ページにアクセスすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenAccessOthersNpcCreatePage_thenReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/create"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -87,6 +96,21 @@ public class NpcControllerTest {
     }
 
     @Test
+    @DisplayName("他人のシナリオにNPCを作成しようとすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenCreateNpcForOthersScenario_thenReturnsNotFound() throws Exception {
+        long countBefore = npcRepository.count();
+
+        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/create")
+                .param("name", "不正なゴブリン")
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+
+        long countAfter = npcRepository.count();
+        assertEquals(countBefore, countAfter);
+    }
+
+    @Test
     @DisplayName("名前が空のためNPC登録が失敗し、DBに保存されないこと")
     @WithUserDetails("taro.yamada@example.com")
     public void whenCreateNpcWithEmptyName_thenReturnsCreateView() throws Exception {
@@ -103,6 +127,7 @@ public class NpcControllerTest {
         assertEquals(countBefore, countAfter);
     }
 
+    // --- Read ---
     @Test
     @DisplayName("存在するNPCの詳細がJSONで正しく返されること")
     @WithUserDetails("taro.yamada@example.com")
@@ -114,6 +139,14 @@ public class NpcControllerTest {
     }
 
     @Test
+    @DisplayName("他人のシナリオのNPC詳細を要求すると404エラーが返されること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenGetOthersNpcDetails_thenReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/scenarios/1/npcs/1/details"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     @DisplayName("存在しないNPCの詳細を要求すると404エラーが返されること")
     @WithUserDetails("taro.yamada@example.com")
     public void whenGetNonExistingNpcDetails_thenReturnsNotFound() throws Exception {
@@ -121,6 +154,7 @@ public class NpcControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // --- Delete ---
     @Test
     @DisplayName("存在するNPCを正常に削除できること")
     @WithUserDetails("taro.yamada@example.com")
@@ -133,6 +167,20 @@ public class NpcControllerTest {
 
         long countAfter = npcRepository.count();
         assertEquals(countBefore - 1, countAfter);
+    }
+
+    @Test
+    @DisplayName("他人のシナリオのNPCを削除しようとすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenDeleteOthersNpc_thenReturnsNotFound() throws Exception {
+        long countBefore = npcRepository.count();
+
+        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/delete")
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+        
+        long countAfter = npcRepository.count();
+        assertEquals(countBefore, countAfter);
     }
 
     @Test
@@ -149,6 +197,7 @@ public class NpcControllerTest {
         assertEquals(countBefore, countAfter);
     }
 
+    // --- Edit ---
     @Test
     @DisplayName("NPC編集ページが正常に表示されること")
     @WithUserDetails("taro.yamada@example.com")
@@ -167,6 +216,15 @@ public class NpcControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("他人のNPC編集ページにアクセスすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenAccessOthersNpcEditPage_thenReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/1/edit"))
+                .andExpect(status().isNotFound());
+    }
+
+    // --- Update ---
     @Test
     @DisplayName("NPCが正常に更新され、DBの値が変更されること")
     @WithUserDetails("taro.yamada@example.com")
@@ -202,6 +260,23 @@ public class NpcControllerTest {
     }
 
     @Test
+    @DisplayName("他人のシナリオのNPCを更新しようとすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenUpdateOthersNpc_thenReturnsNotFound() throws Exception {
+        Npc npcBefore = npcRepository.findById(1).orElseThrow();
+        String nameBefore = npcBefore.getName();
+
+        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/update")
+                .param("name", "不正なゴブリンリーダー")
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+
+        Npc npcAfter = npcRepository.findById(1).orElseThrow();
+        String nameAfter = npcAfter.getName();
+        assertEquals(nameBefore, nameAfter);
+    }
+
+    @Test
     @DisplayName("名前が空のためNPC更新が失敗し、DBの値が変更されないこと")
     @WithUserDetails("taro.yamada@example.com")
     public void whenUpdateNpcWithEmptyName_thenReturnsEditView() throws Exception {
@@ -218,13 +293,5 @@ public class NpcControllerTest {
         Npc npcAfter = npcRepository.findById(1).orElseThrow();
         String nameAfter = npcAfter.getName();
         assertEquals(nameBefore, nameAfter);
-    }
-
-    @Test
-    @DisplayName("他人のNPC編集ページにアクセスすると404エラーが発生すること")
-    @WithUserDetails("hanako.suzuki@example.com")
-    public void whenAccessOthersNpcEditPage_thenReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/1/edit"))
-                .andExpect(status().isNotFound());
     }
 }

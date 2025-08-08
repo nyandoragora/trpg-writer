@@ -92,12 +92,49 @@ public class ScenarioController {
         Scenario scenario = scenarioService.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         
+        ScenarioForm scenarioForm = new ScenarioForm();
+        scenarioForm.setId(scenario.getId());
+        scenarioForm.setTitle(scenario.getTitle());
+        scenarioForm.setIntroduction(scenario.getIntroduction());
+
         Page<Scene> scenes = sceneService.findByScenarioOrderByCreatedAtAsc(scenario, pageable);
 
         model.addAttribute("scenario", scenario);
+        model.addAttribute("scenarioForm", scenarioForm);
         model.addAttribute("scenes", scenes);
 
         return "scenarios/edit";
+    }
+
+    @PostMapping("/{id}/update")
+    public String update(@PathVariable("id") Integer id, @ModelAttribute @Validated ScenarioForm scenarioForm, BindingResult bindingResult, @AuthenticationPrincipal UserDetailsImpl userDetails, RedirectAttributes redirectAttributes, Model model) {
+        checkScenarioOwnership(id, userDetails);
+
+        if (bindingResult.hasErrors()) {
+            Scenario scenario = scenarioService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
+            Page<Scene> scenes = sceneService.findByScenarioOrderByCreatedAtAsc(scenario, Pageable.unpaged()); // Or handle pagination as needed
+            
+            model.addAttribute("scenario", scenario);
+            model.addAttribute("scenes", scenes);
+            model.addAttribute("scenarioForm", scenarioForm);
+            return "scenarios/edit";
+        }
+
+        scenarioForm.setId(id);
+        scenarioService.update(scenarioForm);
+
+        redirectAttributes.addFlashAttribute("successMessage", "シナリオを更新しました。");
+
+        return "redirect:/scenarios/" + id + "/edit";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable("id") Integer id, @AuthenticationPrincipal UserDetailsImpl userDetails, RedirectAttributes redirectAttributes) {
+        checkScenarioOwnership(id, userDetails);
+        scenarioService.delete(id);
+        redirectAttributes.addFlashAttribute("successMessage", "シナリオを削除しました。");
+        return "redirect:/users";
     }
 
     @GetMapping("/{id}/pdf")
@@ -156,4 +193,3 @@ public class ScenarioController {
         return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
     }
 }
-

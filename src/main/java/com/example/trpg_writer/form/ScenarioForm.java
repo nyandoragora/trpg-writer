@@ -7,6 +7,8 @@ import lombok.Data;
 
 @Data
 public class ScenarioForm {
+    private Integer id;
+
     @NotBlank(message = "タイトルを入力してください。")
     @Size(max = 100, message = "タイトルは100文字以内で入力してください。")
     private String title;

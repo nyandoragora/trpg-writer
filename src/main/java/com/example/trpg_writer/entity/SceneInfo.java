@@ -8,11 +8,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "scene_infos")
 @IdClass(SceneInfoId.class)
 @Data
+@ToString(exclude = {"scene", "info"})
 public class SceneInfo {
     @Id
     @ManyToOne

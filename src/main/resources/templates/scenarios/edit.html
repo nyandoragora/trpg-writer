@@ -22,8 +22,26 @@
               <div class="container py-4">
                 <div class="row">
                   <div class="col-lg-12">
-                    <h2 class="mb-3" th:text="${scenario.title}"></h2>
-                    <p class="text-muted mb-4" th:text="${scenario.introduction}"></p>
+                    <!-- Scenario Edit Form -->
+                    <form th:action="@{/scenarios/{id}/update(id=${scenario.id})}" th:object="${scenarioForm}" method="post" class="mb-4">
+                        <div class="mb-3">
+                            <label for="title" class="form-label h2">タイトル</label>
+                            <input type="text" class="form-control form-control-lg" id="title" th:field="*{title}" required>
+                            <div class="form-text text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="introduction" class="form-label">導入文</label>
+                            <textarea class="form-control" id="introduction" th:field="*{introduction}" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save me-2"></i>シナリオ情報更新
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteScenarioModal">
+                                <i class="fas fa-trash-alt me-2"></i>シナリオ削除
+                            </button>
+                        </div>
+                    </form>
 
                     <hr class="mb-4">
 
@@ -95,6 +113,28 @@
                 </div>
               </div>
             </main>
+
+            <!-- Delete Scenario Modal -->
+            <div class="modal fade" id="deleteScenarioModal" tabindex="-1" aria-labelledby="deleteScenarioModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="deleteScenarioModalLabel">シナリオの削除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    本当にこのシナリオを削除しますか？<br>
+                    この操作は元に戻せません。
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <form th:action="@{/scenarios/{id}/delete(id=${scenario.id})}" method="post">
+                      <button type="submit" class="btn btn-danger">削除する</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div th:replace="~{fragment :: footer}"></div>
         </div>

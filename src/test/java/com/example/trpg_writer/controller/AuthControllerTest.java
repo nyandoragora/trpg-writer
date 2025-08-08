@@ -2,6 +2,10 @@ package com.example.trpg_writer.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +46,34 @@ public class AuthControllerTest {
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("auth/login"));
+    }
+
+    @Test
+    @DisplayName("正しい認証情報でログインが成功すること")
+    void whenLoginWithValidCredentials_thenRedirectsToHomeAndAuthenticates() throws Exception {
+        mockMvc.perform(formLogin("/login").user("taro.yamada@example.com").password("password"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(authenticated().withUsername("taro.yamada@example.com"));
+    }
+
+    @Test
+    @DisplayName("不正な認証情報でログインが失敗すること")
+    void whenLoginWithInvalidCredentials_thenRedirectsToLoginErrorAndRemainsUnauthenticated() throws Exception {
+        mockMvc.perform(formLogin("/login").user("taro.yamada@example.com").password("wrongpassword"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?error"))
+                .andExpect(unauthenticated());
+    }
+
+    @Test
+    @WithUserDetails("taro.yamada@example.com")
+    @DisplayName("ログアウトが成功すること")
+    void whenLogout_thenRedirectsToLoginAndUnauthenticates() throws Exception {
+        mockMvc.perform(logout("/logout"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/?loggedOut"))
+                .andExpect(unauthenticated());
     }
 
     @Test

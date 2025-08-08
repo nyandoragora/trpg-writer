@@ -2,6 +2,8 @@ package com.example.trpg_writer.controller;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.repository.ScenarioRepository;
 
 @SpringBootTest
@@ -43,6 +46,7 @@ public class ScenarioControllerTest {
     @Autowired
     private ScenarioRepository scenarioRepository;
 
+    // --- Create ---
     @Test
     @DisplayName("認証済みユーザーはシナリオ作成ページを正常に表示できる")
     @WithUserDetails("taro.yamada@example.com")
@@ -96,6 +100,7 @@ public class ScenarioControllerTest {
         assertEquals(countBefore, countAfter);
     }
 
+    // --- Edit Page ---
     @Test
     @DisplayName("シナリオ編集ページが正常に表示されること")
     @WithUserDetails("taro.yamada@example.com")
@@ -123,6 +128,89 @@ public class ScenarioControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("他人のシナリオ編集ページにアクセスすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenAccessOthersScenarioEditPage_thenReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/scenarios/1/edit"))
+                .andExpect(status().isNotFound());
+    }
+
+    // --- Update ---
+    @Test
+    @DisplayName("自分のシナリオを正常に更新できること")
+    @WithUserDetails("taro.yamada@example.com")
+    public void whenUpdateOwnScenario_thenSucceeds() throws Exception {
+        Scenario scenarioBefore = scenarioRepository.findById(1).get();
+        String titleBefore = scenarioBefore.getTitle();
+
+        mockMvc.perform(post("/scenarios/1/update")
+                .param("title", "更新されたタイトル")
+                .param("introduction", "更新された導入文")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/scenarios/1/edit"))
+                .andExpect(flash().attribute("successMessage", "シナリオを更新しました。"));
+
+        Scenario scenarioAfter = scenarioRepository.findById(1).get();
+        assertNotEquals(titleBefore, scenarioAfter.getTitle());
+        assertEquals("更新されたタイトル", scenarioAfter.getTitle());
+    }
+
+    @Test
+    @DisplayName("他人のシナリオを更新しようとすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenUpdateOthersScenario_thenReturnsNotFound() throws Exception {
+        Scenario scenarioBefore = scenarioRepository.findById(1).get();
+        String titleBefore = scenarioBefore.getTitle();
+
+        mockMvc.perform(post("/scenarios/1/update")
+                .param("title", "不正な更新")
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+
+        Scenario scenarioAfter = scenarioRepository.findById(1).get();
+        assertEquals(titleBefore, scenarioAfter.getTitle());
+    }
+
+    @Test
+    @DisplayName("タイトルを空にして更新しようとすると失敗すること")
+    @WithUserDetails("taro.yamada@example.com")
+    public void whenUpdateScenarioWithEmptyTitle_thenFails() throws Exception {
+        mockMvc.perform(post("/scenarios/1/update")
+                .param("title", "")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("scenarios/edit"))
+                .andExpect(model().attributeHasFieldErrors("scenarioForm", "title"));
+    }
+
+    // --- Delete ---
+    @Test
+    @DisplayName("自分のシナリオを正常に削除できること")
+    @WithUserDetails("taro.yamada@example.com")
+    public void whenDeleteOwnScenario_thenSucceeds() throws Exception {
+        assertTrue(scenarioRepository.existsById(1));
+        mockMvc.perform(post("/scenarios/1/delete")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/users"))
+                .andExpect(flash().attribute("successMessage", "シナリオを削除しました。"));
+        assertFalse(scenarioRepository.existsById(1));
+    }
+
+    @Test
+    @DisplayName("他人のシナリオを削除しようとすると404エラーが発生すること")
+    @WithUserDetails("hanako.suzuki@example.com")
+    public void whenDeleteOthersScenario_thenReturnsNotFound() throws Exception {
+        assertTrue(scenarioRepository.existsById(1));
+        mockMvc.perform(post("/scenarios/1/delete")
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+        assertTrue(scenarioRepository.existsById(1));
+    }
+
+    // --- PDF Download ---
     @Test
     @DisplayName("PDFが正常にダウンロードされること")
     @WithUserDetails("taro.yamada@example.com")
@@ -165,14 +253,6 @@ public class ScenarioControllerTest {
             assertTrue(text.contains("ゴブリン"), "PDF should contain an NPC name.");
             assertTrue(text.contains("城門"), "PDF should contain a scene title.");
         }
-    }
-
-    @Test
-    @DisplayName("他人のシナリオ編集ページにアクセスすると404エラーが発生すること")
-    @WithUserDetails("hanako.suzuki@example.com")
-    public void whenAccessOthersScenarioEditPage_thenReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/scenarios/1/edit"))
-                .andExpect(status().isNotFound());
     }
 
     @Test

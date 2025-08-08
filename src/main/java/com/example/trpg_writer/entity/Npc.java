@@ -31,6 +31,7 @@ public class Npc {
 
     @ManyToOne
     @JoinColumn(name = "scenario_id")
+    @JsonIgnore
     private Scenario scenario;
 
     @Column(name = "name")

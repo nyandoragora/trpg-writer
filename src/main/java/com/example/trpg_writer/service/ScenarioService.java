@@ -4,8 +4,10 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.User;
@@ -27,6 +29,20 @@ public class ScenarioService {
       scenario.setIntroduction(scenarioForm.getIntroduction());
       scenario.setUser(user);
       scenarioRepository.save(scenario);
+  }
+
+  @Transactional
+  public void update(ScenarioForm scenarioForm) {
+      Scenario scenario = scenarioRepository.findById(scenarioForm.getId())
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
+      scenario.setTitle(scenarioForm.getTitle());
+      scenario.setIntroduction(scenarioForm.getIntroduction());
+      scenarioRepository.save(scenario);
+  }
+
+  @Transactional
+  public void delete(Integer id) {
+      scenarioRepository.deleteById(id);
   }
 
   // ユーザーIDと合致するシナリオを出力する
