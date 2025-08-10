@@ -13,6 +13,7 @@ import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.User;
 import com.example.trpg_writer.form.ScenarioForm;
 import com.example.trpg_writer.repository.ScenarioRepository;
+import com.example.trpg_writer.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,6 +53,14 @@ public class ScenarioService {
 
   public Optional<Scenario> findById(Integer id) {
     return scenarioRepository.findById(id);
+  }
+
+  public void checkScenarioOwnership(Integer scenarioId, UserDetailsImpl userDetails) {
+      Scenario scenario = findById(scenarioId)
+              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
+      if (userDetails == null || !scenario.getUser().getId().equals(userDetails.getUser().getId())) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found");
+      }
   }
 
 }

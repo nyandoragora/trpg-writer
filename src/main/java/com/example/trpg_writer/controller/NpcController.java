@@ -42,20 +42,13 @@ public class NpcController {
     private final BootyService bootyService;
     private final SkillService skillService;
 
-    private void checkScenarioOwnership(Integer scenarioId, UserDetailsImpl userDetails) {
-        Scenario scenario = scenarioService.findById(scenarioId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
-        if (!scenario.getUser().getId().equals(userDetails.getUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found");
-        }
-    }
-
     @GetMapping("/scenes/{sceneId}/npcs/create")
     public String create(@PathVariable("scenarioId") Integer scenarioId,
                          @PathVariable("sceneId") Integer sceneId,
                          Model model,
                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+
         NpcForm npcForm = new NpcForm();
         npcForm.setScenarioId(scenarioId);
         model.addAttribute("npcForm", npcForm);
@@ -76,7 +69,8 @@ public class NpcController {
                         RedirectAttributes redirectAttributes,
                         Model model,
                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+        
         Scenario scenario = scenarioService.findById(scenarioId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         Scene scene = sceneService.findById(sceneId)
@@ -104,7 +98,7 @@ public class NpcController {
     public Npc getNpcDetails(@PathVariable("scenarioId") Integer scenarioId,
                              @PathVariable("npcId") Integer npcId,
                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         return npcService.findById(npcId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
     }
@@ -114,7 +108,7 @@ public class NpcController {
                                      @PathVariable("sceneId") Integer sceneId,
                                      @PathVariable("npcId") Integer npcId,
                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         npcService.delete(npcId);
         return ResponseEntity.ok().build();
     }
@@ -125,7 +119,7 @@ public class NpcController {
                        @PathVariable("npcId") Integer npcId,
                        Model model,
                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         Npc npc = npcService.findById(npcId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
         
@@ -152,7 +146,7 @@ public class NpcController {
                          RedirectAttributes redirectAttributes,
                          Model model,
                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         if (bindingResult.hasErrors()) {
             model.addAttribute("scenarioId", scenarioId);
             model.addAttribute("sceneId", sceneId);

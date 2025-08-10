@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.trpg_writer.entity.Info;
-import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.form.InfoForm;
 import com.example.trpg_writer.security.UserDetailsImpl;
 import com.example.trpg_writer.service.InfoService;
@@ -31,21 +30,13 @@ public class InfoController {
     private final InfoService infoService;
     private final ScenarioService scenarioService;
 
-    private void checkScenarioOwnership(Integer scenarioId, UserDetailsImpl userDetails) {
-        Scenario scenario = scenarioService.findById(scenarioId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
-        if (!scenario.getUser().getId().equals(userDetails.getUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found");
-        }
-    }
-
     // 情報の保存
     @PostMapping
     public ResponseEntity<?> store(@PathVariable("scenarioId") Integer scenarioId,
                                    @RequestBody @Validated InfoForm infoForm,
                                    BindingResult bindingResult,
                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
 
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
@@ -64,7 +55,7 @@ public class InfoController {
                                     @RequestBody @Validated InfoForm infoForm,
                                     BindingResult bindingResult,
                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         Info info = infoService.findById(infoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Info not found"));
 
@@ -87,7 +78,7 @@ public class InfoController {
     public ResponseEntity<?> delete(@PathVariable("scenarioId") Integer scenarioId,
                                     @PathVariable("infoId") Integer infoId,
                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         Info info = infoService.findById(infoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Info not found"));
 

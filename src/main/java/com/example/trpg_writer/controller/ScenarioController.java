@@ -59,14 +59,6 @@ public class ScenarioController {
     private final NpcService npcService;
     private final SceneNpcRepository sceneNpcRepository;
 
-    private void checkScenarioOwnership(Integer scenarioId, UserDetailsImpl userDetails) {
-        Scenario scenario = scenarioService.findById(scenarioId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
-        if (!scenario.getUser().getId().equals(userDetails.getUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found");
-        }
-    }
-
     @GetMapping("/create")
     public String create(@ModelAttribute ScenarioForm scenarioForm) {
         return "scenarios/create";
@@ -88,7 +80,7 @@ public class ScenarioController {
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") Integer id, @PageableDefault(page = 0, size = 5, sort = "createdAt") Pageable pageable, Model model, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(id, userDetails);
+        scenarioService.checkScenarioOwnership(id, userDetails);
         Scenario scenario = scenarioService.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         
@@ -108,7 +100,7 @@ public class ScenarioController {
 
     @PostMapping("/{id}/update")
     public String update(@PathVariable("id") Integer id, @ModelAttribute @Validated ScenarioForm scenarioForm, BindingResult bindingResult, @AuthenticationPrincipal UserDetailsImpl userDetails, RedirectAttributes redirectAttributes, Model model) {
-        checkScenarioOwnership(id, userDetails);
+        scenarioService.checkScenarioOwnership(id, userDetails);
 
         if (bindingResult.hasErrors()) {
             Scenario scenario = scenarioService.findById(id)
@@ -131,7 +123,7 @@ public class ScenarioController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable("id") Integer id, @AuthenticationPrincipal UserDetailsImpl userDetails, RedirectAttributes redirectAttributes) {
-        checkScenarioOwnership(id, userDetails);
+        scenarioService.checkScenarioOwnership(id, userDetails);
         scenarioService.delete(id);
         redirectAttributes.addFlashAttribute("successMessage", "シナリオを削除しました。");
         return "redirect:/users";
@@ -139,7 +131,7 @@ public class ScenarioController {
 
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> downloadPdf(@PathVariable("id") Integer id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(id, userDetails);
+        scenarioService.checkScenarioOwnership(id, userDetails);
         Scenario scenario = scenarioService.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         

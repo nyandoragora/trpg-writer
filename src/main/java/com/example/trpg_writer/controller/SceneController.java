@@ -63,18 +63,9 @@ public class SceneController {
     @Value("${tinymce.api-key}")
     private String tinymceApiKey;
 
-    // ログインユーザーがシナリオの所有者か確認
-    private void checkScenarioOwnership(Integer scenarioId, UserDetailsImpl userDetails) {
-        Scenario scenario = scenarioService.findById(scenarioId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
-        if (userDetails == null || !scenario.getUser().getId().equals(userDetails.getUser().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found");
-        }
-    }
-
     @GetMapping("/create")
     public String create(@PathVariable("scenarioId") Integer scenarioId, Model model, @ModelAttribute SceneForm sceneForm, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         Scenario scenario = scenarioService.findById(scenarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         model.addAttribute("scenario", scenario);
@@ -89,7 +80,7 @@ public class SceneController {
                         RedirectAttributes redirectAttributes,
                         Model model,
                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         Scenario scenario = scenarioService.findById(scenarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
 
@@ -110,7 +101,7 @@ public class SceneController {
                        Model model,
                        @ModelAttribute SceneForm sceneForm,
                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         Scenario scenario = scenarioService.findById(scenarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         Scene scene = sceneService.findById(sceneId)
@@ -168,7 +159,7 @@ public class SceneController {
                          BindingResult bindingResult,
                          RedirectAttributes redirectAttributes,
                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.sceneForm", bindingResult);
             redirectAttributes.addFlashAttribute("sceneForm", sceneForm);
@@ -194,7 +185,7 @@ public class SceneController {
                               @RequestParam("imageFile") MultipartFile imageFile,
                               RedirectAttributes redirectAttributes,
                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        checkScenarioOwnership(scenarioId, userDetails);
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         try {
             sceneService.saveImage(sceneId, imageFile);
             redirectAttributes.addFlashAttribute("successMessage", "背景画像をアップロードしました。");
