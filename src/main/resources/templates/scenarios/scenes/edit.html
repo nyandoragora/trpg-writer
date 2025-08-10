@@ -2,335 +2,113 @@
 <html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <div th:replace="~{fragment :: meta}"></div>
-
         <div th:replace="~{fragment :: styles}"></div>
-
         <title>シーン編集ページ</title>
         <script th:src="@{'https://cdn.tiny.cloud/1/' + ${tinymceApiKey} + '/tinymce/6/tinymce.min.js'}" referrerpolicy="origin"></script>
     </head>
-    <body th:data-tinymce-api-key="${tinymceApiKey}"
-          th:data-info-store-url="@{/api/scenarios/{scenarioId}/infos(scenarioId=${scenario.id})}"
-          th:data-info-update-url-template="@{/api/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER(scenarioId=${scenario.id})}"
-          th:data-info-delete-url-template="@{/api/scenarios/{scenarioId}/infos/INFO_ID_PLACEHOLDER(scenarioId=${scenario.id})}">
+    <body>
+        <!-- Data container for JavaScript -->
+        <div id="scene-data" 
+             th:data-scenario-id="${scenarioId}" 
+             th:data-scene-id="${sceneId}" 
+             th:data-tinymce-api-key="${tinymceApiKey}">
+        </div>
+
         <div class="trpg-wrapper">
            <div th:replace="~{fragment :: header}"></div>
 
             <main>
-              <div th:if="${successMessage}" class="container trpg-container pt-2">
-                <div class="alert alert-info mt-4 mb-0">
-                  <span th:text="${successMessage}"></span>
-                </div>
-              </div>
-
               <div class="container-fluid py-4">
                 <div class="row">
                   <!-- Left Pane: Scene Preview & Tabs -->
                   <div class="col-lg-4">
                     <div class="card mb-4">
-                      <div class="card-header">シーンプレビュー</div>
-                      <div class="card-body" style="min-height: 350px; background-color: black; position: relative;">
-                        <!-- Background Image Preview -->
-                        <div th:if="${scene.imagePath}" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-size: contain; background-repeat: no-repeat; background-position: center;" th:styleappend="'background-image: url(' + ${scene.imagePath} + ');'"></div>
-                        
-                        <!-- Overlay for text information -->
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 15px;">
-                          <div>
-                            <div>
-                              <h5 class="card-title" th:text="${scene.title}" style="color: white; margin-bottom: 0;"></h5>
-                            </div>
-                            <div>
-                              <p class="card-text" style="color: white; margin-bottom: 0;">情報数: <span th:text="${infoNames.size()}"></span></p>
-                              <ul style="color: white; list-style-type: none; padding-left: 0;">
-                                <li th:each="infoName : ${infoNames}" th:text="${infoName}"></li>
-                              </ul>
-                              <p class="card-text" style="color: white; margin-bottom: 0;">登場NPC: <span th:text="${sceneNpcs.size()}"></span></p>
-                              <ul style="color: white; list-style-type: none; padding-left: 0;">
-                                <li th:each="sceneNpc : ${sceneNpcs}" th:text="${sceneNpc.npc.name}"></li>
-                              </ul>
-                            </div>
-                          </div>
-                          <div>
-                            <p class="card-text" style="color: white; margin-bottom: 0;">GM向け情報:</p>
-                            <p class="card-text" style="color: white; margin-bottom: 0;" th:text="${scene.gmInfo}"></p>
-                          </div>
-                        </div>
+                      <div id="scene-preview-card" class="card-body" style="min-height: 350px; background-color: black; position: relative;">
+                        {...}
                       </div>
                     </div>
 
-                    <div class="card mb-4">
-                      <div class="card-header">管理項目</div>
-                      <div class="card-body">
+                    <div class="card">
+                      <div class="card-header p-0">
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="npc-tab" data-bs-toggle="tab" data-bs-target="#npc" type="button" role="tab" aria-controls="npc" aria-selected="true">NPC</button>
+                            <button class="nav-link active" id="scene-npcs-tab" data-bs-toggle="tab" data-bs-target="#scene-npcs" type="button" role="tab">登場NPC</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="scene-npc-tab" data-bs-toggle="tab" data-bs-target="#scene-npc" type="button" role="tab" aria-controls="scene-npc" aria-selected="false">シーン内NPC</button>
+                            <button class="nav-link" id="all-npcs-tab" data-bs-toggle="tab" data-bs-target="#all-npcs" type="button" role="tab">全NPC</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="scenario-info-tab" data-bs-toggle="tab" data-bs-target="#scenario-info" type="button" role="tab" aria-controls="scenario-info" aria-selected="false">シナリオ内情報</button>
+                            <button class="nav-link" id="scene-infos-tab" data-bs-toggle="tab" data-bs-target="#scene-infos" type="button" role="tab">公開情報</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="scene-info-tab" data-bs-toggle="tab" data-bs-target="#scene-info" type="button" role="tab" aria-controls="scene-info" aria-selected="false">シーン内情報</button>
+                            <button class="nav-link" id="all-infos-tab" data-bs-toggle="tab" data-bs-target="#all-infos" type="button" role="tab">全情報</button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="background-tab" data-bs-toggle="tab" data-bs-target="#background" type="button" role="tab" aria-controls="background" aria-selected="false">背景挿入</button>
+                            <button class="nav-link" id="background-tab" data-bs-toggle="tab" data-bs-target="#background" type="button" role="tab">背景挿入</button>
                           </li>
                         </ul>
-                        <div class="tab-content" id="myTabContent">
-                          <div class="tab-pane fade show active" id="npc" role="tabpanel" aria-labelledby="npc-tab">
-                            <!-- NPC管理コンテンツ -->
-                            <div class="mt-3">
-                              <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/create(scenarioId=${scenario.id}, sceneId=${scene.id})}" class="btn btn-primary">
-                                NPCを追加
-                              </a>
-                            </div>
-                            <div class="mt-3">
-                                <div th:if="${#lists.isEmpty(allNpcs)}">
-                                    <p>このシナリオにはまだNPCが登録されていません。</p>
-                                </div>
-                                <div th:unless="${#lists.isEmpty(allNpcs)}" class="list-group" style="max-height: 400px; overflow-y: auto;">
-                                    <div th:each="npc : ${allNpcs}" class="list-group-item list-group-item-action flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1" th:text="${npc.name}"></h5>
-                                            <small th:text="'Lv: ' + ${npc.level}"></small>
-                                        </div>
-                                        <p class="mb-1" th:text="${npc.description}"></p>
-                                        <button type="button" class="btn btn-sm btn-info mt-2" data-bs-toggle="modal" data-bs-target="#npcDetailModal" th:data-npc-id="${npc.id}">
-                                            詳細
-                                        </button>
-                                        <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/{npcId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id}, npcId=${npc.id})}" class="btn btn-sm btn-warning mt-2">
-                                            編集
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-success mt-2 add-npc-to-scene-btn" th:data-npc-id="${npc.id}">
-                                            シーンに追加
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="tab-pane fade" id="scene-npc" role="tabpanel" aria-labelledby="scene-npc-tab">
-                            <div class="mt-3">
-                                <div th:if="${#lists.isEmpty(sceneNpcs)}">
-                                    <p>このシーンに登場するNPCはいません。</p>
-                                </div>
-                                <div th:unless="${#lists.isEmpty(sceneNpcs)}" class="list-group" style="max-height: 400px; overflow-y: auto;">
-                                    <div th:each="sceneNpc : ${sceneNpcs}" class="list-group-item list-group-item-action flex-column align-items-start">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1" th:text="${sceneNpc.npc.name}"></h5>
-                                            <small th:text="'Lv: ' + ${sceneNpc.npc.level}"></small>
-                                        </div>
-                                        <p class="mb-1" th:text="${sceneNpc.npc.description}"></p>
-                                        <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/{npcId}/edit(scenarioId=${scenario.id}, sceneId=${scene.id}, npcId=${sceneNpc.npc.id})}" class="btn btn-sm btn-warning mt-2">
-                                            編集
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger mt-2 remove-npc-from-scene-btn" th:data-scene-npc-id="${sceneNpc.id}">
-                                            削除
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                          </div>
-                          <div class="tab-pane fade" id="scenario-info" role="tabpanel" aria-labelledby="scenario-info-tab">
-                            <div class="mt-3">
-                              <div th:if="${#lists.isEmpty(allSceneInfos)}">
-                                <p>シナリオ内情報がありません。</p>
-                              </div>
-                              <div th:unless="${#lists.isEmpty(allSceneInfos)}" style="max-height: 400px; overflow-y: auto;">
-                                <div th:each="sceneInfo : ${allSceneInfos}" class="card mb-2" style="cursor: pointer;" 
-                                     data-bs-toggle="modal" 
-                                     data-bs-target="#scenarioInfoModal"
-                                     th:attr="data-info-name=${sceneInfo.info.name}, 
-                                              data-info-content=${sceneInfo.info.content}, 
-                                              data-scene-edit-url=@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${sceneInfo.scene.scenario.id}, sceneId=${sceneInfo.scene.id})}">
-                                  <div class="card-body">
-                                    <h6 class="card-subtitle mb-2 text-muted" th:text="'シーン名：' + ${sceneInfo.scene.title}"></h6>
-                                    <h5 class="card-title" th:text="${sceneInfo.info.name}"></h5>
-                                    <p class="card-text" th:text="${#strings.abbreviate(sceneInfo.info.content, 80)}"></p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="tab-pane fade" id="scene-info" role="tabpanel" aria-labelledby="scene-info-tab">
-                            <div class="mt-3">
-                              <button type="button" class="btn btn-primary" data-bs-target="#infoModal">
-                                シーン内情報を追加
-                              </button>
-                            </div>
-                            <div class="mt-3">
-                              <div th:if="${#lists.isEmpty(sceneInfos)}">
-                                <p>シーン内情報がありません。</p>
-                              </div>
-                              <div th:unless="${#lists.isEmpty(sceneInfos)}" style="max-height: 400px; overflow-y: auto;">
-                                <div class="card mb-2" th:each="sceneInfo : ${sceneInfos}">
-                                  <div class="card-body">
-                                    <h5 class="card-title" th:text="${sceneInfo.info.name}"></h5>
-                                    <p class="card-text" th:text="${#strings.abbreviate(sceneInfo.info.content, 80)}"></p>
-                                    <div class="d-flex justify-content-end mt-2">
-                                      <button type="button" class="btn btn-sm btn-info me-2 edit-info-btn" 
-                                              data-bs-target="#infoModal"
-                                              th:data-info-id="${sceneInfo.info.id}"
-                                              th:data-info-name="${sceneInfo.info.name}"
-                                              th:data-info-content="${sceneInfo.info.content}">
-                                        編集
-                                      </button>
-                                      <button type="button" class="btn btn-sm btn-danger delete-info-btn" 
-                                              data-bs-target="#deleteInfoConfirmModal"
-                                              th:data-info-id="${sceneInfo.info.id}">
-                                        削除
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Info Modal -->
-                          <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="infoModalLabel">情報</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                  <form id="infoForm">
-                                    <input type="hidden" id="infoId" name="id">
-                                    <input type="hidden" id="infoSceneId" name="sceneId" th:value="${scene.id}">
-                                    <div class="mb-3">
-                                      <label for="infoName" class="form-label">情報名</label>
-                                      <input type="text" class="form-control" id="infoName" name="name" required>
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="infoContent" class="form-label">内容</label>
-                                      <textarea class="form-control" id="infoContent" name="content" rows="5"></textarea>
-                                    </div>
-                                  </form>
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" id="save-info-btn" class="btn btn-primary">保存</button>
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Scenario Info Modal -->
-                          <div class="modal fade" id="scenarioInfoModal" tabindex="-1" aria-labelledby="scenarioInfoModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="scenarioInfoModalLabel"></h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                  <p id="scenarioInfoModalContent"></p>
-                                </div>
-                                <div class="modal-footer">
-                                  <a href="#" id="scenarioInfoModalEditButton" class="btn btn-primary">このシーンを編集</a>
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <!-- Delete Info Confirmation Modal -->
-                          <div class="modal fade" id="deleteInfoConfirmModal" tabindex="-1" aria-labelledby="deleteInfoConfirmModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="deleteInfoConfirmModalLabel">情報の削除</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                  <p>本当にこの情報を削除しますか？</p>
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" id="confirm-delete-btn" class="btn btn-danger">削除</button>
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="tab-pane fade" id="background" role="tabpanel" aria-labelledby="background-tab">
-                            <!-- 背景挿入コンテンツ -->
-                            <div class="mt-3">
-                              <form th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/uploadImage(scenarioId=${scenario.id}, sceneId=${scene.id})}" method="post" enctype="multipart/form-data">
+                      </div>
+                      <div class="card-body tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="scene-npcs" role="tabpanel">
+                          <ul id="scene-npc-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
+                        </div>
+                        <div class="tab-pane fade" id="all-npcs" role="tabpanel">
+                            <a th:href="@{/scenarios/{scenarioId}/npcs/create(scenarioId=${scenarioId})}" class="btn btn-primary my-3">
+                                新規NPC作成
+                            </a>
+                          <ul id="all-npc-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
+                        </div>
+                        <div class="tab-pane fade" id="scene-infos" role="tabpanel">
+                           <button type="button" id="add-info-btn" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                新規情報作成
+                           </button>
+                          <ul id="scene-info-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
+                        </div>
+                        <div class="tab-pane fade" id="all-infos" role="tabpanel">
+                          <ul id="all-info-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
+                        </div>
+                        <div class="tab-pane fade" id="background" role="tabpanel">
+                            <form th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/uploadImage(scenarioId=${scenarioId}, sceneId=${sceneId})}" method="post" enctype="multipart/form-data" class="mt-3">
                                 <div class="mb-3">
-                                  <label for="imageFile" class="form-label">背景画像アップロード</label>
-                                  <input class="form-control" type="file" id="imageFile" name="imageFile">
+                                    <label for="imageFile" class="form-label">背景画像アップロード</label>
+                                    <input class="form-control" type="file" id="imageFile" name="imageFile">
                                 </div>
                                 <button type="submit" class="btn btn-primary">アップロード</button>
-                              </form>
-                            </div>
-                          </div>
+                            </form>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Right Pane: Scene Content Editor & Lists -->
+                  <!-- Right Pane: Scene Content Editor -->
                   <div class="col-lg-6">
                     <div class="card mb-4">
                       <div class="card-header">シーン内容編集</div>
                       <div class="card-body">
-                        <form id="sceneEditForm" th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/update(scenarioId=${scenario.id}, sceneId=${scene.id})}" th:object="${sceneForm}" method="post">
-                          <div class="mb-3">
-                            <label for="sceneTitle" class="form-label">シーンタイトル</label>
-                            <input type="text" class="form-control" id="sceneTitle" th:field="*{title}">
-                          </div>
-                          <div class="mb-3">
-                            <label for="sceneContent" class="form-label">シーン本文</label>
-                            <textarea class="form-control" id="sceneContent" th:field="*{content}" rows="15"></textarea>
-                          </div>
-                          <div class="mb-3">
-                            <label for="gmInfo" class="form-label">GM情報</label>
-                            <div th:if="${#fields.hasErrors('gmInfo')}" class="text-danger small mb-2" th:errors="*{gmInfo}"></div>
-                            <textarea class="form-control" id="gmInfo" th:field="*{gmInfo}" rows="5"></textarea>
-                          </div>
-                          <button type="submit" class="btn btn-success">シーンを保存</button>
-                        </form>
+                        <h3 id="scenario-title"></h3>
+                        <h4 id="scene-title"></h4>
+                        <textarea id="content-editor" rows="15"></textarea>
+                        <textarea id="gm-info-textarea" class="form-control mt-3" rows="5"></textarea>
+                        <button id="save-content-btn" class="btn btn-success mt-3">本文を保存</button>
+                        <span id="save-status-message" class="ms-2 text-success fw-bold"></span>
                       </div>
                     </div>
-
-                    </div>
+                  </div>
 
                   <!-- Rightmost Pane: Scene List -->
                   <div class="col-lg-2">
                     <div class="card mb-4">
                       <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">シーン一覧</h5>
-                        <a th:href="@{/scenarios/{scenarioId}/scenes/create(scenarioId=${scenario.id})}" class="btn btn-sm btn-primary">シーン追加</a>
+                        <a th:href="@{/scenarios/{scenarioId}/scenes/create(scenarioId=${scenarioId})}" class="btn btn-sm btn-primary">追加</a>
                       </div>
-                      <div class="card-body" style="max-height: 700px; overflow-y: auto;">
-                        <div th:each="s : ${allScenes}" class="card mb-2">
-                          <div class="card-body p-2 d-flex">
-                            <!-- Image Box -->
-                            <div class="me-2" style="width: 60px; height: 60px; flex-shrink: 0; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                              <img th:if="${s.imagePath != null and s.imagePath.length() > 0}" th:src="@{${s.imagePath}}" alt="シーン画像" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                              <span th:unless="${s.imagePath != null and s.imagePath.length() > 0}" class="text-muted small">画像なし</span>
-                            </div>
-                            
-                            <!-- Content Area -->
-                            <div class="flex-grow-1">
-                              <h6 class="card-title mb-0" th:text="${s.title}"></h6>
-                              <p class="card-text text-muted small mb-1" th:text="${#strings.abbreviate(s.gmInfo, 25)}"></p>
-                              <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenario.id}, sceneId=${s.id})}" class="btn btn-sm btn-outline-primary w-100">編集</a>
-                            </div>
-                          </div>
-                        </div>
-                        <div th:if="${#lists.isEmpty(allScenes)}" class="text-center text-muted">
-                          <p>シーンがありません</p>
-                        </div>
+                      <div id="scene-list-container" class="card-body" style="max-height: 700px; overflow-y: auto;">
+                        <!-- Scene list will be rendered here by ui-updater -->
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
             </main>
 
             <div th:replace="~{fragment :: footer}"></div>
@@ -338,27 +116,65 @@
 
         <div th:replace="~{fragment :: scripts}"></div>
 
-        <!-- Swiper -->
-        <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            // ThymeleafからJSへデータを渡すための、純粋なデータオブジェクト
-            window.trpgWriterData = {
-                scenarioId: /*[[${scenario.id}]]*/ null,
-                sceneId: /*[[${scene.id}]]*/ null,
-                allNpcs: /*[[${allNpcs}]]*/ [],
-                allParts: /*[[${allParts}]]*/ [],
-                allSkills: /*[[${allSkills}]]*/ [],
-                allBootys: /*[[${allBootys}]]*/ []
-            };
-            /*]]>*/
-        </script>
-
-        <!-- 専用のJSファイルを読み込む（scene-editor.jsが最初に読み込まれることが重要） -->
+        <!-- New JS files -->
+        <script th:src="@{/js/api-client.js}"></script>
+        <script th:src="@{/js/npc-list-renderer.js}"></script>
+        <script th:src="@{/js/info-list-renderer.js}"></script>
+        <script th:src="@{/js/scene-preview-renderer.js}"></script>
+        <script th:src="@{/js/scene-list-renderer.js}"></script>
+        <script th:src="@{/js/ui-updater.js}"></script>
         <script th:src="@{/js/scene-editor.js}"></script>
         <script th:src="@{/js/info-handler.js}"></script>
         <script th:src="@{/js/npc-handler.js}"></script>
+
+        <!-- Modals -->
+        <!-- Info Add/Edit Modal -->
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="infoModalLabel">情報</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="infoForm">
+                            <input type="hidden" id="infoId" name="id">
+                            <div class="mb-3">
+                                <label for="infoName" class="form-label">情報名</label>
+                                <input type="text" class="form-control" id="infoName" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="infoContent" class="form-label">内容</label>
+                                <textarea class="form-control" id="infoContent" name="content" rows="5"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="save-info-btn" class="btn btn-primary">保存</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Info Confirmation Modal -->
+        <div class="modal fade" id="deleteInfoConfirmModal" tabindex="-1" aria-labelledby="deleteInfoConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteInfoConfirmModalLabel">情報の削除</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>本当にこの情報を削除しますか？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="confirm-delete-info-btn" class="btn btn-danger">削除</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- NPC Detail Modal -->
         <div class="modal fade" id="npcDetailModal" tabindex="-1" aria-labelledby="npcDetailModalLabel" aria-hidden="true">
@@ -368,126 +184,33 @@
                         <h5 class="modal-title" id="npcDetailModalLabel">NPC詳細</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" id="npcDetailModalBody">
                         <!-- NPCの詳細情報がここに表示されます -->
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger me-auto" id="deleteNpcBtn">削除</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- NPC Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteNpcConfirmModal" tabindex="-1" aria-labelledby="deleteNpcConfirmModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+        <!-- Info Detail Modal -->
+        <div class="modal fade" id="infoDetailModal" tabindex="-1" aria-labelledby="infoDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteNpcConfirmModalLabel">NPCの削除</h5>
+                        <h5 class="modal-title" id="infoDetailModalLabel">情報詳細</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>本当にこのNPCを削除しますか？<br>この操作は元に戻せません。</p>
-                        <div id="deleteNpcUnsavedWarning" class="alert alert-warning" style="display: none;">
-                            注意：シーン本文に未保存の変更があります。
-                        </div>
+                        <h5 id="infoDetailName"></h5>
+                        <p id="infoDetailContent" style="white-space: pre-wrap;"></p>
                     </div>
                     <div class="modal-footer">
-                        <!-- 通常時 -->
-                        <button type="button" class="btn btn-danger" id="confirmNpcDeleteBtn">はい、削除します</button>
-                        <!-- 変更あり時 -->
-                        <button type="button" class="btn btn-success" id="saveAndNpcDeleteBtn" style="display: none;">本文を保存して削除</button>
-                        <button type="button" id="discardAndNpcDeleteBtn" class="btn btn-warning" style="display: none;">本文を破棄して削除</button>
-                        
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
                     </div>
                 </div>
             </div>
         </div>
-    <!-- Unsaved Changes Modal -->
-        <div class="modal fade" id="unsavedChangesModal" tabindex="-1" aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="unsavedChangesModalLabel">未保存の変更があります</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>本文が変更されています。ページを移動する前に保存しますか？</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="saveAndNavigateBtn">保存して移動</button>
-                        <button type="button" class="btn btn-warning" id="discardAndNavigateBtn">変更を破棄して移動</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </body>
 </html>
-<!-- NPC Edit Modal -->
-<div class="modal fade" id="npcEditModal" tabindex="-1" aria-labelledby="npcEditModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="npcEditModalLabel">NPCの編集</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="npcEditForm" method="post">
-                    <input type="hidden" id="editNpcId" name="id">
-                    <!-- NPC基本情報 -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="editNpcName" class="form-label">名前</label>
-                            <input type="text" class="form-control" id="editNpcName" name="name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="editNpcLevel" class="form-label">レベル</label>
-                            <input type="number" class="form-control" id="editNpcLevel" name="level">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editNpcDescription" class="form-label">概要</label>
-                        <textarea class="form-control" id="editNpcDescription" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editNpcImage" class="form-label">画像</label>
-                        <input class="form-control" type="file" id="editNpcImage" name="imageFile">
-                        <div id="editNpcImagePreview" class="mt-2"></div>
-                    </div>
-
-                    <!-- 部位 -->
-                    <hr>
-                    <h5>部位</h5>
-                    <div id="edit-parts-container">
-                        <!-- 部位フォームがここに追加されます -->
-                    </div>
-                    <button type="button" id="add-edit-part-btn" class="btn btn-sm btn-outline-primary mt-2">部位を追加</button>
-
-                    <!-- 特殊能力 -->
-                    <hr>
-                    <h5>特殊能力</h5>
-                    <div id="edit-skills-container">
-                        <!-- 特殊能力フォームがここに追加されます -->
-                    </div>
-                    <button type="button" id="add-edit-skill-btn" class="btn btn-sm btn-outline-primary mt-2">特殊能力を追加</button>
-
-                    <!-- 戦利品 -->
-                    <hr>
-                    <h5>戦利品</h5>
-                    <div id="edit-bootys-container">
-                        <!-- 戦利品フォームがここに追加されます -->
-                    </div>
-                    <button type="button" id="add-edit-booty-btn" class="btn btn-sm btn-outline-primary mt-2">戦利品を追加</button>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="submit" form="npcEditForm" class="btn btn-primary">更新</button>
-            </div>
-        </div>
-    </div>
-</div>

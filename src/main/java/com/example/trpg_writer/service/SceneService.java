@@ -12,13 +12,16 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.form.SceneForm;
+import com.example.trpg_writer.repository.ScenarioRepository;
 import com.example.trpg_writer.repository.SceneRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,29 +31,23 @@ import lombok.RequiredArgsConstructor;
 public class SceneService {
 
     private final SceneRepository sceneRepository;
+    private final ScenarioRepository scenarioRepository;
 
     private static final String UPLOAD_DIR = "src/main/resources/static/images/scenes/";
 
-    // Method to save a Scene entity
     @Transactional
-    public Scene save(Scene scene) {
-        return sceneRepository.save(scene);
-    }
-
-    // Method to create a new Scene
-    @Transactional
-    public Scene create(SceneForm sceneForm, Scenario scenario) {
+    public Scene create(SceneForm sceneForm, Integer scenarioId) {
+        Scenario scenario = scenarioRepository.findById(scenarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         Scene scene = new Scene();
         scene.setTitle(sceneForm.getTitle());
         
-        // Sanitize the HTML content using Jsoup
         Safelist safelist = Safelist.basicWithImages()
                                      .addTags("div", "table", "thead", "tbody", "tr", "th", "td")
                                      .addAttributes("div", "class");
         String safeContent = Jsoup.clean(sceneForm.getContent() != null ? sceneForm.getContent() : "", safelist);
         scene.setContent(safeContent);
 
-        // Sanitize GM info content
         String safeGmInfo = Jsoup.clean(sceneForm.getGmInfo() != null ? sceneForm.getGmInfo() : "", safelist);
         scene.setGmInfo(safeGmInfo);
         
@@ -58,53 +55,50 @@ public class SceneService {
         return sceneRepository.save(scene);
     }
 
-    // Method to update an existing Scene
-    @Transactional
-    public Scene update(Scene scene, SceneForm sceneForm) {
+        @Transactional
+    public void update(SceneForm sceneForm, Integer sceneId, Integer scenarioId) {
+        Scene scene = sceneRepository.findById(sceneId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        
+        // Make sure the scene belongs to the correct scenario
+        if (!scene.getScenario().getId().equals(scenarioId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Scene does not belong to the specified scenario");
+        }
+
         scene.setTitle(sceneForm.getTitle());
-
-        // Sanitize the HTML content using Jsoup
-        Safelist safelist = Safelist.basicWithImages()
-                                     .addTags("div", "table", "thead", "tbody", "tr", "th", "td")
-                                     .addAttributes("div", "class");
-        String safeContent = Jsoup.clean(sceneForm.getContent() != null ? sceneForm.getContent() : "", safelist);
-        scene.setContent(safeContent);
-
-        // Sanitize GM info content
-        String safeGmInfo = Jsoup.clean(sceneForm.getGmInfo() != null ? sceneForm.getGmInfo() : "", safelist);
-        scene.setGmInfo(safeGmInfo);
-
-        return sceneRepository.save(scene);
+        scene.setContent(sceneForm.getContent());
+        scene.setGmInfo(sceneForm.getGmInfo());
+        
+        sceneRepository.save(scene);
     }
 
-    // Method to save an image for a scene
     @Transactional
-    public void saveImage(Integer sceneId, MultipartFile imageFile) throws IOException {
-        Scene scene = sceneRepository.findById(sceneId)
-            .orElseThrow(() -> new IllegalArgumentException("Scene not found with ID: " + sceneId));
+    public void saveImage(Integer sceneId, MultipartFile imageFile) {
+        try {
+            Scene scene = sceneRepository.findById(sceneId)
+                .orElseThrow(() -> new IllegalArgumentException("Scene not found with ID: " + sceneId));
 
-        if (!imageFile.isEmpty()) {
-            // Create the upload directory if it doesn't exist
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            if (!imageFile.isEmpty()) {
+                Path uploadPath = Paths.get(UPLOAD_DIR);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                String originalFilename = imageFile.getOriginalFilename();
+                String fileExtension = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+                Path filePath = uploadPath.resolve(uniqueFilename);
+
+                Files.copy(imageFile.getInputStream(), filePath);
+
+                scene.setImagePath("/images/scenes/" + uniqueFilename);
+                sceneRepository.save(scene);
             }
-
-            // Generate a unique filename
-            String originalFilename = imageFile.getOriginalFilename();
-            String fileExtension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-            Path filePath = uploadPath.resolve(uniqueFilename);
-
-            // Save the file to the file system
-            Files.copy(imageFile.getInputStream(), filePath);
-
-            // Update the scene's image path
-            scene.setImagePath("/images/scenes/" + uniqueFilename); // Store relative path for web access
-            sceneRepository.save(scene);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save image", e);
         }
     }
 

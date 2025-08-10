@@ -3,6 +3,8 @@ package com.example.trpg_writer.entity;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +30,7 @@ public class Scene {
 
     @ManyToOne
     @JoinColumn(name = "scenario_id")
+    @JsonIgnore
     private Scenario scenario;
 
     @Column(name = "title")

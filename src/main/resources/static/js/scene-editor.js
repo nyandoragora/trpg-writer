@@ -1,132 +1,75 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // グローバルオブジェクトをここで定義し、HTMLから渡されたデータをマージする
-    window.trpgWriter = {
-        data: window.trpgWriterData || {},
-        isFormDirty: false,
-        sceneEditForm: null,
-        csrfToken: null,
-        csrfHeader: null,
-        fetchWithCsrf: null
-    };
+// scene-editor.js
 
-    // CSRFトークンをmetaタグから取得
-    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-    window.trpgWriter.csrfToken = csrfToken;
-    window.trpgWriter.csrfHeader = csrfHeader;
+document.addEventListener('DOMContentLoaded', () => {
+    const sceneDataContainer = document.getElementById('scene-data');
+    const scenarioId = sceneDataContainer.dataset.scenarioId;
+    const sceneId = sceneDataContainer.dataset.sceneId;
+    const tinymceApiKey = sceneDataContainer.dataset.tinymceApiKey;
 
-    // CSRFトークンをヘッダーに自動で付与するfetchのラッパー関数をグローバルに公開
-    window.trpgWriter.fetchWithCsrf = async function(url, options = {}) {
-        const headers = {
-            ...options.headers,
-            [window.trpgWriter.csrfHeader]: window.trpgWriter.csrfToken
-        };
-        const body = options.body ? options.body : undefined;
-        const method = options.method ? options.method.toUpperCase() : 'GET';
+    let isDirty = false;
 
-        const finalOptions = { ...options, method, headers };
-        if (method !== 'GET' && method !== 'HEAD') {
-            finalOptions.body = body;
+    // Function to initialize the page after TinyMCE is ready
+    const initializePage = async (editor) => {
+        try {
+            const data = await apiClient.fetchSceneData(scenarioId, sceneId);
+            uiUpdater.renderInitialPage(data);
+            
+            // Now that the page is rendered, initialize handlers
+            npcHandler.init(scenarioId, sceneId, apiClient, uiUpdater);
+            infoHandler.init(scenarioId, sceneId, apiClient, uiUpdater);
+
+        } catch (error) {
+            console.error('Initialization failed:', error);
+            alert('ページの読み込みに失敗しました。');
         }
 
-        return fetch(url, finalOptions);
+        // Handle unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (isDirty || editor.isDirty()) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Save content button
+        document.getElementById('save-content-btn').addEventListener('click', async () => {
+            const title = document.getElementById('scene-title').textContent;
+            const content = editor.getContent();
+            const gmInfo = document.getElementById('gm-info-textarea').value;
+            const sceneData = { title, content, gmInfo };
+
+            try {
+                await apiClient.saveSceneContent(scenarioId, sceneId, sceneData);
+                editor.setDirty(false);
+                isDirty = false; 
+                uiUpdater.showSaveStatus('保存しました！'); // Use the new status message
+
+                // Refetch data to update preview as title might have changed
+                const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
+                uiUpdater.refreshPreview(updatedData);
+
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('保存に失敗しました。');
+            }
+        });
     };
 
-    const body = document.body;
-    const tinymceApiKey = body.getAttribute('data-tinymce-api-key');
-
+    // Initialize TinyMCE
     tinymce.init({
-        selector: '#sceneContent',
+        selector: '#content-editor',
         api_key: tinymceApiKey,
         plugins: 'advlist autolink lists link image charmap preview anchor',
         toolbar_mode: 'floating',
         toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
         content_css: '/css/style.css',
-        setup: function (editor) {
-            editor.on('dirty', function () {
-                window.trpgWriter.isFormDirty = true;
+        init_instance_callback: (editor) => {
+            initializePage(editor); // This function is called when the editor is ready
+        },
+        setup: (editor) => {
+            editor.on('dirty', () => {
+                isDirty = true;
             });
         }
     });
-
-    // sceneEditFormをグローバルに公開
-    window.trpgWriter.sceneEditForm = document.getElementById('sceneEditForm');
-    if (window.trpgWriter.sceneEditForm) {
-        window.trpgWriter.sceneEditForm.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('input', () => window.trpgWriter.isFormDirty = true);
-        });
-        window.trpgWriter.sceneEditForm.addEventListener('submit', () => window.trpgWriter.isFormDirty = false);
-    }
-
-    window.addEventListener('beforeunload', function (e) {
-        if (window.trpgWriter.isFormDirty) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
-
-    // 未保存時のナビゲーション警告モーダル処理
-    const unsavedChangesModalElement = document.getElementById('unsavedChangesModal');
-    if (unsavedChangesModalElement) {
-        window.trpgWriter.unsavedChangesModal = new bootstrap.Modal(unsavedChangesModalElement);
-        let targetUrl = null; // 移動先のURLを保持する変数
-        let actionCallback = null; // リンク遷移以外の操作（NPC追加など）のためのコールバック
-
-        // モーダルを表示するグローバル関数を定義
-        window.trpgWriter.showUnsavedChangesModal = (callback) => {
-            actionCallback = callback;
-            window.trpgWriter.unsavedChangesModal.show();
-        };
-
-        document.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function (e) {
-                if (link.target === '_blank' || link.href.startsWith('javascript:') || link.href.includes('#')) {
-                    return;
-                }
-                if (window.trpgWriter.isFormDirty) {
-                    e.preventDefault();
-                    targetUrl = link.href;
-                    actionCallback = () => { window.location.href = targetUrl; }; // リンク遷移をコールバックとして設定
-                    window.trpgWriter.unsavedChangesModal.show();
-                }
-            });
-        });
-
-        document.getElementById('saveAndNavigateBtn').addEventListener('click', async () => {
-            const form = window.trpgWriter.sceneEditForm;
-            if (form) {
-                tinymce.get('sceneContent').save();
-                const formData = new FormData(form);
-                
-                try {
-                    const response = await window.trpgWriter.fetchWithCsrf(form.action, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        window.trpgWriter.isFormDirty = false;
-                        if (actionCallback) {
-                            actionCallback();
-                        }
-                    } else {
-                        alert('保存に失敗しました。');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('エラーが発生しました。');
-                } finally {
-                    window.trpgWriter.unsavedChangesModal.hide();
-                }
-            }
-        });
-
-        document.getElementById('discardAndNavigateBtn').addEventListener('click', () => {
-            window.trpgWriter.isFormDirty = false;
-            if (actionCallback) {
-                actionCallback();
-            }
-            window.trpgWriter.unsavedChangesModal.hide();
-        });
-    }
 });

@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             fetch('/api/parts', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     [header]: token
@@ -101,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             fetch('/api/skills', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     [header]: token
@@ -174,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             fetch('/api/bootys', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     [header]: token
@@ -244,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     fetch(`${apiPath}/${entityId}`, {
                         method: 'DELETE',
+                        credentials: 'include',
                         headers: {
                             [header]: token
                         }

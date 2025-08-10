@@ -1,5 +1,7 @@
 package com.example.trpg_writer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -19,6 +21,7 @@ public class SceneInfo {
     @Id
     @ManyToOne
     @JoinColumn(name = "scene_id")
+    @JsonIgnore
     private Scene scene;
 
     @Id

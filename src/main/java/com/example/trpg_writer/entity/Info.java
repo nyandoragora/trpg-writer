@@ -40,6 +40,7 @@ public class Info {
     private String content;
 
     @OneToMany(mappedBy = "info", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<SceneInfo> scenes;
 
     @Column(name = "created_at", insertable = false, updatable = false)
