@@ -65,7 +65,11 @@ public class ScenarioController {
     }
 
     @PostMapping("/create")
-    public String store(@ModelAttribute @Validated ScenarioForm scenarioForm, BindingResult bindingResult, @AuthenticationPrincipal UserDetailsImpl userDetailsImpl, RedirectAttributes redirectAttributes) {
+    public String store(@ModelAttribute @Validated ScenarioForm scenarioForm,
+                        BindingResult bindingResult,
+                        @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+                        RedirectAttributes redirectAttributes) {
+
         if (bindingResult.hasErrors()) {
             return "scenarios/create";
         }
@@ -79,7 +83,11 @@ public class ScenarioController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable("id") Integer id, @PageableDefault(page = 0, size = 5, sort = "createdAt") Pageable pageable, Model model, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public String edit(@PathVariable("id") Integer id,
+                       @PageableDefault(page = 0, size = 5, sort = "createdAt") Pageable pageable,
+                       Model model,
+                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         scenarioService.checkScenarioOwnership(id, userDetails);
         Scenario scenario = scenarioService.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
@@ -99,7 +107,13 @@ public class ScenarioController {
     }
 
     @PostMapping("/{id}/update")
-    public String update(@PathVariable("id") Integer id, @ModelAttribute @Validated ScenarioForm scenarioForm, BindingResult bindingResult, @AuthenticationPrincipal UserDetailsImpl userDetails, RedirectAttributes redirectAttributes, Model model) {
+    public String update(@PathVariable("id") Integer id,
+                         @ModelAttribute @Validated ScenarioForm scenarioForm,
+                         BindingResult bindingResult,
+                         @AuthenticationPrincipal UserDetailsImpl userDetails,
+                         RedirectAttributes redirectAttributes,
+                         Model model) {
+                            
         scenarioService.checkScenarioOwnership(id, userDetails);
 
         if (bindingResult.hasErrors()) {

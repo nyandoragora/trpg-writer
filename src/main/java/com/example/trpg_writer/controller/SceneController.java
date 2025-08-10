@@ -146,8 +146,11 @@ public class SceneController {
         npcForm.setScenarioId(scenarioId);
         model.addAttribute("npcForm", npcForm);
 
-        model.addAttribute("gmRoleId", roleService.findByRole("ROLE_GM").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GM Role not found")).getId());
-        model.addAttribute("plRoleId", roleService.findByRole("ROLE_PL").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PL Role not found")).getId());
+        model.addAttribute("gmRoleId", roleService.findByRole("ROLE_GM")
+             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "GM Role not found")).getId());
+
+        model.addAttribute("plRoleId", roleService.findByRole("ROLE_PL")
+             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PL Role not found")).getId());
 
         return "scenarios/scenes/edit";
     }

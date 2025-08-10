@@ -22,14 +22,21 @@ public class SceneNpcController {
     private final ScenarioService scenarioService;
 
     @PostMapping("/npcs/{npcId}/add")
-    public ResponseEntity<Void> addNpcToScene(@PathVariable Integer scenarioId, @PathVariable Integer sceneId, @PathVariable Integer npcId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Void> addNpcToScene(@PathVariable Integer scenarioId,
+                                              @PathVariable Integer sceneId,
+                                              @PathVariable Integer npcId,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         sceneNpcService.addNpcToScene(sceneId, npcId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/scene-npcs/{sceneNpcId}/remove")
-    public ResponseEntity<Void> removeNpcFromScene(@PathVariable Integer scenarioId, @PathVariable Long sceneNpcId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<Void> removeNpcFromScene(@PathVariable Integer scenarioId,
+                                                   @PathVariable Long sceneNpcId,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+                                                    
         scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         sceneNpcService.removeNpcFromScene(sceneNpcId);
         return ResponseEntity.ok().build();

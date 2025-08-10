@@ -1,12 +1,12 @@
 @font-face {
-    font-family: 'HannariMincho';
-    src: url('fonts/HannariMincho-Regular.otf') format('opentype');
+    font-family: 'IPAexMincho';
+    src: url('fonts/ipaexm.ttf') format('truetype');
     -fs-pdf-font-embed: embed;
     -fs-pdf-font-encoding: Identity-H;
 }
 
 body {
-    font-family: 'HannariMincho', sans-serif;
+    font-family: 'IPAexMincho', sans-serif;
     line-height: 1.6;
 }
 .scenario-title {

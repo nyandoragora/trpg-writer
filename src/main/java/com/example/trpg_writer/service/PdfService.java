@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PdfService {
 
-    private static final String FONT_PATH = "src/main/resources/static/fonts/HannariMincho-Regular.otf";
+    private static final String FONT_PATH = "static/fonts/ipaexm.ttf";
 
     /**
      * Generates a PDF from the given HTML content.
@@ -33,7 +33,7 @@ public class PdfService {
 
             // Add font for Japanese characters
             // Use ClassPathResource to get a reliable path to the font file
-            File fontFile = new ClassPathResource("static/fonts/HannariMincho-Regular.otf").getFile();
+            File fontFile = new ClassPathResource(FONT_PATH).getFile();
             renderer.getFontResolver().addFont(fontFile.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
 
             // Set base URL to resolve relative paths for CSS, images, etc.
