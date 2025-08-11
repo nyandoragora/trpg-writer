@@ -3,6 +3,7 @@ package com.example.trpg_writer.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
@@ -43,7 +44,7 @@ public class NpcControllerTest {
     @DisplayName("認証済みユーザーはNPC作成ページを正常に表示できる")
     @WithUserDetails("taro.yamada@example.com")
     public void whenAuthenticatedUserAccessesCreatePage_thenReturnsCreateView() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/create"))
+        mockMvc.perform(get("/scenarios/1/npcs/create").param("sceneId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("npcs/create"));
     }
@@ -70,7 +71,8 @@ public class NpcControllerTest {
     public void whenCreateNpcWithValidData_thenRedirectsToSceneEditPage() throws Exception {
         long countBefore = npcRepository.count();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/create")
+        mockMvc.perform(post("/scenarios/1/npcs/create")
+                .param("sceneId", "1")
                 .param("name", "ゴブリン")
                 .param("level", "2")
                 .param("intelligence", "人間並み")
@@ -116,7 +118,8 @@ public class NpcControllerTest {
     public void whenCreateNpcWithEmptyName_thenReturnsCreateView() throws Exception {
         long countBefore = npcRepository.count();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/create")
+        mockMvc.perform(post("/scenarios/1/npcs/create")
+                .param("sceneId", "1")
                 .param("name", "")
                 .with(csrf()))
                 .andExpect(status().isOk())
@@ -161,7 +164,7 @@ public class NpcControllerTest {
     public void whenDeleteExistingNpc_thenReturnsOk() throws Exception {
         long countBefore = npcRepository.count();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/delete")
+        mockMvc.perform(delete("/scenarios/1/npcs/1")
                 .with(csrf()))
                 .andExpect(status().isOk());
 
@@ -189,7 +192,7 @@ public class NpcControllerTest {
     public void whenDeleteNonExistingNpc_thenReturnsOk() throws Exception {
         long countBefore = npcRepository.count();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/-1/delete")
+        mockMvc.perform(delete("/scenarios/1/npcs/-1")
                 .with(csrf()))
                 .andExpect(status().isOk());
 
@@ -202,7 +205,7 @@ public class NpcControllerTest {
     @DisplayName("NPC編集ページが正常に表示されること")
     @WithUserDetails("taro.yamada@example.com")
     public void whenAccessEditPageWithValidId_thenReturnsEditView() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/1/edit"))
+        mockMvc.perform(get("/scenarios/1/npcs/1/edit").param("sceneId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("npcs/edit"))
                 .andExpect(model().attributeExists("npcForm"));
@@ -232,7 +235,8 @@ public class NpcControllerTest {
         Npc npcBefore = npcRepository.findById(1).orElseThrow();
         String nameBefore = npcBefore.getName();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/update")
+        mockMvc.perform(post("/scenarios/1/npcs/1/update")
+                .param("sceneId", "1")
                 .param("name", "ゴブリンリーダー")
                 .param("level", "3")
                 .param("intelligence", "人間並み")
@@ -283,7 +287,8 @@ public class NpcControllerTest {
         Npc npcBefore = npcRepository.findById(1).orElseThrow();
         String nameBefore = npcBefore.getName();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/update")
+        mockMvc.perform(post("/scenarios/1/npcs/1/update")
+                .param("sceneId", "1")
                 .param("name", "")
                 .with(csrf()))
                 .andExpect(status().isOk())

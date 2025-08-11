@@ -89,8 +89,13 @@
                         <h4 id="scene-title"></h4>
                         <textarea id="content-editor" rows="15"></textarea>
                         <textarea id="gm-info-textarea" class="form-control mt-3" rows="5"></textarea>
-                        <button id="save-content-btn" class="btn btn-success mt-3">本文を保存</button>
-                        <span id="save-status-message" class="ms-2 text-success fw-bold"></span>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <button id="save-content-btn" class="btn btn-success">本文を保存</button>
+                                <span id="save-status-message" class="ms-2 text-success fw-bold"></span>
+                            </div>
+                            <a th:href="@{/scenarios/{scenarioId}/edit(scenarioId=${scenarioId})}" class="btn btn-secondary">シナリオ編集画面に戻る</a>
+                        </div>
                       </div>
                     </div>
                   </div>
