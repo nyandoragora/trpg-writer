@@ -95,4 +95,11 @@ const apiClient = {
             body: JSON.stringify(infoData),
         });
     },
+
+    // NPCの削除
+    deleteNpc(scenarioId, npcId) {
+        return this._fetch(`/scenarios/${scenarioId}/npcs/${npcId}`, {
+            method: 'DELETE',
+        });
+    },
 };

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initializePage = async (editor) => {
         try {
             const data = await apiClient.fetchSceneData(scenarioId, sceneId);
-            uiUpdater.renderInitialPage(data);
+            uiUpdater.renderInitialPage(data, sceneId);
             
             // Now that the page is rendered, initialize handlers
             npcHandler.init(scenarioId, sceneId, apiClient, uiUpdater);

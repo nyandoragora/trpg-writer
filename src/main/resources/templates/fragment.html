@@ -56,7 +56,7 @@
                                <!-- ログイン済みのユーザーに表示する -->
                                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                                    <a id="navbarDropdownGeneral" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                       <span sec:authentication="principal.username"></span>
+                                       <span sec:authentication="principal.name"></span>
                                    </a>
 
                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownGeneral">

@@ -11,16 +11,23 @@ import com.example.trpg_writer.entity.User;
 
 public class UserDetailsImpl implements UserDetails {
     private final User user;
+    private final String name; // ユーザー名用のフィールドを追加
     private final Collection<GrantedAuthority> authorities;
 
     public UserDetailsImpl(User user) {
         this.user = user;
+        this.name = user.getName(); // コンストラクタでユーザー名を設定
         // ここでは単純に "ROLE_GENERAL" を付与する。必要に応じて変更する。
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_GENERAL"));
     }
 
     public User getUser() {
         return user;
+    }
+
+    // 画面表示用のユーザー名を返す
+    public String getName() {
+        return name;
     }
 
     // ハッシュ化済みのパスワードを返す

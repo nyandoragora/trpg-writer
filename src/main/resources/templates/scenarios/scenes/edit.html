@@ -53,7 +53,7 @@
                           <ul id="scene-npc-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>
                         </div>
                         <div class="tab-pane fade" id="all-npcs" role="tabpanel">
-                            <a th:href="@{/scenarios/{scenarioId}/npcs/create(scenarioId=${scenarioId})}" class="btn btn-primary my-3">
+                            <a th:href="@{/scenarios/{scenarioId}/npcs/create(scenarioId=${scenarioId}, sceneId=${sceneId})}" class="btn btn-primary my-3">
                                 新規NPC作成
                             </a>
                           <ul id="all-npc-list" class="list-group" style="max-height: 400px; overflow-y: auto;"></ul>

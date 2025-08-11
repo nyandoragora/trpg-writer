@@ -2,7 +2,7 @@
 
 const npcListRenderer = {
     // Render the list of NPCs currently in the scene
-    renderSceneNpcs(listElement, sceneNpcs, scenarioId) {
+    renderSceneNpcs(listElement, sceneNpcs, scenarioId, sceneId) {
         if (!listElement) return;
         listElement.innerHTML = '';
 
@@ -15,13 +15,13 @@ const npcListRenderer = {
             const npc = sceneNpc.npc;
             if (!npc) return;
 
-            const listItem = this._createNpcListItem(npc, scenarioId, true, sceneNpc.id);
+            const listItem = this._createNpcListItem(npc, scenarioId, true, 'scene', sceneId, sceneNpc.id);
             listElement.appendChild(listItem);
         });
     },
 
     // Render the list of all NPCs for the scenario
-    renderAllNpcs(listElement, allNpcs, sceneNpcs, scenarioId) {
+    renderAllNpcs(listElement, allNpcs, sceneNpcs, scenarioId, sceneId) {
         if (!listElement) return;
         listElement.innerHTML = '';
 
@@ -34,13 +34,13 @@ const npcListRenderer = {
 
         allNpcs.forEach(npc => {
             const isInScene = sceneNpcIds.has(npc.id);
-            const listItem = this._createNpcListItem(npc, scenarioId, isInScene);
+            const listItem = this._createNpcListItem(npc, scenarioId, isInScene, 'all', sceneId);
             listElement.appendChild(listItem);
         });
     },
 
     // Helper function to create a single NPC list item
-    _createNpcListItem(npc, scenarioId, isInScene, sceneNpcId = null) {
+    _createNpcListItem(npc, scenarioId, isInScene, listType, sceneId, sceneNpcId = null) {
         const listItem = document.createElement('div');
         listItem.className = 'list-group-item list-group-item-action flex-column align-items-start';
 
@@ -70,7 +70,7 @@ const npcListRenderer = {
         detailButton.textContent = '詳細';
 
         const editButton = document.createElement('a');
-        editButton.href = `/scenarios/${scenarioId}/npcs/${npc.id}/edit`;
+        editButton.href = `/scenarios/${scenarioId}/npcs/${npc.id}/edit?sceneId=${sceneId}`;
         editButton.className = 'btn btn-sm btn-warning mt-2 me-2';
         editButton.textContent = '編集';
 
@@ -79,14 +79,14 @@ const npcListRenderer = {
         listItem.appendChild(detailButton);
         listItem.appendChild(editButton);
         
-        if (isInScene) {
+        if (listType === 'scene') {
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
             removeButton.className = 'btn btn-sm btn-danger mt-2 remove-npc-from-scene-btn';
             removeButton.dataset.sceneNpcId = sceneNpcId;
             removeButton.textContent = 'シーンから削除';
             listItem.appendChild(removeButton);
-        } else {
+        } else if (listType === 'all' && !isInScene) {
             const addButton = document.createElement('button');
             addButton.type = 'button';
             addButton.className = 'btn btn-sm btn-success mt-2 add-npc-to-scene-btn';

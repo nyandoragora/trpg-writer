@@ -14,6 +14,8 @@ public class NpcForm {
     @NotNull(message = "シナリオIDは必須です。")
     private Integer scenarioId;
 
+    private Integer sceneId; // どのシーンに戻るかを保持するために追加
+
     @NotBlank(message = "名前は必須です。")
     private String name;
 

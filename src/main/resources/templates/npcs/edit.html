@@ -14,9 +14,10 @@
     <main class="container">
         <h1>NPC編集</h1>
 
-        <form id="npcForm" th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/{npcId}/update(scenarioId=${scenarioId}, sceneId=${sceneId}, npcId=${npcId})}" th:object="${npcForm}" method="post">
+        <form id="npcForm" th:action="@{/scenarios/{scenarioId}/npcs/{npcId}/update(scenarioId=${scenarioId}, npcId=${npcId})}" th:object="${npcForm}" method="post">
             <input type="hidden" th:field="*{id}">
             <input type="hidden" th:field="*{scenarioId}">
+            <input type="hidden" th:field="*{sceneId}">
 
             <!-- 基本情報セクション -->
             <div class="card mb-4">
@@ -218,7 +219,8 @@
 
             <div class="d-flex justify-content-end mt-4">
                 <button type="submit" class="btn btn-primary me-2">更新</button>
-                <a th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenarioId}, sceneId=${sceneId})}" class="btn btn-secondary">キャンセル</a>
+                <a th:if="${sceneId != null}" th:href="@{/scenarios/{scenarioId}/scenes/{sceneId}/edit(scenarioId=${scenarioId}, sceneId=${sceneId})}" class="btn btn-secondary">キャンセル</a>
+                <a th:if="${sceneId == null}" th:href="@{/scenarios/{scenarioId}/edit(scenarioId=${scenarioId})}" class="btn btn-secondary">キャンセル</a>
             </div>
         </form>
 

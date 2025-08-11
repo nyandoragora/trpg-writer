@@ -14,8 +14,9 @@
     <main class="container">
         <h1>NPC作成</h1>
 
-        <form id="npcForm" th:action="@{/scenarios/{scenarioId}/scenes/{sceneId}/npcs/create(scenarioId=${npcForm.scenarioId}, sceneId=${sceneId})}" th:object="${npcForm}" method="post">
+        <form id="npcForm" th:action="@{/scenarios/{scenarioId}/npcs/create(scenarioId=${npcForm.scenarioId})}" th:object="${npcForm}" method="post">
             <input type="hidden" th:field="*{scenarioId}">
+            <input type="hidden" th:field="*{sceneId}" th:value="${sceneId}">
 
             <!-- 基本情報セクション -->
             <div class="card mb-4">
