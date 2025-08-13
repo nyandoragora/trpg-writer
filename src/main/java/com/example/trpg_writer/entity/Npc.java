@@ -1,6 +1,7 @@
 package com.example.trpg_writer.entity;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,13 +87,13 @@ public class Npc {
     private Timestamp updatedAt;
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NpcPart> parts;
+    private List<NpcPart> parts = new ArrayList<>();
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NpcSkill> skills;
+    private List<NpcSkill> skills = new ArrayList<>();
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NpcBooty> bootys;
+    private List<NpcBooty> bootys = new ArrayList<>();
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

@@ -1,9 +1,15 @@
 package com.example.trpg_writer.service;
 
 import com.example.trpg_writer.dto.NpcDetailDto;
+import com.example.trpg_writer.entity.Booty;
 import com.example.trpg_writer.entity.Npc;
+import com.example.trpg_writer.entity.NpcPart;
+import com.example.trpg_writer.entity.NpcSkill;
+import com.example.trpg_writer.entity.NpcBooty;
+import com.example.trpg_writer.entity.Part;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.SceneNpc;
+import com.example.trpg_writer.entity.Skill;
 import com.example.trpg_writer.repository.BootyRepository;
 import com.example.trpg_writer.repository.NpcRepository;
 import com.example.trpg_writer.repository.PartRepository;
@@ -16,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus; 
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,9 +35,6 @@ public class NpcService {
     private final NpcRepository npcRepository;
     private final ScenarioService scenarioService;
     private final SceneNpcRepository sceneNpcRepository;
-    private final NpcPartService npcPartService;
-    private final NpcSkillService npcSkillService;
-    private final NpcBootyService npcBootyService;
     private final PartRepository partRepository;
     private final SkillRepository skillRepository;
     private final BootyRepository bootyRepository;
@@ -73,33 +77,39 @@ public class NpcService {
         npc.setLifeResist(npcForm.getLifeResist());
         npc.setMindResist(npcForm.getMindResist());
         npc.setDescription(npcForm.getDescription());
-
-        Npc savedNpc = npcRepository.save(npc);
-
-        // 関連情報の保存
+        
         if (npcForm.getPartIds() != null) {
             npcForm.getPartIds().forEach(partId -> {
                 partRepository.findById(partId).ifPresent(part -> {
-                    npcPartService.create(savedNpc, part);
+                    NpcPart npcPart = new NpcPart();
+                    npcPart.setNpc(npc);
+                    npcPart.setPart(part);
+                    npc.getParts().add(npcPart);
                 });
             });
         }
         if (npcForm.getSkillIds() != null) {
             npcForm.getSkillIds().forEach(skillId -> {
                 skillRepository.findById(skillId).ifPresent(skill -> {
-                    npcSkillService.create(savedNpc, skill);
+                    NpcSkill npcSkill = new NpcSkill();
+                    npcSkill.setNpc(npc);
+                    npcSkill.setSkill(skill);
+                    npc.getSkills().add(npcSkill);
                 });
             });
         }
         if (npcForm.getBootyIds() != null) {
             npcForm.getBootyIds().forEach(bootyId -> {
                 bootyRepository.findById(bootyId).ifPresent(booty -> {
-                    npcBootyService.create(savedNpc, booty);
+                    NpcBooty npcBooty = new NpcBooty();
+                    npcBooty.setNpc(npc);
+                    npcBooty.setBooty(booty);
+                    npc.getBootys().add(npcBooty);
                 });
             });
         }
 
-        return savedNpc;
+        return npcRepository.save(npc);
     }
 
     @Transactional
@@ -112,10 +122,6 @@ public class NpcService {
         Npc npc = npcRepository.findById(npcForm.getId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
         
-        Scenario scenario = scenarioService.findById(npcForm.getScenarioId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
-
-        npc.setScenario(scenario);
         npc.setName(npcForm.getName());
         npc.setLevel(npcForm.getLevel());
         npc.setIntelligence(npcForm.getIntelligence());
@@ -132,37 +138,74 @@ public class NpcService {
         npc.setMindResist(npcForm.getMindResist());
         npc.setDescription(npcForm.getDescription());
 
-        Npc savedNpc = npcRepository.save(npc);
+        updateParts(npc, npcForm.getPartIds());
+        updateSkills(npc, npcForm.getSkillIds());
+        updateBootys(npc, npcForm.getBootyIds());
 
-        // 既存の関連情報を一旦すべて削除
-        npcPartService.deleteByNpcId(savedNpc.getId());
-        npcSkillService.deleteByNpcId(savedNpc.getId());
-        npcBootyService.deleteByNpcId(savedNpc.getId());
+        return npcRepository.save(npc);
+    }
 
-        // 新しい関連情報を保存
-        if (npcForm.getPartIds() != null) {
-            npcForm.getPartIds().forEach(partId -> {
-                partRepository.findById(partId).ifPresent(part -> {
-                    npcPartService.create(savedNpc, part);
-                });
-            });
-        }
-        if (npcForm.getSkillIds() != null) {
-            npcForm.getSkillIds().forEach(skillId -> {
-                skillRepository.findById(skillId).ifPresent(skill -> {
-                    npcSkillService.create(savedNpc, skill);
-                });
-            });
-        }
-        if (npcForm.getBootyIds() != null) {
-            npcForm.getBootyIds().forEach(bootyId -> {
-                bootyRepository.findById(bootyId).ifPresent(booty -> {
-                    npcBootyService.create(savedNpc, booty);
-                });
-            });
-        }
+    private void updateParts(Npc npc, List<Integer> newPartIds) {
+        final List<Integer> processedNewPartIds = (newPartIds == null) ? new ArrayList<>() : newPartIds;
+        
+        npc.getParts().removeIf(npcPart -> !processedNewPartIds.contains(npcPart.getPart().getId()));
 
-        return savedNpc;
+        List<Integer> currentPartIds = npc.getParts().stream()
+                                           .map(npcPart -> npcPart.getPart().getId())
+                                           .collect(Collectors.toList());
+        List<Integer> idsToAdd = new ArrayList<>(processedNewPartIds);
+        idsToAdd.removeAll(currentPartIds);
+
+        idsToAdd.forEach(partId -> {
+            partRepository.findById(partId).ifPresent(part -> {
+                NpcPart newNpcPart = new NpcPart();
+                newNpcPart.setNpc(npc);
+                newNpcPart.setPart(part);
+                npc.getParts().add(newNpcPart);
+            });
+        });
+    }
+
+    private void updateSkills(Npc npc, List<Integer> newSkillIds) {
+        final List<Integer> processedNewSkillIds = (newSkillIds == null) ? new ArrayList<>() : newSkillIds;
+
+        npc.getSkills().removeIf(npcSkill -> !processedNewSkillIds.contains(npcSkill.getSkill().getId()));
+
+        List<Integer> currentSkillIds = npc.getSkills().stream()
+                                            .map(npcSkill -> npcSkill.getSkill().getId())
+                                            .collect(Collectors.toList());
+        List<Integer> idsToAdd = new ArrayList<>(processedNewSkillIds);
+        idsToAdd.removeAll(currentSkillIds);
+
+        idsToAdd.forEach(skillId -> {
+            skillRepository.findById(skillId).ifPresent(skill -> {
+                NpcSkill newNpcSkill = new NpcSkill();
+                newNpcSkill.setNpc(npc);
+                newNpcSkill.setSkill(skill);
+                npc.getSkills().add(newNpcSkill);
+            });
+        });
+    }
+
+    private void updateBootys(Npc npc, List<Integer> newBootyIds) {
+        final List<Integer> processedNewBootyIds = (newBootyIds == null) ? new ArrayList<>() : newBootyIds;
+
+        npc.getBootys().removeIf(npcBooty -> !processedNewBootyIds.contains(npcBooty.getBooty().getId()));
+
+        List<Integer> currentBootyIds = npc.getBootys().stream()
+                                            .map(npcBooty -> npcBooty.getBooty().getId())
+                                            .collect(Collectors.toList());
+        List<Integer> idsToAdd = new ArrayList<>(processedNewBootyIds);
+        idsToAdd.removeAll(currentBootyIds);
+
+        idsToAdd.forEach(bootyId -> {
+            bootyRepository.findById(bootyId).ifPresent(booty -> {
+                NpcBooty newNpcBooty = new NpcBooty();
+                newNpcBooty.setNpc(npc);
+                newNpcBooty.setBooty(booty);
+                npc.getBootys().add(newNpcBooty);
+            });
+        });
     }
 
     public NpcForm convertEntityToForm(Npc npc) {
@@ -185,7 +228,6 @@ public class NpcService {
         npcForm.setMindResist(npc.getMindResist());
         npcForm.setDescription(npc.getDescription());
         
-        // ManyToManyの関連も設定
         npcForm.setPartIds(npc.getParts().stream().map(np -> np.getPart().getId()).collect(Collectors.toList()));
         npcForm.setSkillIds(npc.getSkills().stream().map(ns -> ns.getSkill().getId()).collect(Collectors.toList()));
         npcForm.setBootyIds(npc.getBootys().stream().map(nb -> nb.getBooty().getId()).collect(Collectors.toList()));

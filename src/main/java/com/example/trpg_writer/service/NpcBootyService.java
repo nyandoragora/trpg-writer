@@ -38,4 +38,9 @@ public class NpcBootyService {
     public void deleteByNpcId(Integer npcId) {
         npcBootyRepository.deleteByNpcId(npcId);
     }
+
+    @Transactional
+    public void deleteByNpcIdAndBootyId(Integer npcId, Integer bootyId) {
+        npcBootyRepository.deleteByNpcIdAndBootyId(npcId, bootyId);
+    }
 }

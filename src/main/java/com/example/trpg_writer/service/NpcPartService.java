@@ -38,4 +38,9 @@ public class NpcPartService {
     public void deleteByNpcId(Integer npcId) {
         npcPartRepository.deleteByNpcId(npcId);
     }
+
+    @Transactional
+    public void deleteByNpcIdAndPartId(Integer npcId, Integer partId) {
+        npcPartRepository.deleteByNpcIdAndPartId(npcId, partId);
+    }
 }

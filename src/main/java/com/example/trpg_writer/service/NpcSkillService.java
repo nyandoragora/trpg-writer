@@ -38,4 +38,9 @@ public class NpcSkillService {
     public void deleteByNpcId(Integer npcId) {
         npcSkillRepository.deleteByNpcId(npcId);
     }
+
+    @Transactional
+    public void deleteByNpcIdAndSkillId(Integer npcId, Integer skillId) {
+        npcSkillRepository.deleteByNpcIdAndSkillId(npcId, skillId);
+    }
 }
