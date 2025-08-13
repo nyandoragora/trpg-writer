@@ -59,24 +59,29 @@ const npcHandler = {
         });
 
         // --- Event listener for "Detail" button on ALL NPCs list ---
-        allNpcList.addEventListener('click', (event) => {
+        allNpcList.addEventListener('click', async (event) => {
             if (event.target.classList.contains('detail-npc-btn')) {
                 const npcId = event.target.dataset.npcId;
-                const npc = this.uiUpdater.getNpcById(npcId);
-                if (npc) {
-                    this.uiUpdater.updateNpcDetailModal(npc);
+                try {
+                    const npcDetails = await this.apiClient.fetchNpcDetails(this.scenarioId, npcId);
+                    this.uiUpdater.updateNpcDetailModal(npcDetails);
+                } catch (error) {
+                    console.error('Failed to fetch NPC details:', error);
+                    alert('NPC詳細の取得に失敗しました。');
                 }
             }
         });
 
         // --- Event listener for "Detail" button on SCENE NPCs list ---
-        sceneNpcList.addEventListener('click', (event) => {
+        sceneNpcList.addEventListener('click', async (event) => {
             if (event.target.classList.contains('detail-npc-btn')) {
                 const npcId = event.target.dataset.npcId;
-                // Scene NPCs are a subset of all NPCs, so we can still use the same getter
-                const npc = this.uiUpdater.getNpcById(npcId);
-                if (npc) {
-                    this.uiUpdater.updateNpcDetailModal(npc);
+                try {
+                    const npcDetails = await this.apiClient.fetchNpcDetails(this.scenarioId, npcId);
+                    this.uiUpdater.updateNpcDetailModal(npcDetails);
+                } catch (error) {
+                    console.error('Failed to fetch NPC details:', error);
+                    alert('NPC詳細の取得に失敗しました。');
                 }
             }
         });

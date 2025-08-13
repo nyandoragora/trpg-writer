@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.trpg_writer.entity.Npc;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.form.NpcForm;
+import com.example.trpg_writer.dto.NpcDetailDto;
 import com.example.trpg_writer.security.UserDetailsImpl;
 import com.example.trpg_writer.service.BootyService;
 import com.example.trpg_writer.service.NpcService;
@@ -87,12 +88,13 @@ public class NpcController {
 
     @GetMapping("/npcs/{npcId}/details")
     @ResponseBody
-    public Npc getNpcDetails(@PathVariable("scenarioId") Integer scenarioId,
-                             @PathVariable("npcId") Integer npcId,
-                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public NpcDetailDto getNpcDetails(@PathVariable("scenarioId") Integer scenarioId,
+                                      @PathVariable("npcId") Integer npcId,
+                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
         scenarioService.checkScenarioOwnership(scenarioId, userDetails);
-        return npcService.findById(npcId)
+        Npc npc = npcService.findById(npcId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
+        return npcService.convertToDetailDto(npc);
     }
 
     @DeleteMapping("/npcs/{npcId}")

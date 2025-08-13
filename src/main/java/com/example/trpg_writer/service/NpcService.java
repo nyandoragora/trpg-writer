@@ -1,5 +1,6 @@
 package com.example.trpg_writer.service;
 
+import com.example.trpg_writer.dto.NpcDetailDto;
 import com.example.trpg_writer.entity.Npc;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.SceneNpc;
@@ -190,5 +191,53 @@ public class NpcService {
         npcForm.setBootyIds(npc.getBootys().stream().map(nb -> nb.getBooty().getId()).collect(Collectors.toList()));
 
         return npcForm;
+    }
+
+    public NpcDetailDto convertToDetailDto(Npc npc) {
+        NpcDetailDto dto = new NpcDetailDto();
+        dto.setId(npc.getId());
+        dto.setName(npc.getName());
+        dto.setDescription(npc.getDescription());
+        dto.setLevel(npc.getLevel());
+        dto.setIntelligence(npc.getIntelligence());
+        dto.setPerception(npc.getPerception());
+        dto.setPosition(npc.getPosition());
+        dto.setLanguage(npc.getLanguage());
+        dto.setPopularity(npc.getPopularity());
+        dto.setWeakness(npc.getWeakness());
+        dto.setPreemptive(npc.getPreemptive());
+        dto.setMovement(npc.getMovement());
+        dto.setLifeResist(npc.getLifeResist());
+        dto.setMindResist(npc.getMindResist());
+        dto.setImpurity(npc.getImpurity());
+        dto.setHabitat(npc.getHabitat());
+
+        dto.setParts(npc.getParts().stream().map(npcPart -> {
+            NpcDetailDto.PartDto partDto = new NpcDetailDto.PartDto();
+            partDto.setName(npcPart.getPart().getName());
+            partDto.setHit(npcPart.getPart().getHit());
+            partDto.setDamage(npcPart.getPart().getDamage());
+            partDto.setEvasion(npcPart.getPart().getEvasion());
+            partDto.setDefense(npcPart.getPart().getProtection());
+            partDto.setHitPoint(npcPart.getPart().getLifePoint());
+            partDto.setMagicPoint(npcPart.getPart().getMagicPoint());
+            return partDto;
+        }).collect(Collectors.toList()));
+
+        dto.setSkills(npc.getSkills().stream().map(npcSkill -> {
+            NpcDetailDto.SkillDto skillDto = new NpcDetailDto.SkillDto();
+            skillDto.setName(npcSkill.getSkill().getName());
+            skillDto.setContent(npcSkill.getSkill().getContent());
+            return skillDto;
+        }).collect(Collectors.toList()));
+
+        dto.setBootys(npc.getBootys().stream().map(npcBooty -> {
+            NpcDetailDto.BootyDto bootyDto = new NpcDetailDto.BootyDto();
+            bootyDto.setDiceNum(npcBooty.getBooty().getDiceNum());
+            bootyDto.setContent(npcBooty.getBooty().getContent());
+            return bootyDto;
+        }).collect(Collectors.toList()));
+
+        return dto;
     }
 }

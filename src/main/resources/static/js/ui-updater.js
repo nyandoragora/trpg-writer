@@ -76,7 +76,7 @@ const uiUpdater = {
         alert(`Validation errors:\n${errorString}`);
     },
 
-    updateNpcDetailModal(npc) {
+    updateNpcDetailModal(npc) { // npc is now NpcDetailDto
         const modalBody = document.getElementById('npcDetailModalBody');
         if (!modalBody) return;
 
@@ -113,8 +113,7 @@ const uiUpdater = {
 
         if (npc.parts && npc.parts.length > 0) {
             content += '<h5>部位詳細</h5>';
-            npc.parts.forEach(npcPart => {
-                const part = npcPart.part;
+            npc.parts.forEach(part => {
                 content += `
                     <div class="card mb-2">
                         <div class="card-body">
@@ -127,8 +126,8 @@ const uiUpdater = {
                                         <th>回避力</th><td>${part.evasion}</td>
                                     </tr>
                                     <tr>
-                                        <th>防護点</th><td>${part.protection}</td>
-                                        <th>HP</th><td>${part.lifePoint}</td>
+                                        <th>防護点</th><td>${part.defense}</td>
+                                        <th>HP</th><td>${part.hitPoint}</td>
                                         <th>MP</th><td>${part.magicPoint}</td>
                                     </tr>
                                 </tbody>
@@ -141,8 +140,7 @@ const uiUpdater = {
 
         if (npc.skills && npc.skills.length > 0) {
             content += '<h5 class="mt-3">特殊能力</h5>';
-            npc.skills.forEach(npcSkill => {
-                const skill = npcSkill.skill;
+            npc.skills.forEach(skill => { // Simplified loop
                 content += `
                     <div class="card mb-2">
                         <div class="card-body">
@@ -156,8 +154,7 @@ const uiUpdater = {
 
         if (npc.bootys && npc.bootys.length > 0) {
             content += '<h5 class="mt-3">戦利品</h5>';
-            npc.bootys.forEach(npcBooty => {
-                const booty = npcBooty.booty;
+            npc.bootys.forEach(booty => { // Simplified loop and fixed property name
                 content += `
                     <div class="card mb-2">
                         <div class="card-body">

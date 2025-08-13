@@ -138,7 +138,10 @@ public class NpcControllerTest {
         mockMvc.perform(get("/scenarios/1/npcs/1/details"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("ゴブリン"))
-                .andExpect(jsonPath("$.level").value(1));
+                .andExpect(jsonPath("$.level").value(1))
+                .andExpect(jsonPath("$.parts").isArray())
+                .andExpect(jsonPath("$.skills").isArray())
+                .andExpect(jsonPath("$.bootys").isArray());
     }
 
     @Test

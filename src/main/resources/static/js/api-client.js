@@ -109,4 +109,11 @@ const apiClient = {
             method: 'DELETE',
         });
     },
+
+    // NPC詳細データの取得
+    fetchNpcDetails(scenarioId, npcId) {
+        return this._fetch(`/scenarios/${scenarioId}/npcs/${npcId}/details`, {
+            method: 'GET'
+        });
+    },
 };
