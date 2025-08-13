@@ -8,6 +8,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isDirty = false;
 
+    // --- Delete Scene Logic ---
+    const handleDeleteScene = async (idToDelete) => {
+        if (!confirm('本当にこのシーンを削除しますか？この操作は元に戻せません。')) {
+            return;
+        }
+
+        try {
+            await apiClient.deleteScene(scenarioId, idToDelete);
+            
+            // If the currently edited scene is deleted, redirect.
+            if (idToDelete.toString() === sceneId.toString()) {
+                alert('シーンが削除されました。シナリオ編集画面に戻ります。');
+                window.location.href = `/scenarios/${scenarioId}/edit`;
+            } else {
+                // If a scene from the list is deleted, just refresh the data and UI
+                alert('シーンが削除されました。');
+                const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
+                uiUpdater.renderInitialPage(updatedData, sceneId);
+            }
+        } catch (error) {
+            console.error('Delete failed:', error);
+            alert('シーンの削除に失敗しました。');
+        }
+    };
+
+
     // Function to initialize the page after TinyMCE is ready
     const initializePage = async (editor) => {
         try {
@@ -51,6 +77,21 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Save failed:', error);
                 alert('保存に失敗しました。');
+            }
+        });
+
+        // Delete current scene button
+        document.getElementById('delete-scene-btn').addEventListener('click', () => {
+            handleDeleteScene(sceneId);
+        });
+
+        // Event delegation for delete icons in the scene list
+        const sceneListContainer = document.getElementById('scene-list-container');
+        sceneListContainer.addEventListener('click', (event) => {
+            const deleteButton = event.target.closest('.delete-scene-icon-btn');
+            if (deleteButton) {
+                const idToDelete = deleteButton.dataset.sceneId;
+                handleDeleteScene(idToDelete);
             }
         });
     };

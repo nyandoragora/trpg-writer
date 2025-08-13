@@ -4,8 +4,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -24,7 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -48,16 +51,34 @@ import com.example.trpg_writer.service.SceneService;
 @DisplayName("SceneControllerのテスト")
 public class SceneControllerTest {
 
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public ScenarioService scenarioService() {
+            return mock(ScenarioService.class);
+        }
+
+        @Bean
+        public SceneService sceneService() {
+            return mock(SceneService.class);
+        }
+
+        @Bean
+        public SceneDataService sceneDataService() {
+            return mock(SceneDataService.class);
+        }
+    }
+
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private ScenarioService scenarioService;
 
-    @MockBean
+    @Autowired
     private SceneService sceneService;
 
-    @MockBean
+    @Autowired
     private SceneDataService sceneDataService;
 
     private Scenario scenario;
@@ -177,13 +198,13 @@ public class SceneControllerTest {
     @WithUserDetails("taro.yamada@example.com")
     @DisplayName("自分のシナリオのシーンを正常に更新できる")
     void whenUpdateOwnScene_thenSucceeds() throws Exception {
+        String jsonRequest = "{\"title\":\"更新されたシーン\", \"content\":\"更新されたコンテント\"}";
+
         mockMvc.perform(post("/scenarios/1/scenes/1/update")
-                .param("title", "更新されたシーン")
-                .param("content", "更新されたコンテント")
+                .contentType("application/json")
+                .content(jsonRequest)
                 .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/scenarios/1/scenes/1/edit"))
-                .andExpect(flash().attributeExists("successMessage"));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -193,8 +214,33 @@ public class SceneControllerTest {
         doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
             .when(scenarioService).checkScenarioOwnership(anyInt(), any());
 
+        String jsonRequest = "{\"title\":\"不正な更新\"}";
+
         mockMvc.perform(post("/scenarios/1/scenes/1/update")
-                .param("title", "不正な更新")
+                .contentType("application/json")
+                .content(jsonRequest)
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
+    // --- Delete ---
+    @Test
+    @WithUserDetails("taro.yamada@example.com")
+    @DisplayName("自分のシナリオのシーンを正常に削除できる")
+    void whenDeleteOwnScene_thenSucceeds() throws Exception {
+        mockMvc.perform(delete("/scenarios/1/scenes/1")
+                .with(csrf()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithUserDetails("hanako.suzuki@example.com")
+    @DisplayName("他人のシナリオのシーンを削除しようとすると404エラー")
+    void whenDeleteOthersScene_thenReturnsNotFound() throws Exception {
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
+            .when(scenarioService).checkScenarioOwnership(anyInt(), any());
+
+        mockMvc.perform(delete("/scenarios/1/scenes/1")
                 .with(csrf()))
                 .andExpect(status().isNotFound());
     }

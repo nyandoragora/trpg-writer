@@ -55,7 +55,7 @@ public class SceneService {
         return sceneRepository.save(scene);
     }
 
-        @Transactional
+    @Transactional
     public void update(SceneForm sceneForm, Integer sceneId, Integer scenarioId) {
         Scene scene = sceneRepository.findById(sceneId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -70,6 +70,11 @@ public class SceneService {
         scene.setGmInfo(sceneForm.getGmInfo());
         
         sceneRepository.save(scene);
+    }
+
+    @Transactional
+    public void delete(Integer sceneId) {
+        sceneRepository.deleteById(sceneId);
     }
 
     @Transactional

@@ -45,14 +45,26 @@ const sceneListRenderer = {
             gmInfo.className = 'card-text text-muted small mb-1';
             gmInfo.textContent = scene.gmInfo ? (scene.gmInfo.substring(0, 25) + (scene.gmInfo.length > 25 ? '...' : '')) : '';
 
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'btn-group w-100';
+
             const editLink = document.createElement('a');
             editLink.href = `/scenarios/${scenarioId}/scenes/${scene.id}/edit`;
-            editLink.className = 'btn btn-sm btn-outline-primary w-100';
+            editLink.className = 'btn btn-sm btn-outline-primary';
             editLink.textContent = '編集';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'btn btn-sm btn-outline-danger delete-scene-icon-btn';
+            deleteButton.setAttribute('data-scene-id', scene.id);
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome icon
+
+            buttonGroup.appendChild(editLink);
+            buttonGroup.appendChild(deleteButton);
 
             contentArea.appendChild(title);
             contentArea.appendChild(gmInfo);
-            contentArea.appendChild(editLink);
+            contentArea.appendChild(buttonGroup);
             cardBody.appendChild(imageBox);
             cardBody.appendChild(contentArea);
             card.appendChild(cardBody);

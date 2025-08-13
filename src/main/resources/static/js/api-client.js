@@ -102,4 +102,11 @@ const apiClient = {
             method: 'DELETE',
         });
     },
+
+    // シーンの削除
+    deleteScene(scenarioId, sceneId) {
+        return this._fetch(`/scenarios/${scenarioId}/scenes/${sceneId}`, {
+            method: 'DELETE',
+        });
+    },
 };

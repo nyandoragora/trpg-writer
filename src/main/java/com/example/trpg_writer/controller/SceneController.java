@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -114,6 +115,15 @@ public class SceneController {
         sceneService.update(sceneForm, sceneId, scenarioId);
 
         return ResponseEntity.ok().build(); // 成功したことを示す
+    }
+
+    @DeleteMapping("/{sceneId}")
+    public ResponseEntity<?> deleteScene(@PathVariable("scenarioId") Integer scenarioId,
+                                         @PathVariable("sceneId") Integer sceneId,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+        sceneService.delete(sceneId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{sceneId}/uploadImage")
