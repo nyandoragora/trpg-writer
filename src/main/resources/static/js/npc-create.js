@@ -271,4 +271,60 @@ document.addEventListener('DOMContentLoaded', function () {
     addDeleteFunctionality('partsTable', 'delete-part-button', '部位', '/api/parts', 'data-part-id');
     addDeleteFunctionality('skillsTable', 'delete-skill-button', '特殊能力', '/api/skills', 'data-skill-id');
     addDeleteFunctionality('bootysTable', 'delete-booty-button', '戦利品', '/api/bootys', 'data-booty-id');
+
+    // --- NPC 本体フォームの送信処理 ---
+    const npcForm = document.getElementById('npc-form');
+    if (npcForm) {
+        const saveNpcButton = document.getElementById('save-npc-btn');
+        const scenarioId = npcForm.dataset.scenarioId;
+        const sceneId = npcForm.dataset.sceneId;
+        const npcId = npcForm.dataset.npcId; // For edit page
+
+        saveNpcButton.addEventListener('click', async () => {
+            const formData = new FormData(npcForm);
+            const npcData = {
+                name: formData.get('name'),
+                level: formData.get('level'),
+                intelligence: formData.get('intelligence'),
+                perception: formData.get('perception'),
+                position: formData.get('position'),
+                impurity: formData.get('impurity'),
+                language: formData.get('language'),
+                habitat: formData.get('habitat'),
+                popularity: formData.get('popularity'),
+                weakness: formData.get('weakness'),
+                preemptive: formData.get('preemptive'),
+                movement: formData.get('movement'),
+                lifeResist: formData.get('lifeResist'),
+                mindResist: formData.get('mindResist'),
+                description: formData.get('description'),
+                partIds: Array.from(document.querySelectorAll('input[name="partIds"]:checked')).map(cb => cb.value),
+                skillIds: Array.from(document.querySelectorAll('input[name="skillIds"]:checked')).map(cb => cb.value),
+                bootyIds: Array.from(document.querySelectorAll('input[name="bootyIds"]:checked')).map(cb => cb.value),
+            };
+
+            try {
+                let response;
+                if (npcId) {
+                    // 更新
+                    response = await apiClient.updateNpc(scenarioId, npcId, npcData);
+                    alert('NPCを更新しました。');
+                } else {
+                    // 新規作成
+                    response = await apiClient.createNpc(scenarioId, npcData);
+                    alert('NPCを作成しました。');
+                }
+
+                // 成功時のリダイレクト
+                if (sceneId) {
+                    window.location.href = `/scenarios/${scenarioId}/scenes/${sceneId}/edit`;
+                } else {
+                    window.location.href = `/scenarios/${scenarioId}/edit`;
+                }
+            } catch (error) {
+                console.error('Failed to save NPC:', error);
+                alert('NPCの保存に失敗しました。入力内容を確認してください。');
+            }
+        });
+    }
 });

@@ -6,7 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -18,13 +18,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.trpg_writer.entity.Npc;
+import com.example.trpg_writer.form.NpcForm;
 import com.example.trpg_writer.repository.NpcRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,7 +42,10 @@ public class NpcControllerTest {
     @Autowired
     private NpcRepository npcRepository;
 
-    // --- Create ---
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    // --- Page Rendering ---
     @Test
     @DisplayName("認証済みユーザーはNPC作成ページを正常に表示できる")
     @WithUserDetails("taro.yamada@example.com")
@@ -52,7 +58,7 @@ public class NpcControllerTest {
     @Test
     @DisplayName("未認証ユーザーがNPC作成ページにアクセスするとログインページにリダイレクトされること")
     public void whenUnauthenticatedUserAccessesCreatePage_thenRedirectsToLogin() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/create"))
+        mockMvc.perform(get("/scenarios/1/npcs/create"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
     }
@@ -61,50 +67,54 @@ public class NpcControllerTest {
     @DisplayName("他人のシナリオのNPC作成ページにアクセスすると404エラーが発生すること")
     @WithUserDetails("hanako.suzuki@example.com")
     public void whenAccessOthersNpcCreatePage_thenReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/create"))
+        mockMvc.perform(get("/scenarios/1/npcs/create"))
                 .andExpect(status().isNotFound());
     }
 
+    // --- API Create ---
     @Test
-    @DisplayName("NPCが正常に登録され、DBに保存されること")
+    @DisplayName("API: NPCが正常に登録され、DBに保存されること")
     @WithUserDetails("taro.yamada@example.com")
-    public void whenCreateNpcWithValidData_thenRedirectsToSceneEditPage() throws Exception {
+    public void whenCreateNpcWithValidData_thenReturnsCreated() throws Exception {
         long countBefore = npcRepository.count();
+        NpcForm npcForm = new NpcForm();
+        npcForm.setScenarioId(1);
+        npcForm.setName("テストNPC");
+        npcForm.setLevel(1);
+        npcForm.setIntelligence("動物並み");
+        npcForm.setPerception("五感");
+        npcForm.setPosition("なし");
+        npcForm.setImpurity(0);
+        npcForm.setLanguage("なし");
+        npcForm.setHabitat("森林");
+        npcForm.setPopularity("なし");
+        npcForm.setPreemptive(10);
+        npcForm.setMovement("10");
+        npcForm.setLifeResist(10);
+        npcForm.setMindResist(10);
 
-        mockMvc.perform(post("/scenarios/1/npcs/create")
-                .param("sceneId", "1")
-                .param("name", "ゴブリン")
-                .param("level", "2")
-                .param("intelligence", "人間並み")
-                .param("perception", "五感")
-                .param("position", "なし")
-                .param("language", "ゴブリン語")
-                .param("popularity", "なし")
-                .param("weakness", "なし")
-                .param("preemptive", "10")
-                .param("movement", "15")
-                .param("lifeResist", "10")
-                .param("mindResist", "10")
-                .param("impurity", "5")
-                .param("habitat", "草原")
-                .param("description", "テスト用の説明文")
+        mockMvc.perform(post("/scenarios/1/api/npcs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(npcForm))
                 .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/scenarios/1/scenes/1/edit"))
-                .andExpect(flash().attribute("successMessage", "NPCを登録しました。"));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("テストNPC"));
 
         long countAfter = npcRepository.count();
         assertEquals(countBefore + 1, countAfter);
     }
 
     @Test
-    @DisplayName("他人のシナリオにNPCを作成しようとすると404エラーが発生すること")
+    @DisplayName("API: 他人のシナリオにNPCを作成しようとすると404エラーが発生すること")
     @WithUserDetails("hanako.suzuki@example.com")
     public void whenCreateNpcForOthersScenario_thenReturnsNotFound() throws Exception {
         long countBefore = npcRepository.count();
+        NpcForm npcForm = new NpcForm();
+        npcForm.setName("不正なNPC");
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/create")
-                .param("name", "不正なゴブリン")
+        mockMvc.perform(post("/scenarios/1/api/npcs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(npcForm))
                 .with(csrf()))
                 .andExpect(status().isNotFound());
 
@@ -113,24 +123,24 @@ public class NpcControllerTest {
     }
 
     @Test
-    @DisplayName("名前が空のためNPC登録が失敗し、DBに保存されないこと")
+    @DisplayName("API: 名前が空のためNPC登録が失敗し、DBに保存されないこと")
     @WithUserDetails("taro.yamada@example.com")
-    public void whenCreateNpcWithEmptyName_thenReturnsCreateView() throws Exception {
+    public void whenCreateNpcWithEmptyName_thenReturnsBadRequest() throws Exception {
         long countBefore = npcRepository.count();
+        NpcForm npcForm = new NpcForm();
+        npcForm.setName("");
 
-        mockMvc.perform(post("/scenarios/1/npcs/create")
-                .param("sceneId", "1")
-                .param("name", "")
+        mockMvc.perform(post("/scenarios/1/api/npcs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(npcForm))
                 .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(view().name("npcs/create"))
-                .andExpect(model().attributeHasFieldErrors("npcForm", "name"));
+                .andExpect(status().isBadRequest());
 
         long countAfter = npcRepository.count();
         assertEquals(countBefore, countAfter);
     }
 
-    // --- Read ---
+    // --- API Read ---
     @Test
     @DisplayName("存在するNPCの詳細がJSONで正しく返されること")
     @WithUserDetails("taro.yamada@example.com")
@@ -160,7 +170,7 @@ public class NpcControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // --- Delete ---
+    // --- API Delete ---
     @Test
     @DisplayName("存在するNPCを正常に削除できること")
     @WithUserDetails("taro.yamada@example.com")
@@ -181,7 +191,7 @@ public class NpcControllerTest {
     public void whenDeleteOthersNpc_thenReturnsNotFound() throws Exception {
         long countBefore = npcRepository.count();
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/delete")
+        mockMvc.perform(delete("/scenarios/1/npcs/1")
                 .with(csrf()))
                 .andExpect(status().isNotFound());
         
@@ -203,7 +213,7 @@ public class NpcControllerTest {
         assertEquals(countBefore, countAfter);
     }
 
-    // --- Edit ---
+    // --- Page Rendering (Edit) ---
     @Test
     @DisplayName("NPC編集ページが正常に表示されること")
     @WithUserDetails("taro.yamada@example.com")
@@ -218,7 +228,7 @@ public class NpcControllerTest {
     @DisplayName("存在しないNPCの編集ページにアクセスすると404エラーが発生すること")
     @WithUserDetails("taro.yamada@example.com")
     public void whenAccessEditPageWithInvalidId_thenReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/-1/edit"))
+        mockMvc.perform(get("/scenarios/1/npcs/-1/edit"))
                 .andExpect(status().isNotFound());
     }
 
@@ -226,39 +236,40 @@ public class NpcControllerTest {
     @DisplayName("他人のNPC編集ページにアクセスすると404エラーが発生すること")
     @WithUserDetails("hanako.suzuki@example.com")
     public void whenAccessOthersNpcEditPage_thenReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/scenarios/1/scenes/1/npcs/1/edit"))
+        mockMvc.perform(get("/scenarios/1/npcs/1/edit"))
                 .andExpect(status().isNotFound());
     }
 
-    // --- Update ---
+    // --- API Update ---
     @Test
-    @DisplayName("NPCが正常に更新され、DBの値が変更されること")
+    @DisplayName("API: NPCが正常に更新され、DBの値が変更されること")
     @WithUserDetails("taro.yamada@example.com")
-    public void whenUpdateNpcWithValidData_thenRedirectsToSceneEditPage() throws Exception {
+    public void whenUpdateNpcWithValidData_thenReturnsOk() throws Exception {
         Npc npcBefore = npcRepository.findById(1).orElseThrow();
         String nameBefore = npcBefore.getName();
 
-        mockMvc.perform(post("/scenarios/1/npcs/1/update")
-                .param("sceneId", "1")
-                .param("name", "ゴブリンリーダー")
-                .param("level", "3")
-                .param("intelligence", "人間並み")
-                .param("perception", "五感")
-                .param("position", "なし")
-                .param("language", "ゴブリン語")
-                .param("popularity", "なし")
-                .param("weakness", "なし")
-                .param("preemptive", "10")
-                .param("movement", "15")
-                .param("lifeResist", "10")
-                .param("mindResist", "10")
-                .param("impurity", "5")
-                .param("habitat", "草原")
-                .param("description", "テスト用の説明文")
+        NpcForm npcForm = new NpcForm();
+        npcForm.setScenarioId(1);
+        npcForm.setName("ゴブリンリーダー");
+        npcForm.setLevel(3);
+        npcForm.setIntelligence("人間並み");
+        npcForm.setPerception("五感");
+        npcForm.setPosition("なし");
+        npcForm.setImpurity(5);
+        npcForm.setLanguage("ゴブリン語");
+        npcForm.setHabitat("洞窟");
+        npcForm.setPopularity("なし");
+        npcForm.setPreemptive(12);
+        npcForm.setMovement("15");
+        npcForm.setLifeResist(12);
+        npcForm.setMindResist(12);
+
+        mockMvc.perform(put("/scenarios/1/api/npcs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(npcForm))
                 .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/scenarios/1/scenes/1/edit"))
-                .andExpect(flash().attribute("successMessage", "NPCを更新しました。"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("ゴブリンリーダー"));
 
         Npc npcAfter = npcRepository.findById(1).orElseThrow();
         String nameAfter = npcAfter.getName();
@@ -267,14 +278,18 @@ public class NpcControllerTest {
     }
 
     @Test
-    @DisplayName("他人のシナリオのNPCを更新しようとすると404エラーが発生すること")
+    @DisplayName("API: 他人のシナリオのNPCを更新しようとすると404エラーが発生すること")
     @WithUserDetails("hanako.suzuki@example.com")
     public void whenUpdateOthersNpc_thenReturnsNotFound() throws Exception {
         Npc npcBefore = npcRepository.findById(1).orElseThrow();
         String nameBefore = npcBefore.getName();
+        
+        NpcForm npcForm = new NpcForm();
+        npcForm.setName("不正なゴブリンリーダー");
 
-        mockMvc.perform(post("/scenarios/1/scenes/1/npcs/1/update")
-                .param("name", "不正なゴブリンリーダー")
+        mockMvc.perform(put("/scenarios/1/api/npcs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(npcForm))
                 .with(csrf()))
                 .andExpect(status().isNotFound());
 
@@ -284,19 +299,20 @@ public class NpcControllerTest {
     }
 
     @Test
-    @DisplayName("名前が空のためNPC更新が失敗し、DBの値が変更されないこと")
+    @DisplayName("API: 名前が空のためNPC更新が失敗し、DBの値が変更されないこと")
     @WithUserDetails("taro.yamada@example.com")
-    public void whenUpdateNpcWithEmptyName_thenReturnsEditView() throws Exception {
+    public void whenUpdateNpcWithEmptyName_thenReturnsBadRequest() throws Exception {
         Npc npcBefore = npcRepository.findById(1).orElseThrow();
         String nameBefore = npcBefore.getName();
 
-        mockMvc.perform(post("/scenarios/1/npcs/1/update")
-                .param("sceneId", "1")
-                .param("name", "")
+        NpcForm npcForm = new NpcForm();
+        npcForm.setName("");
+
+        mockMvc.perform(put("/scenarios/1/api/npcs/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(npcForm))
                 .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(view().name("npcs/edit"))
-                .andExpect(model().attributeHasFieldErrors("npcForm", "name"));
+                .andExpect(status().isBadRequest());
 
         Npc npcAfter = npcRepository.findById(1).orElseThrow();
         String nameAfter = npcAfter.getName();

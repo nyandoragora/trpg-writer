@@ -116,4 +116,20 @@ const apiClient = {
             method: 'GET'
         });
     },
+
+    // NPCの新規作成
+    createNpc(scenarioId, npcData) {
+        return this._fetch(`/scenarios/${scenarioId}/api/npcs`, {
+            method: 'POST',
+            body: JSON.stringify(npcData),
+        });
+    },
+
+    // NPCの更新
+    updateNpc(scenarioId, npcId, npcData) {
+        return this._fetch(`/scenarios/${scenarioId}/api/npcs/${npcId}`, {
+            method: 'PUT',
+            body: JSON.stringify(npcData),
+        });
+    },
 };

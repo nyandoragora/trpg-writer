@@ -12,16 +12,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.trpg_writer.entity.Npc;
-import com.example.trpg_writer.entity.Scenario;
-import com.example.trpg_writer.form.NpcForm;
 import com.example.trpg_writer.dto.NpcDetailDto;
+import com.example.trpg_writer.entity.Npc;
+import com.example.trpg_writer.form.NpcForm;
 import com.example.trpg_writer.security.UserDetailsImpl;
 import com.example.trpg_writer.service.BootyService;
 import com.example.trpg_writer.service.NpcService;
@@ -42,18 +43,21 @@ public class NpcController {
     private final BootyService bootyService;
     private final SkillService skillService;
 
+    // --- HTML Page Rendering ---
+
     @GetMapping("/npcs/create")
-    public String create(@PathVariable("scenarioId") Integer scenarioId,
-                         @RequestParam("sceneId") Integer sceneId,
-                         Model model,
-                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public String createPage(@PathVariable("scenarioId") Integer scenarioId,
+                             @RequestParam(name = "sceneId", required = false) Integer sceneId,
+                             Model model,
+                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         scenarioService.checkScenarioOwnership(scenarioId, userDetails);
 
         NpcForm npcForm = new NpcForm();
         npcForm.setScenarioId(scenarioId);
-        npcForm.setSceneId(sceneId); // sceneIdをフォームにセット
+        npcForm.setSceneId(sceneId);
         model.addAttribute("npcForm", npcForm);
-        model.addAttribute("sceneId", sceneId); // キャンセルボタン用に渡す
+        model.addAttribute("sceneId", sceneId);
+        model.addAttribute("scenarioId", scenarioId);
 
         model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
         model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
@@ -62,28 +66,61 @@ public class NpcController {
         return "npcs/create";
     }
 
-    @PostMapping("/npcs/create")
-    public String store(@PathVariable("scenarioId") Integer scenarioId,
-                        @ModelAttribute @Validated NpcForm npcForm,
-                        BindingResult bindingResult,
-                        RedirectAttributes redirectAttributes,
-                        Model model,
-                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @GetMapping("/npcs/{npcId}/edit")
+    public String editPage(@PathVariable("scenarioId") Integer scenarioId,
+                           @PathVariable("npcId") Integer npcId,
+                           @RequestParam(name = "sceneId", required = false) Integer sceneId,
+                           Model model,
+                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
         scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+        Npc npc = npcService.findById(npcId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
         
+        NpcForm npcForm = npcService.convertEntityToForm(npc);
+        npcForm.setSceneId(sceneId);
+
+        model.addAttribute("npcForm", npcForm);
+        model.addAttribute("scenarioId", scenarioId);
+        model.addAttribute("sceneId", sceneId);
+        model.addAttribute("npcId", npcId);
+        
+        model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
+        model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
+        model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
+
+        return "npcs/edit";
+    }
+
+    // --- API Endpoints ---
+
+    @PostMapping("/api/npcs")
+    public ResponseEntity<?> createNpc(@PathVariable("scenarioId") Integer scenarioId,
+                                       @RequestBody @Validated NpcForm npcForm,
+                                       BindingResult bindingResult,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         if (bindingResult.hasErrors()) {
-            model.addAttribute("sceneId", npcForm.getSceneId()); // エラー時もsceneIdを渡す
-            model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
-            model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
-            model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
-            return "npcs/create";
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
-
         npcForm.setScenarioId(scenarioId);
-        npcService.create(npcForm);
+        Npc createdNpc = npcService.create(npcForm);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdNpc);
+    }
 
-        redirectAttributes.addFlashAttribute("successMessage", "NPCを登録しました。");
-        return "redirect:/scenarios/" + scenarioId + "/scenes/" + npcForm.getSceneId() + "/edit";
+    @PutMapping("/api/npcs/{npcId}")
+    public ResponseEntity<?> updateNpc(@PathVariable("scenarioId") Integer scenarioId,
+                                       @PathVariable("npcId") Integer npcId,
+                                       @RequestBody @Validated NpcForm npcForm,
+                                       BindingResult bindingResult,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
+        }
+        npcForm.setScenarioId(scenarioId);
+        npcForm.setId(npcId);
+        Npc updatedNpc = npcService.update(npcForm);
+        return ResponseEntity.ok(updatedNpc);
     }
 
     @GetMapping("/npcs/{npcId}/details")
@@ -106,61 +143,5 @@ public class NpcController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/npcs/{npcId}/edit")
-    public String edit(@PathVariable("scenarioId") Integer scenarioId,
-                       @PathVariable("npcId") Integer npcId,
-                       @RequestParam(name = "sceneId", required = false) Integer sceneId,
-                       Model model,
-                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
-        Npc npc = npcService.findById(npcId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NPC not found"));
-        
-        NpcForm npcForm = npcService.convertEntityToForm(npc);
-        npcForm.setSceneId(sceneId); // sceneIdをフォームにセット
-
-        model.addAttribute("npcForm", npcForm);
-        model.addAttribute("scenarioId", scenarioId);
-        model.addAttribute("sceneId", sceneId); // キャンセルボタン用に渡す
-        model.addAttribute("npcId", npcId);
-        
-        model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
-        model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
-        model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
-
-        return "npcs/edit";
-    }
-
-    @PostMapping("/npcs/{npcId}/update")
-    public String update(@PathVariable("scenarioId") Integer scenarioId,
-                         @PathVariable("npcId") Integer npcId,
-                         @ModelAttribute @Validated NpcForm npcForm,
-                         BindingResult bindingResult,
-                         RedirectAttributes redirectAttributes,
-                         Model model,
-                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("scenarioId", scenarioId);
-            model.addAttribute("sceneId", npcForm.getSceneId());
-            model.addAttribute("npcId", npcId);
-            model.addAttribute("allParts", partService.findByScenarioId(scenarioId));
-            model.addAttribute("allSkills", skillService.findByScenarioId(scenarioId));
-            model.addAttribute("allBootys", bootyService.findByScenarioId(scenarioId));
-            return "npcs/edit";
-        }
-
-        npcForm.setScenarioId(scenarioId);
-        npcForm.setId(npcId);
-        npcService.update(npcForm);
-
-        redirectAttributes.addFlashAttribute("successMessage", "NPCを更新しました。");
-        
-        if (npcForm.getSceneId() != null) {
-            return "redirect:/scenarios/" + scenarioId + "/scenes/" + npcForm.getSceneId() + "/edit";
-        } else {
-            // シーンIDがない場合は、シナリオ詳細ページなど、適切な場所へリダイレクト
-            return "redirect:/scenarios/" + scenarioId + "/edit"; 
-        }
-    }
+    
 }

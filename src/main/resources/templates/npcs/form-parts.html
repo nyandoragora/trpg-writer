@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+    <!-- 基本情報フィールド -->
+    <div th:fragment="base-fields">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="name" class="form-label">名前</label>
+                <input type="text" class="form-control" id="name" name="name" th:field="*{name}" required>
+            </div>
+            <div class="col-md-6">
+                <label for="level" class="form-label">レベル</label>
+                <input type="number" class="form-control" id="level" name="level" th:field="*{level}">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">説明</label>
+            <textarea class="form-control" id="description" name="description" rows="3" th:field="*{description}"></textarea>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4"><label class="form-label">知能</label><input type="text" class="form-control" name="intelligence" th:field="*{intelligence}"></div>
+            <div class="col-md-4"><label class="form-label">知覚</label><input type="text" class="form-control" name="perception" th:field="*{perception}"></div>
+            <div class="col-md-4"><label class="form-label">反応</label><input type="text" class="form-control" name="position" th:field="*{position}"></div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4"><label class="form-label">穢れ</label><input type="number" class="form-control" name="impurity" th:field="*{impurity}"></div>
+            <div class="col-md-4"><label class="form-label">言語</label><input type="text" class="form-control" name="language" th:field="*{language}"></div>
+            <div class="col-md-4"><label class="form-label">生息地</label><input type="text" class="form-control" name="habitat" th:field="*{habitat}"></div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4"><label class="form-label">知名度/弱点値</label><input type="text" class="form-control" name="popularity" th:field="*{popularity}"></div>
+            <div class="col-md-4"><label class="form-label">弱点</label><input type="text" class="form-control" name="weakness" th:field="*{weakness}"></div>
+            <div class="col-md-4"><label class="form-label">先制値</label><input type="number" class="form-control" name="preemptive" th:field="*{preemptive}"></div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4"><label class="form-label">移動速度</label><input type="text" class="form-control" name="movement" th:field="*{movement}"></div>
+            <div class="col-md-4"><label class="form-label">生命抵抗力</label><input type="number" class="form-control" name="lifeResist" th:field="*{lifeResist}"></div>
+            <div class="col-md-4"><label class="form-label">精神抵抗力</label><input type="number" class="form-control" name="mindResist" th:field="*{mindResist}"></div>
+        </div>
+    </div>
+
+    <!-- 部位選択 -->
+    <div th:fragment="parts-selection">
+        <h5 class="mt-4">部位 <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addPartModal">新規作成</button></h5>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table id="partsTable" class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>選択</th>
+                        <th>名前</th>
+                        <th>命中力</th>
+                        <th>打点</th>
+                        <th>回避力</th>
+                        <th>防護点</th>
+                        <th>HP</th>
+                        <th>MP</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="part : ${allParts}">
+                        <td><input type="checkbox" name="partIds" th:value="${part.id}" th:checked="${#lists.contains(npcForm.partIds, part.id)}"></td>
+                        <td th:text="${part.name}"></td>
+                        <td th:text="${part.hit}"></td>
+                        <td th:text="${part.damage}"></td>
+                        <td th:text="${part.evasion}"></td>
+                        <td th:text="${part.protection}"></td>
+                        <td th:text="${part.lifePoint}"></td>
+                        <td th:text="${part.magicPoint}"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm delete-part-button" th:data-part-id="${part.id}">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 特殊能力選択 -->
+    <div th:fragment="skills-selection">
+        <h5 class="mt-4">特殊能力 <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addSkillModal">新規作成</button></h5>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table id="skillsTable" class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>選択</th>
+                        <th>名前</th>
+                        <th>内容</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="skill : ${allSkills}">
+                        <td><input type="checkbox" name="skillIds" th:value="${skill.id}" th:checked="${#lists.contains(npcForm.skillIds, skill.id)}"></td>
+                        <td th:text="${skill.name}"></td>
+                        <td th:text="${skill.content}"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm delete-skill-button" th:data-skill-id="${skill.id}">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 戦利品選択 -->
+    <div th:fragment="bootys-selection">
+        <h5 class="mt-4">戦利品 <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addBootyModal">新規作成</button></h5>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table id="bootysTable" class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>選択</th>
+                        <th>ダイス</th>
+                        <th>内容</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="booty : ${allBootys}">
+                        <td><input type="checkbox" name="bootyIds" th:value="${booty.id}" th:checked="${#lists.contains(npcForm.bootyIds, booty.id)}"></td>
+                        <td th:text="${booty.diceNum}"></td>
+                        <td th:text="${booty.content}"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm delete-booty-button" th:data-booty-id="${booty.id}">削除</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- モーダル -->
+    <div th:fragment="modals">
+        <!-- 新規部位作成モーダル -->
+        <div class="modal fade" id="addPartModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">新規部位作成</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div id="partErrorAlert" class="alert alert-danger" style="display: none;"></div>
+                        <form id="addPartForm">
+                            <input type="hidden" id="modalScenarioId" th:value="${scenarioId}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">名前</label><input type="text" class="form-control" id="partName"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">命中力</label><input type="number" class="form-control" id="partHit"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label">打点</label><input type="text" class="form-control" id="partDamage"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label">回避力</label><input type="number" class="form-control" id="partEvasion"></div>
+                            </div>
+                             <div class="row">
+                                <div class="col-md-4 mb-3"><label class="form-label">防護点</label><input type="number" class="form-control" id="partProtection"></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">HP</label><input type="number" class="form-control" id="partLifePoint"></div>
+                                <div class="col-md-4 mb-3"><label class="form-label">MP</label><input type="number" class="form-control" id="partMagicPoint"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button><button type="button" class="btn btn-primary" id="savePartButton">保存</button></div>
+                </div>
+            </div>
+        </div>
+        <!-- 新規特殊能力作成モーダル -->
+        <div class="modal fade" id="addSkillModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">新規特殊能力作成</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                         <div id="skillErrorAlert" class="alert alert-danger" style="display: none;"></div>
+                        <form id="addSkillForm">
+                            <input type="hidden" id="modalSkillScenarioId" th:value="${scenarioId}">
+                            <div class="mb-3"><label class="form-label">名前</label><input type="text" class="form-control" id="skillName"></div>
+                            <div class="mb-3"><label class="form-label">内容</label><textarea class="form-control" id="skillContent" rows="3"></textarea></div>
+                        </form>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button><button type="button" class="btn btn-primary" id="saveSkillButton">保存</button></div>
+                </div>
+            </div>
+        </div>
+        <!-- 新規戦利品作成モーダル -->
+        <div class="modal fade" id="addBootyModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">新規戦利品作成</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body">
+                        <div id="bootyErrorAlert" class="alert alert-danger" style="display: none;"></div>
+                        <form id="addBootyForm">
+                            <input type="hidden" id="modalBootyScenarioId" th:value="${scenarioId}">
+                            <div class="mb-3"><label class="form-label">ダイス</label><input type="text" class="form-control" id="bootyDiceNum"></div>
+                            <div class="mb-3"><label class="form-label">内容</label><textarea class="form-control" id="bootyContent" rows="3"></textarea></div>
+                        </form>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button><button type="button" class="btn btn-primary" id="saveBootyButton">保存</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
