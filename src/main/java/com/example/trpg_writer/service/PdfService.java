@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PdfService {
+public final class PdfService {
 
     private static final String FONT_PATH = "static/fonts/ipaexm.ttf";
 

@@ -14,14 +14,13 @@ import com.example.trpg_writer.entity.User;
 import com.example.trpg_writer.security.UserDetailsImpl;
 import com.example.trpg_writer.service.ScenarioService;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
 @RequestMapping("/users")
-public class UserController {
+@RequiredArgsConstructor
+public final class UserController {
     private final ScenarioService scenarioService;
-
-    public UserController(ScenarioService scenarioService) {
-        this.scenarioService = scenarioService;
-    }
 
     @GetMapping
     public String index(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl, @PageableDefault(page = 0, size = 5, sort = "id") Pageable pageable, Model model) {

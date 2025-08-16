@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class NpcSkillService {
+public final class NpcSkillService {
 
     private final NpcSkillRepository npcSkillRepository;
 

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/bootys")
 @RequiredArgsConstructor
-public class BootyController {
+public final class BootyController {
 
     private final BootyService bootyService;
 

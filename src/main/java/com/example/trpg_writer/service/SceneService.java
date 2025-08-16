@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SceneService {
+public final class SceneService {
 
     private final SceneRepository sceneRepository;
     private final ScenarioRepository scenarioRepository;

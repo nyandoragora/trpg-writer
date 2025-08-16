@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/scenarios/{scenarioId}/scenes/{sceneId}")
 @RequiredArgsConstructor
-public class SceneNpcController {
+public final class SceneNpcController {
 
     private final SceneNpcService sceneNpcService;
     private final ScenarioService scenarioService;

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class NpcService {
+public final class NpcService {
 
     private final NpcRepository npcRepository;
     private final ScenarioService scenarioService;

@@ -49,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/scenarios")
 @RequiredArgsConstructor
-public class ScenarioController {
+public final class ScenarioController {
 
     private final ScenarioService scenarioService;
     private final SceneService sceneService;

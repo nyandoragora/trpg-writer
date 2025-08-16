@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class FaqService {
+public final class FaqService {
 
     private final FaqRepository faqRepository;
 

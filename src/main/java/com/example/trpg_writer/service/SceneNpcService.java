@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SceneNpcService {
+public final class SceneNpcService {
 
     private final SceneNpcRepository sceneNpcRepository;
     private final SceneRepository sceneRepository;

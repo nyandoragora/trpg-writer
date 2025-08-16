@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/scenarios/{scenarioId}/infos")
 @RequiredArgsConstructor
-public class InfoController {
+public final class InfoController {
 
     private final InfoService infoService;
     private final ScenarioService scenarioService;

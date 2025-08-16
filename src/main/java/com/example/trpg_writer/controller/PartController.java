@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/parts")
 @RequiredArgsConstructor
-public class PartController {
+public final class PartController {
 
     private final PartService partService;
 

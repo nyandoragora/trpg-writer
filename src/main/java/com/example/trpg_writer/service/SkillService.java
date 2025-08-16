@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SkillService {
+public final class SkillService {
 
     private final SkillRepository skillRepository;
     private final ScenarioRepository scenarioRepository;

@@ -13,7 +13,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/faqs")
 @RequiredArgsConstructor
-public class FaqController {
+public final class FaqController {
 
     private final FaqService faqService;
 

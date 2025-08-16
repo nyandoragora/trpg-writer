@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public final class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 

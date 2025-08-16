@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/skills")
 @RequiredArgsConstructor
-public class SkillController {
+public final class SkillController {
 
     private final SkillService skillService;
 
