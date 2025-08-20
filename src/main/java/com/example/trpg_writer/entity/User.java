@@ -36,6 +36,15 @@ public class User {
   @Column(name = "enabled")
   private Boolean enabled;
 
+  @Column(name = "image_name")
+  private String imageName;
+
+  @Column(name = "introduction")
+  private String introduction;
+
+  @Column(name = "deleted")
+  private boolean deleted = false;
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Scenario> scenarios;
 

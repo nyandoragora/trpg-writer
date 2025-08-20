@@ -198,4 +198,15 @@ public final class ScenarioController {
 
         return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
     }
+
+    @GetMapping("/my-list")
+    public String myList(@AuthenticationPrincipal UserDetailsImpl userDetailsImpl, @PageableDefault(page = 0, size = 5, sort = "id") Pageable pageable, Model model) {
+        User user = userDetailsImpl.getUser();
+        Page<Scenario> scenarios = scenarioService.findByUser(user, pageable);
+
+        model.addAttribute("user", user);
+        model.addAttribute("scenarios", scenarios);
+
+        return "scenarios/my-list";
+    }
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public final class PartService {
+public class PartService {
 
     private final PartRepository partRepository;
     private final ScenarioRepository scenarioRepository;

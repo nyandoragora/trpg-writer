@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public final class NpcPartService {
+public class NpcPartService {
 
     private final NpcPartRepository npcPartRepository;
 

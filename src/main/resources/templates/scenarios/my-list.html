@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <div th:replace="~{fragment :: meta}"></div>
+
+        <div th:replace="~{fragment :: styles}"></div>
+
+        <title>作成したシナリオ一覧</title>
+    </head>
+    <body>
+        <div class="trpg-wrapper">
+           <div th:replace="~{fragment :: header}"></div>
+
+            <main>
+              <div th:if="${successMessage}" class="container trpg-container pt-2">
+                <div class="alert alert-info mt-4 mb-0">
+                  <span th:text="${successMessage}"></span>
+                </div>
+              </div>
+
+              <!-- ここから本文 -->
+              <div class="container py-4">
+                <div class="row">
+                  <!-- User Info -->
+                  <div class="col-lg-3 mb-4">
+                    <div class="card">
+                      <div class="card-body text-center">
+                        <i class="fas fa-user-circle fa-5x mb-3"></i>
+                        <h5 class="card-title" th:text="${user.name}"></h5>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Scenarios -->
+                  <div class="col-lg-9">
+                    <!-- New Scenario Button -->
+                    <div class="d-grid gap-2 mb-4">
+                        <a th:href="@{/scenarios/create}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-pen me-2"></i>新しいシナリオを執筆する
+                        </a>
+                    </div>
+
+                    <!-- Scenario List -->
+                    <div th:if="${scenarios.hasContent()}" class="mb-4">
+                      <div class="row row-cols-1 g-4">
+                        <div th:each="scenario : ${scenarios.content}" class="col">
+                          <div class="card shadow-sm">
+                            <div class="card-body">
+                              <h5 class="card-title" th:text="${scenario.title}"></h5>
+                              <p class="card-text text-muted" th:text="${scenario.introduction}"></p>
+                              <div class="d-flex justify-content-end">
+                                <a th:href="@{/scenarios/{id}/edit(id=${scenario.id})}" class="btn btn-sm btn-outline-primary">編集する</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- No Scenarios Message -->
+                    <div th:unless="${scenarios.hasContent()}" class="text-center p-5 border rounded">
+                      <p class="lead">まだ投稿がありません。</p>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div th:if="${scenarios.totalPages > 1}" class="d-flex justify-content-center mt-4">
+                      <nav aria-label="Pagination">
+                        <ul class="pagination">
+                          <li class="page-item" th:classappend="${scenarios.isFirst()} ? 'disabled'">
+                            <a class="page-link" th:href="@{/scenarios/my-list(page=${scenarios.number - 1}, sort=${scenarios.sort.toString().replace(': ASC', '').replace(': DESC', '')})}">
+                              <span>&laquo;</span>
+                            </a>
+                          </li>
+                          <li th:each="i : ${#numbers.sequence(0, scenarios.totalPages - 1)}" class="page-item" th:classappend="${i == scenarios.number} ? 'active'">
+                            <a class="page-link" th:href="@{/scenarios/my-list(page=${i}, sort=${scenarios.sort.toString().replace(': ASC', '').replace(': DESC', '')})}" th:text="${i + 1}"></a>
+                          </li>
+                          <li class="page-item" th:classappend="${scenarios.isLast()} ? 'disabled'">
+                            <a class="page-link" th:href="@{/scenarios/my-list(page=${scenarios.number + 1}, sort=${scenarios.sort.toString().replace(': ASC', '').replace(': DESC', '')})}">
+                              <span>&raquo;</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </main>
+
+            <div th:replace="~{fragment :: footer}"></div>
+        </div>
+
+        <div th:replace="~{fragment :: scripts}"></div>
+
+        <!-- Swiper -->
+        <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    </body>
+</html>

@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public final class BootyService {
+public class BootyService {
 
     private final BootyRepository bootyRepository;
     private final ScenarioRepository scenarioRepository;

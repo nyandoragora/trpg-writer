@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public final class ScenarioService {
+public class ScenarioService {
 
   private final ScenarioRepository scenarioRepository;
 

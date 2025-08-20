@@ -5,95 +5,65 @@
 
         <div th:replace="~{fragment :: styles}"></div>
 
-        <title>HOME</title>
+        <title>マイページ</title>
     </head>
     <body>
         <div class="trpg-wrapper">
            <div th:replace="~{fragment :: header}"></div>
 
             <main>
-              <div th:if="${successMessage}" class="container trpg-container pt-2">
-                <div class="alert alert-info mt-4 mb-0">
-                  <span th:text="${successMessage}"></span>
-                </div>
-              </div>
-
               <!-- ここから本文 -->
-              <div class="container py-4">
-                <div class="row">
-                  <!-- User Info -->
-                  <div class="col-lg-3 mb-4">
-                    <div class="card">
-                      <div class="card-body text-center">
-                        <i class="fas fa-user-circle fa-5x mb-3"></i>
-                        <h5 class="card-title" th:text="${user.name}"></h5>
-                      </div>
-                    </div>
-                  </div>
+              <div class="container py-5">
+                <div class="row justify-content-center">
+                  <div class="col-lg-8">
+                    <div class="card text-center shadow-sm">
+                      <div class="card-body p-5">
+                        <!-- Profile Image -->
+                        <div th:if="${user.imageName}">
+                            <img th:src="@{'/storage/user_images/' + ${user.imageName}}" class="rounded-circle mb-4" style="width: 120px; height: 120px; object-fit: cover;" alt="プロフィール画像">
+                        </div>
+                        <div th:unless="${user.imageName}">
+                            <i class="fas fa-user-circle fa-6x mb-4 text-primary"></i>
+                        </div>
 
-                  <!-- Scenarios -->
-                  <div class="col-lg-9">
-                    <!-- New Scenario Button -->
-                    <div class="d-grid gap-2 mb-4">
-                        <a th:href="@{/scenarios/create}" class="btn btn-primary btn-lg">
-                            <i class="fas fa-pen me-2"></i>新しいシナリオを執筆する
-                        </a>
-                    </div>
+                        <h1 class="card-title h3 mb-3" th:text="${user.name}"></h1>
 
-                    <!-- Scenario List -->
-                    <div th:if="${scenarios.hasContent()}" class="mb-4">
-                      <div class="row row-cols-1 g-4">
-                        <div th:each="scenario : ${scenarios.content}" class="col">
-                          <div class="card shadow-sm">
-                            <div class="card-body">
-                              <h5 class="card-title" th:text="${scenario.title}"></h5>
-                              <p class="card-text text-muted" th:text="${scenario.introduction}"></p>
-                              <div class="d-flex justify-content-end">
-                                <a th:href="@{/scenarios/{id}/edit(id=${scenario.id})}" class="btn btn-sm btn-outline-primary">編集する</a>
-                              </div>
-                            </div>
-                          </div>
+                        <!-- Introduction -->
+                        <div th:if="${user.introduction}" class="mb-4">
+                            <p class="card-text text-muted" style="white-space: pre-wrap;" th:text="${user.introduction}"></p>
+                        </div>
+                        <div th:unless="${user.introduction}" class="mb-4">
+                            <p class="card-text text-muted fst-italic">自己紹介文はまだ登録されていません。</p>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                          <a th:href="@{/scenarios/my-list}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-book-open me-2"></i>作成したシナリオ一覧へ
+                          </a>
+                          
+                          <a th:href="@{/users/my-page/edit}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-edit me-2"></i>プロフィールを編集
+                          </a>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div>
+                            <form method="post" th:action="@{/users/delete}" onsubmit="return confirm('本当に退会しますか？この操作は取り消すことができません。');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-link text-danger">アカウントを削除する</button>
+                            </form>
                         </div>
                       </div>
                     </div>
-
-                    <!-- No Scenarios Message -->
-                    <div th:unless="${scenarios.hasContent()}" class="text-center p-5 border rounded">
-                      <p class="lead">まだ投稿がありません。</p>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div th:if="${scenarios.totalPages > 1}" class="d-flex justify-content-center mt-4">
-                      <nav aria-label="Pagination">
-                        <ul class="pagination">
-                          <li class="page-item" th:classappend="${scenarios.isFirst()} ? 'disabled'">
-                            <a class="page-link" th:href="@{/users(page=${scenarios.number - 1}, sort=${scenarios.sort.toString().replace(': ASC', '').replace(': DESC', '')})}">
-                              <span>&laquo;</span>
-                            </a>
-                          </li>
-                          <li th:each="i : ${#numbers.sequence(0, scenarios.totalPages - 1)}" class="page-item" th:classappend="${i == scenarios.number} ? 'active'">
-                            <a class="page-link" th:href="@{/users(page=${i}, sort=${scenarios.sort.toString().replace(': ASC', '').replace(': DESC', '')})}" th:text="${i + 1}"></a>
-                          </li>
-                          <li class="page-item" th:classappend="${scenarios.isLast()} ? 'disabled'">
-                            <a class="page-link" th:href="@{/users(page=${scenarios.number + 1}, sort=${scenarios.sort.toString().replace(': ASC', '').replace(': DESC', '')})}">
-                              <span>&raquo;</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
                   </div>
                 </div>
               </div>
-
             </main>
 
             <div th:replace="~{fragment :: footer}"></div>
         </div>
 
         <div th:replace="~{fragment :: scripts}"></div>
-
-        <!-- Swiper -->
-        <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
     </body>
 </html>

@@ -8,7 +8,10 @@ CREATE TABLE IF NOT EXISTS users(
   name VARCHAR(50) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  enabled BOOLEAN NOT NULL
+  enabled BOOLEAN NOT NULL,
+  image_name VARCHAR(255),
+  introduction TEXT,
+  deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS scenarios (

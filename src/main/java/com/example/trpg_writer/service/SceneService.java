@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,12 +29,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public final class SceneService {
+public class SceneService {
 
     private final SceneRepository sceneRepository;
     private final ScenarioRepository scenarioRepository;
 
-    private static final String UPLOAD_DIR = "src/main/resources/static/images/scenes/";
+    @Value("${file.storage-dir}")
+    private String storageDir;
 
     @Transactional
     public Scene create(SceneForm sceneForm, Integer scenarioId) {
@@ -74,19 +76,25 @@ public final class SceneService {
 
     @Transactional
     public void delete(Integer sceneId) {
+        // 画像ファイルの削除処理を追加
+        sceneRepository.findById(sceneId).ifPresent(scene -> {
+            if (scene.getImagePath() != null && !scene.getImagePath().isEmpty()) {
+                deleteImageFile(scene.getImagePath());
+            }
+        });
         sceneRepository.deleteById(sceneId);
     }
 
     @Transactional
-    public void saveImage(Integer sceneId, MultipartFile imageFile) {
+    public String saveImage(Integer sceneId, MultipartFile imageFile) {
         try {
             Scene scene = sceneRepository.findById(sceneId)
                 .orElseThrow(() -> new IllegalArgumentException("Scene not found with ID: " + sceneId));
 
             if (!imageFile.isEmpty()) {
-                Path uploadPath = Paths.get(UPLOAD_DIR);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
+                // 古い画像があれば削除
+                if (scene.getImagePath() != null && !scene.getImagePath().isEmpty()) {
+                    deleteImageFile(scene.getImagePath());
                 }
 
                 String originalFilename = imageFile.getOriginalFilename();
@@ -95,15 +103,32 @@ public final class SceneService {
                     fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 }
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-                Path filePath = uploadPath.resolve(uniqueFilename);
+                Path filePath = Paths.get(storageDir, "scene_images", uniqueFilename);
 
+                // 保存先ディレクトリが存在しない場合は作成
+                Files.createDirectories(filePath.getParent());
                 Files.copy(imageFile.getInputStream(), filePath);
 
-                scene.setImagePath("/images/scenes/" + uniqueFilename);
+                String imagePath = "/storage/scene_images/" + uniqueFilename;
+                scene.setImagePath(imagePath);
                 sceneRepository.save(scene);
+                return imagePath;
             }
+            return null;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save image", e);
+        }
+    }
+
+    private void deleteImageFile(String imagePath) {
+        try {
+            // imagePathは /storage/scene_images/filename.jpg のような形式なので、ファイル名だけを抽出
+            String filename = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+            Path filePath = Paths.get(storageDir, "scene_images", filename);
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 削除失敗時のエラーハンドリング
         }
     }
 

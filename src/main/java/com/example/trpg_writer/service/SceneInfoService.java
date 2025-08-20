@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public final class SceneInfoService {
+public class SceneInfoService {
 
     private final SceneInfoRepository sceneInfoRepository;
 

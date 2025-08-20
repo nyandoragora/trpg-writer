@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public final class RoleService {
+public class RoleService {
 
     private final RoleRepository roleRepository;
 
