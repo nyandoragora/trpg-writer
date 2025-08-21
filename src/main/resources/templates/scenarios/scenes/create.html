@@ -27,7 +27,7 @@
                       <div class="form-group mb-3">
                         <label for="gmInfo" class="form-label">GM情報</label>
                         <div th:if="${#fields.hasErrors('gmInfo')}" class="text-danger small mb-2" th:errors="*{gmInfo}"></div>
-                        <textarea class="form-control" id="gmInfo" th:field="*{gmInfo}" rows="5"></textarea>
+                        <textarea class="form-control" id="gmInfo" th:field="*{gmInfo}" rows="5" placeholder="このシーンの重要な点をプレビューに表示できます。"></textarea>
                       </div>
 
                       <div class="d-flex justify-content-center my-4">

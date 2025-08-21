@@ -50,7 +50,6 @@ public final class SceneController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Scenario not found"));
         model.addAttribute("scenario", scenario);
         model.addAttribute("scenarioId", scenarioId);
-        sceneForm.setGmInfo("このシーンの重要な点をプレビューに表示できます。");
         return "scenarios/scenes/create";
     }
 

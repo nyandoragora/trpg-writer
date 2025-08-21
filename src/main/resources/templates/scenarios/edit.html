@@ -49,6 +49,9 @@
 
                     <!-- Action Buttons -->
                     <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+                        <a th:href="@{/scenarios/my-list}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>シナリオ一覧に戻る
+                        </a>
                         <a th:href="@{/scenarios/{scenarioId}/scenes/create(scenarioId=${scenario.id})}" class="btn btn-primary btn-lg">
                             <i class="fas fa-plus-circle me-2"></i>新しいシーンを追加する
                         </a>
