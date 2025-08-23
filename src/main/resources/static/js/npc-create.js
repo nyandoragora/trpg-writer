@@ -283,20 +283,22 @@ document.addEventListener('DOMContentLoaded', function () {
         saveNpcButton.addEventListener('click', async () => {
             const formData = new FormData(npcForm);
             const npcData = {
+                scenarioId: scenarioId, // Add scenarioId
+                sceneId: sceneId,       // Add sceneId
                 name: formData.get('name'),
-                level: formData.get('level'),
+                level: formData.get('level') || null, // Send null if empty
                 intelligence: formData.get('intelligence'),
                 perception: formData.get('perception'),
                 position: formData.get('position'),
-                impurity: formData.get('impurity'),
+                impurity: formData.get('impurity') || null, // Send null if empty
                 language: formData.get('language'),
                 habitat: formData.get('habitat'),
                 popularity: formData.get('popularity'),
                 weakness: formData.get('weakness'),
-                preemptive: formData.get('preemptive'),
+                preemptive: formData.get('preemptive') || null, // Send null if empty
                 movement: formData.get('movement'),
-                lifeResist: formData.get('lifeResist'),
-                mindResist: formData.get('mindResist'),
+                lifeResist: formData.get('lifeResist') || null, // Send null if empty
+                mindResist: formData.get('mindResist') || null, // Send null if empty
                 description: formData.get('description'),
                 partIds: Array.from(document.querySelectorAll('input[name="partIds"]:checked')).map(cb => cb.value),
                 skillIds: Array.from(document.querySelectorAll('input[name="skillIds"]:checked')).map(cb => cb.value),

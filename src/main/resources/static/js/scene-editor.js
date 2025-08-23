@@ -6,7 +6,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const sceneId = sceneDataContainer.dataset.sceneId;
     const tinymceApiKey = sceneDataContainer.dataset.tinymceApiKey;
 
+    // --- Modal Elements ---
+    const unsavedChangesModalEl = document.getElementById('unsavedChangesModal');
+    const unsavedChangesModal = new bootstrap.Modal(unsavedChangesModalEl);
+    const saveAndNavigateBtn = document.getElementById('save-and-navigate-btn');
+    const discardAndNavigateBtn = document.getElementById('discard-and-navigate-btn');
+
     let isDirty = false;
+    let navigationUrl = null; // To store the URL to navigate to
+
+    // --- Save Scene Content Logic ---
+    const saveSceneContent = async (editor) => {
+        const title = document.getElementById('scene-title').textContent;
+        const content = editor.getContent();
+        const gmInfo = document.getElementById('gm-info-textarea').value;
+        const sceneData = { title, content, gmInfo };
+
+        try {
+            await apiClient.saveSceneContent(scenarioId, sceneId, sceneData);
+            editor.setDirty(false);
+            isDirty = false;
+            uiUpdater.showSaveStatus('保存しました！');
+            const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
+            uiUpdater.refreshPreview(updatedData);
+            return true; // Indicate success
+        } catch (error) {
+            console.error('Save failed:', error);
+            alert('保存に失敗しました。');
+            return false; // Indicate failure
+        }
+    };
 
     // --- Delete Scene Logic ---
     const handleDeleteScene = async (idToDelete) => {
@@ -17,13 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await apiClient.deleteScene(scenarioId, idToDelete);
             
-            // If the currently edited scene is deleted, redirect.
+            isDirty = false; // Avoid unsaved changes warning after deletion
+
             if (idToDelete.toString() === sceneId.toString()) {
-                alert('シーンが削除されました。シナリオ編集画面に戻ります。');
+                // alert('シーンが削除されました。シナリオ編集画面に戻ります。');
+                // We don't need an alert here because the page is redirecting immediately.
                 window.location.href = `/scenarios/${scenarioId}/edit`;
             } else {
-                // If a scene from the list is deleted, just refresh the data and UI
-                alert('シーンが削除されました。');
+                uiUpdater.showToast('シーンが削除されました。');
                 const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
                 uiUpdater.renderInitialPage(updatedData, sceneId);
             }
@@ -33,20 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
     // Function to initialize the page after TinyMCE is ready
     const initializePage = async (editor) => {
         try {
-            // Fetch main data and info list data in parallel
             const [mainData, infosWithScenes] = await Promise.all([
                 apiClient.fetchSceneData(scenarioId, sceneId),
-                apiClient.fetchAllInfosWithScenes(scenarioId) // New API call
+                apiClient.fetchAllInfosWithScenes(scenarioId)
             ]);
 
             uiUpdater.renderInitialPage(mainData, sceneId);
-            uiUpdater.renderAllInfosList(infosWithScenes, mainData.scene.title); // New UI update call
+            uiUpdater.renderAllInfosList(infosWithScenes, mainData.scene.title);
             
-            // Now that the page is rendered, initialize handlers
             npcHandler.init(scenarioId, sceneId, apiClient, uiUpdater);
             infoHandler.init(scenarioId, sceneId, apiClient, uiUpdater);
 
@@ -55,7 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('ページの読み込みに失敗しました。');
         }
 
-        // Handle unsaved changes
+        // --- Event Listeners ---
+
+        // Handle unsaved changes for browser-level navigation (reload, back, close tab)
         window.addEventListener('beforeunload', (e) => {
             if (isDirty || editor.isDirty()) {
                 e.preventDefault();
@@ -63,27 +92,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Save content button
-        document.getElementById('save-content-btn').addEventListener('click', async () => {
-            const title = document.getElementById('scene-title').textContent;
-            const content = editor.getContent();
-            const gmInfo = document.getElementById('gm-info-textarea').value;
-            const sceneData = { title, content, gmInfo };
-
-            try {
-                await apiClient.saveSceneContent(scenarioId, sceneId, sceneData);
-                editor.setDirty(false);
-                isDirty = false; 
-                uiUpdater.showSaveStatus('保存しました！'); // Use the new status message
-
-                // Refetch data to update preview as title might have changed
-                const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
-                uiUpdater.refreshPreview(updatedData);
-
-            } catch (error) {
-                console.error('Save failed:', error);
-                alert('保存に失敗しました。');
+        // Handle unsaved changes for in-page navigation (clicking links)
+        document.body.addEventListener('click', (event) => {
+            const link = event.target.closest('a');
+            if (link && (isDirty || editor.isDirty())) {
+                // Exclude links that open in a new tab or are not for navigation
+                if (link.target === '_blank' || link.href.startsWith('javascript:')) {
+                    return;
+                }
+                event.preventDefault();
+                navigationUrl = link.href;
+                unsavedChangesModal.show();
             }
+        });
+
+        // Modal button listeners
+        discardAndNavigateBtn.addEventListener('click', () => {
+            isDirty = false;
+            editor.setDirty(false);
+            window.location.href = navigationUrl;
+        });
+
+        saveAndNavigateBtn.addEventListener('click', async () => {
+            const success = await saveSceneContent(editor);
+            if (success) {
+                window.location.href = navigationUrl;
+            }
+        });
+
+        // Save content button
+        document.getElementById('save-content-btn').addEventListener('click', () => {
+            saveSceneContent(editor);
         });
 
         // Delete current scene button
@@ -111,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
         content_css: '/css/style.css',
         init_instance_callback: (editor) => {
-            initializePage(editor); // This function is called when the editor is ready
+            initializePage(editor);
         },
         setup: (editor) => {
             editor.on('dirty', () => {

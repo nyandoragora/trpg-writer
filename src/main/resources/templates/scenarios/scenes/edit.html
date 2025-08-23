@@ -213,8 +213,44 @@
                         <p id="infoDetailContent" style="white-space: pre-wrap;"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn-secondary" data-bs-dismiss="modal">閉じる</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unsaved Changes Confirmation Modal -->
+        <div class="modal fade" id="unsavedChangesModal" tabindex="-1" aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="unsavedChangesModalLabel">変更が保存されていません</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>編集中の内容が失われます。ページを移動しますか？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="save-and-navigate-btn" class="btn btn-primary">保存して移動</button>
+                        <button type="button" id="discard-and-navigate-btn" class="btn btn-danger">変更を破棄して移動</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">編集を続ける</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <!-- Toast Template (Initially hidden, ready to be cloned) -->
+            <div id="toast-template" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong class="me-auto">通知</strong>
+                    <small>たった今</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    <!-- Message will be inserted here by JavaScript -->
                 </div>
             </div>
         </div>

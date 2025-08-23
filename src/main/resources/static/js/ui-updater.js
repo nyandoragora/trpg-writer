@@ -190,5 +190,48 @@ const uiUpdater = {
         
         // Prepend to keep "Close" button on the right
         modalFooter.prepend(deleteButton);
+    },
+
+    /**
+     * Displays a toast notification with a given message.
+     * @param {string} message - The message to display in the toast.
+     */
+    showToast(message) {
+        const toastTemplate = document.getElementById('toast-template');
+        const toastContainer = document.querySelector('.toast-container');
+
+        if (!toastTemplate || !toastContainer) {
+            console.error('Toast template or container not found.');
+            // Fallback to alert if the toast elements are not on the page
+            alert(message);
+            return;
+        }
+
+        // Clone the template
+        const newToastEl = toastTemplate.cloneNode(true);
+        
+        // It's a good practice to give a unique ID to the cloned element
+        newToastEl.id = `toast-${new Date().getTime()}`;
+        
+        // Set the message
+        const toastBody = newToastEl.querySelector('.toast-body');
+        if (toastBody) {
+            toastBody.textContent = message;
+        }
+
+        // The template is hidden, so we need to make the clone visible
+        newToastEl.style.display = '';
+
+        // Add the new toast to the container
+        toastContainer.appendChild(newToastEl);
+
+        // Create a new Bootstrap Toast instance and show it
+        const toast = new bootstrap.Toast(newToastEl);
+        toast.show();
+
+        // Clean up the DOM after the toast is hidden
+        newToastEl.addEventListener('hidden.bs.toast', () => {
+            newToastEl.remove();
+        });
     }
 };
