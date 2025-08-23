@@ -1,20 +1,20 @@
 package com.example.trpg_writer.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
+import com.example.trpg_writer.dto.InfoWithScenesDto;
 import com.example.trpg_writer.dto.SceneEditPageData;
+import com.example.trpg_writer.entity.Info;
 import com.example.trpg_writer.entity.Scenario;
 import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.form.NpcForm;
 import com.example.trpg_writer.form.SceneForm;
-
+import com.example.trpg_writer.repository.SceneInfoRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +33,7 @@ public class SceneDataService {
     private final NpcSkillService npcSkillService;
     private final NpcBootyService npcBootyService;
     private final RoleService roleService;
+    private final SceneInfoRepository sceneInfoRepository;
 
     @Value("${tinymce.api-key}")
     private String tinymceApiKey;
@@ -84,5 +85,28 @@ public class SceneDataService {
         data.setPlRoleId(roleService.findByRole("ROLE_PL").orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PL Role not found")).getId());
 
         return data;
+    }
+
+    public List<InfoWithScenesDto> getInfosWithScenes(Integer scenarioId) {
+        // 1. シナリオに所属する全てのInfoエンティティを取得
+        List<Info> infos = infoService.findByScenarioId(scenarioId);
+
+        // 2. それぞれのInfoについて、DTOに変換していく
+        return infos.stream().map(info -> {
+            // 3. このInfoが所属するシーン名のリストを取得する
+            List<String> sceneNames = sceneInfoRepository.findSceneTitlesByInfoId(info.getId());
+
+            // 4. contentからsummaryを作成
+            String summary = "";
+            if (info.getContent() != null && !info.getContent().isEmpty()) {
+                summary = info.getContent().substring(0, Math.min(info.getContent().length(), 80));
+                if (info.getContent().length() > 80) {
+                    summary += "...";
+                }
+            }
+
+            // 5. DTOを組み立てて返す
+            return new InfoWithScenesDto(info.getId(), info.getName(), summary, sceneNames);
+        }).collect(Collectors.toList());
     }
 }

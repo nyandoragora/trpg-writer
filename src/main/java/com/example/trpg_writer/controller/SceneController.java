@@ -1,5 +1,16 @@
 package com.example.trpg_writer.controller;
 
+import com.example.trpg_writer.dto.InfoWithScenesDto;
+import com.example.trpg_writer.dto.SceneEditPageData;
+import com.example.trpg_writer.entity.Scenario;
+import com.example.trpg_writer.entity.Scene;
+import com.example.trpg_writer.form.SceneForm;
+import com.example.trpg_writer.security.UserDetailsImpl;
+import com.example.trpg_writer.service.ScenarioService;
+import com.example.trpg_writer.service.SceneDataService;
+import com.example.trpg_writer.service.SceneService;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.example.trpg_writer.dto.SceneEditPageData;
-import com.example.trpg_writer.entity.Scenario;
-import com.example.trpg_writer.entity.Scene;
-import com.example.trpg_writer.form.SceneForm;
-import com.example.trpg_writer.security.UserDetailsImpl;
-import com.example.trpg_writer.service.ScenarioService;
-import com.example.trpg_writer.service.SceneDataService;
-import com.example.trpg_writer.service.SceneService;
-
-import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/scenarios/{scenarioId}/scenes")
@@ -139,5 +139,14 @@ public final class SceneController {
             redirectAttributes.addFlashAttribute("errorMessage", "画像のアップロードに失敗しました: " + e.getMessage());
         }
         return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit";
+    }
+
+    @GetMapping("/all-infos")
+    public ResponseEntity<List<InfoWithScenesDto>> getInfosWithScenes(
+            @PathVariable Integer scenarioId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+        List<InfoWithScenesDto> data = sceneDataService.getInfosWithScenes(scenarioId);
+        return ResponseEntity.ok(data);
     }
 }

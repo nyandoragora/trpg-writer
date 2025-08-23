@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -73,7 +74,7 @@ public final class InfoController {
         return ResponseEntity.ok().build();
     }
 
-    // 情報の削除
+        // 情報の削除
     @DeleteMapping("/{infoId}")
     public ResponseEntity<?> delete(@PathVariable("scenarioId") Integer scenarioId,
                                     @PathVariable("infoId") Integer infoId,
@@ -89,5 +90,21 @@ public final class InfoController {
         infoService.delete(infoId);
 
         return ResponseEntity.ok().build();
+    }
+
+    // 情報の詳細を取得
+    @GetMapping("/{infoId}")
+    public ResponseEntity<Info> getInfoDetails(@PathVariable("scenarioId") Integer scenarioId,
+                                               @PathVariable("infoId") Integer infoId,
+                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        scenarioService.checkScenarioOwnership(scenarioId, userDetails);
+        Info info = infoService.findById(infoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Info not found"));
+
+        if (!info.getScenario().getId().equals(scenarioId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Info does not belong to the specified scenario");
+        }
+
+        return ResponseEntity.ok(info);
     }
 }

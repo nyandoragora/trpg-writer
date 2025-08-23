@@ -6,36 +6,36 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="name" class="form-label">名前</label>
-                <input type="text" class="form-control" id="name" name="name" th:field="*{name}" required>
+                <input type="text" class="form-control" id="name" name="name" th:field="*{name}" placeholder="謎の仮面の剣士" required>
             </div>
             <div class="col-md-6">
                 <label for="level" class="form-label">レベル</label>
-                <input type="number" class="form-control" id="level" name="level" th:field="*{level}">
+                <input type="number" class="form-control" id="level" name="level" th:field="*{level}" placeholder="7">
             </div>
         </div>
         <div class="mb-3">
             <label for="description" class="form-label">説明</label>
-            <textarea class="form-control" id="description" name="description" rows="3" th:field="*{description}"></textarea>
+            <textarea class="form-control" id="description" name="description" rows="3" th:field="*{description}" placeholder="とある王国の騎士団を抜けたと噂される凄腕の剣士。その仮面の下の素顔を知る者はいない。"></textarea>
         </div>
         <div class="row mb-3">
-            <div class="col-md-4"><label class="form-label">知能</label><input type="text" class="form-control" name="intelligence" th:field="*{intelligence}"></div>
-            <div class="col-md-4"><label class="form-label">知覚</label><input type="text" class="form-control" name="perception" th:field="*{perception}"></div>
-            <div class="col-md-4"><label class="form-label">反応</label><input type="text" class="form-control" name="position" th:field="*{position}"></div>
+            <div class="col-md-4"><label class="form-label">知能</label><input type="text" class="form-control" name="intelligence" th:field="*{intelligence}" placeholder="狡猾"></div>
+            <div class="col-md-4"><label class="form-label">知覚</label><input type="text" class="form-control" name="perception" th:field="*{perception}" placeholder="鋭い"></div>
+            <div class="col-md-4"><label class="form-label">反応</label><input type="text" class="form-control" name="position" th:field="*{position}" placeholder="冷静沈着"></div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-4"><label class="form-label">穢れ</label><input type="number" class="form-control" name="impurity" th:field="*{impurity}"></div>
-            <div class="col-md-4"><label class="form-label">言語</label><input type="text" class="form-control" name="language" th:field="*{language}"></div>
-            <div class="col-md-4"><label class="form-label">生息地</label><input type="text" class="form-control" name="habitat" th:field="*{habitat}"></div>
+            <div class="col-md-4"><label class="form-label">穢れ</label><input type="number" class="form-control" name="impurity" th:field="*{impurity}" placeholder="5"></div>
+            <div class="col-md-4"><label class="form-label">言語</label><input type="text" class="form-control" name="language" th:field="*{language}" placeholder="交易共通語、地方語"></div>
+            <div class="col-md-4"><label class="form-label">生息地</label><input type="text" class="form-control" name="habitat" th:field="*{habitat}" placeholder="都市、街道"></div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-4"><label class="form-label">知名度/弱点値</label><input type="text" class="form-control" name="popularity" th:field="*{popularity}"></div>
-            <div class="col-md-4"><label class="form-label">弱点</label><input type="text" class="form-control" name="weakness" th:field="*{weakness}"></div>
-            <div class="col-md-4"><label class="form-label">先制値</label><input type="number" class="form-control" name="preemptive" th:field="*{preemptive}"></div>
+            <div class="col-md-4"><label class="form-label">知名度/弱点値</label><input type="text" class="form-control" name="popularity" th:field="*{popularity}" placeholder="10/15"></div>
+            <div class="col-md-4"><label class="form-label">弱点</label><input type="text" class="form-control" name="weakness" th:field="*{weakness}" placeholder="物理ダメージ+3"></div>
+            <div class="col-md-4"><label class="form-label">先制値</label><input type="number" class="form-control" name="preemptive" th:field="*{preemptive}" placeholder="12"></div>
         </div>
         <div class="row mb-3">
-            <div class="col-md-4"><label class="form-label">移動速度</label><input type="text" class="form-control" name="movement" th:field="*{movement}"></div>
-            <div class="col-md-4"><label class="form-label">生命抵抗力</label><input type="number" class="form-control" name="lifeResist" th:field="*{lifeResist}"></div>
-            <div class="col-md-4"><label class="form-label">精神抵抗力</label><input type="number" class="form-control" name="mindResist" th:field="*{mindResist}"></div>
+            <div class="col-md-4"><label class="form-label">移動速度</label><input type="text" class="form-control" name="movement" th:field="*{movement}" placeholder="20 (二足)"></div>
+            <div class="col-md-4"><label class="form-label">生命抵抗力</label><input type="number" class="form-control" name="lifeResist" th:field="*{lifeResist}" placeholder="10"></div>
+            <div class="col-md-4"><label class="form-label">精神抵抗力</label><input type="number" class="form-control" name="mindResist" th:field="*{mindResist}" placeholder="8"></div>
         </div>
     </div>
 

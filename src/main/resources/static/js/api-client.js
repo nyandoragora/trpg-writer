@@ -42,6 +42,11 @@ const apiClient = {
         return this._fetch(`/scenarios/${scenarioId}/scenes/${sceneId}/edit-data`, { method: 'GET' });
     },
 
+    // 全情報リスト（シーン名付き）取得
+    fetchAllInfosWithScenes(scenarioId) {
+        return this._fetch(`/scenarios/${scenarioId}/scenes/all-infos`, { method: 'GET' });
+    },
+
     // シーン本文更新 (URLと送信データを修正)
     saveSceneContent(scenarioId, sceneId, sceneData) {
         return this._fetch(`/scenarios/${scenarioId}/scenes/${sceneId}/update`, {
@@ -93,6 +98,13 @@ const apiClient = {
         return this._fetch(`/api/scenarios/${scenarioId}/infos/${infoId}`, {
             method: 'PUT',
             body: JSON.stringify(infoData),
+        });
+    },
+
+    // 情報詳細の取得
+    fetchInfoDetails(scenarioId, infoId) {
+        return this._fetch(`/api/scenarios/${scenarioId}/infos/${infoId}`, {
+            method: 'GET'
         });
     },
 

@@ -37,8 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to initialize the page after TinyMCE is ready
     const initializePage = async (editor) => {
         try {
-            const data = await apiClient.fetchSceneData(scenarioId, sceneId);
-            uiUpdater.renderInitialPage(data, sceneId);
+            // Fetch main data and info list data in parallel
+            const [mainData, infosWithScenes] = await Promise.all([
+                apiClient.fetchSceneData(scenarioId, sceneId),
+                apiClient.fetchAllInfosWithScenes(scenarioId) // New API call
+            ]);
+
+            uiUpdater.renderInitialPage(mainData, sceneId);
+            uiUpdater.renderAllInfosList(infosWithScenes, mainData.scene.title); // New UI update call
             
             // Now that the page is rendered, initialize handlers
             npcHandler.init(scenarioId, sceneId, apiClient, uiUpdater);

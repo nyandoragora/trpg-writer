@@ -41,6 +41,12 @@ const uiUpdater = {
         sceneListRenderer.render(sceneListContainerEl, data.allScenes, scenarioId);
     },
 
+    // A function to specifically render the "All Infos" list
+    renderAllInfosList(infosWithScenes, currentSceneTitle) {
+        const allInfoListEl = document.getElementById('all-info-list');
+        infoListRenderer.renderAllInfos(allInfoListEl, infosWithScenes, currentSceneTitle);
+    },
+
     // Helper function to get a single NPC by its ID
     getNpcById(npcId) {
         return this.allNpcsData.find(npc => npc.id === parseInt(npcId, 10));

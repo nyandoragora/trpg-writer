@@ -44,9 +44,17 @@ const infoHandler = {
                     await this.apiClient.createInfo(this.scenarioId, { name, content });
                 }
                 
-                const updatedData = await this.apiClient.fetchSceneData(this.scenarioId, this.sceneId);
-                this.uiUpdater.refreshLists(updatedData);
-                this.uiUpdater.refreshPreview(updatedData);
+                // Refetch BOTH data sources in parallel
+                const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                    this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
+                    this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
+                ]);
+
+                // Refresh all relevant parts of the UI with the correct data
+                this.uiUpdater.refreshLists(updatedMainData); // This handles scene-info-list
+                this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title); // This handles all-info-list
+                this.uiUpdater.refreshPreview(updatedMainData);
+
                 this.uiUpdater.showSuccessToast('情報を保存しました。');
                 this.infoModal.hide();
 
@@ -57,14 +65,21 @@ const infoHandler = {
         });
 
         // Event listener for showing info details (event delegation)
-        document.getElementById('all-info-list').addEventListener('click', (event) => {
+        document.getElementById('all-info-list').addEventListener('click', async (event) => {
             if (event.target.classList.contains('detail-info-btn')) {
                 const button = event.target;
-                const name = button.dataset.infoName;
-                const content = button.dataset.infoContent;
+                const infoId = button.dataset.infoId;
 
-                document.getElementById('infoDetailName').textContent = name;
-                document.getElementById('infoDetailContent').textContent = content;
+                try {
+                    const infoDetails = await this.apiClient.fetchInfoDetails(this.scenarioId, infoId);
+                    document.getElementById('infoDetailName').textContent = infoDetails.name;
+                    document.getElementById('infoDetailContent').textContent = infoDetails.content;
+                } catch (error) {
+                    console.error('Failed to fetch info details:', error);
+                    alert('情報の詳細の取得に失敗しました。');
+                    document.getElementById('infoDetailName').textContent = 'エラー';
+                    document.getElementById('infoDetailContent').textContent = '詳細の取得に失敗しました。';
+                }
             }
         });
 

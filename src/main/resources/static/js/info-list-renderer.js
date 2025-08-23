@@ -20,37 +20,57 @@ const infoListRenderer = {
         });
     },
 
-    // Render the list of all infos for the scenario
-    renderAllInfos(listElement, allInfos, sceneInfos) {
+    // Render the list of all infos for the scenario with scene badges
+    renderAllInfos(listElement, allInfosWithScenes, currentSceneTitle) {
         if (!listElement) return;
         listElement.innerHTML = '';
 
-        if (!allInfos || allInfos.length === 0) {
+        if (!allInfosWithScenes || allInfosWithScenes.length === 0) {
             listElement.innerHTML = '<p>このシナリオにはまだ情報が登録されていません。</p>';
             return;
         }
 
-        allInfos.forEach(info => {
-            const card = this._createAllInfoCard(info);
+        allInfosWithScenes.forEach(infoDto => {
+            const card = this._createAllInfoCard(infoDto, currentSceneTitle);
             listElement.appendChild(card);
         });
     },
 
     // Helper function to create a single info card for the "All Info" list
-    _createAllInfoCard(info) {
+    _createAllInfoCard(infoDto, currentSceneTitle) {
         const card = document.createElement('div');
         card.className = 'card mb-2';
 
         const cardBody = document.createElement('div');
         cardBody.className = 'card-body';
 
+        const titleContainer = document.createElement('div');
+        titleContainer.className = 'd-flex align-items-center mb-2';
+
         const name = document.createElement('h5');
-        name.className = 'card-title';
-        name.textContent = info.name;
+        name.className = 'card-title mb-0 me-3';
+        name.textContent = infoDto.title;
+
+        titleContainer.appendChild(name);
+
+        // Add scene badges
+        if (infoDto.sceneNames && infoDto.sceneNames.length > 0) {
+            infoDto.sceneNames.forEach(sceneName => {
+                const badge = document.createElement('span');
+                badge.className = 'badge me-1';
+                if (sceneName === currentSceneTitle) {
+                    badge.classList.add('bg-primary'); // Highlight for current scene
+                } else {
+                    badge.classList.add('bg-secondary');
+                }
+                badge.textContent = sceneName;
+                titleContainer.appendChild(badge);
+            });
+        }
 
         const content = document.createElement('p');
         content.className = 'card-text';
-        content.textContent = info.content ? (info.content.substring(0, 80) + (info.content.length > 80 ? '...' : '')) : '';
+        content.textContent = infoDto.summary; // Use summary from DTO
 
         const buttonGroup = document.createElement('div');
         buttonGroup.className = 'd-flex justify-content-end mt-2';
@@ -60,14 +80,13 @@ const infoListRenderer = {
         detailButton.className = 'btn btn-sm btn-info detail-info-btn';
         detailButton.dataset.bsToggle = 'modal';
         detailButton.dataset.bsTarget = '#infoDetailModal';
-        detailButton.dataset.infoName = info.name;
-        detailButton.dataset.infoContent = info.content;
+        detailButton.dataset.infoId = infoDto.id; // Use id from DTO
         detailButton.textContent = '詳細';
         
         buttonGroup.appendChild(detailButton);
 
-        cardBody.appendChild(name);
-        cardBody.appendChild(content);
+        cardBody.appendChild(titleContainer);
+        cardBody.appendChild(content); // Add summary content
         cardBody.appendChild(buttonGroup);
         card.appendChild(cardBody);
         return card;
@@ -112,8 +131,6 @@ const infoListRenderer = {
             buttonGroup.appendChild(editButton);
             buttonGroup.appendChild(removeButton);
         } 
-        // No "add" button for now to keep it simple. 
-        // We can add it back later if needed.
         
         cardBody.appendChild(name);
         cardBody.appendChild(content);
