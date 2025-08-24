@@ -23,16 +23,7 @@ const npcHandler = {
                 try {
                     await this.apiClient.addNpcToScene(this.scenarioId, this.sceneId, npcId);
 
-                    // Refetch BOTH data sources in parallel to ensure consistency
-                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
-                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
-                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
-                    ]);
-
-                    // Refresh all relevant parts of the UI
-                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
-                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
-                    this.uiUpdater.refreshPreview(updatedMainData);
+                    await this.uiUpdater.refreshEntirePage(this.scenarioId, this.sceneId);
                     
                     this.uiUpdater.showToast('NPCをシーンに追加しました。');
 
@@ -52,16 +43,7 @@ const npcHandler = {
                 try {
                     await this.apiClient.removeNpcFromScene(this.scenarioId, this.sceneId, sceneNpcId);
 
-                    // Refetch BOTH data sources in parallel to ensure consistency
-                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
-                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
-                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
-                    ]);
-
-                    // Refresh all relevant parts of the UI
-                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
-                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
-                    this.uiUpdater.refreshPreview(updatedMainData);
+                    await this.uiUpdater.refreshEntirePage(this.scenarioId, this.sceneId);
 
                     this.uiUpdater.showToast('NPCをシーンから削除しました。');
 
@@ -114,16 +96,8 @@ const npcHandler = {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('npcDetailModal'));
                         modal.hide();
 
-                        // Refetch BOTH data sources in parallel to ensure consistency
-                        const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
-                            this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
-                            this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
-                        ]);
-
-                        // Refresh all relevant parts of the UI
-                        this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
-                        this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
-                        this.uiUpdater.refreshPreview(updatedMainData);
+                        // Call the commander to refresh the entire page
+                        await this.uiUpdater.refreshEntirePage(this.scenarioId, this.sceneId);
                         
                         this.uiUpdater.showToast('NPCを削除しました。');
 

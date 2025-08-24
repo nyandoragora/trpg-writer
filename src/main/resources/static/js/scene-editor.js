@@ -49,13 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
             isDirty = false; // Avoid unsaved changes warning after deletion
 
             if (idToDelete.toString() === sceneId.toString()) {
-                // alert('シーンが削除されました。シナリオ編集画面に戻ります。');
-                // We don't need an alert here because the page is redirecting immediately.
+                // The current scene was deleted, so we must redirect.
+                isDirty = false; // Avoid unsaved changes warning.
                 window.location.href = `/scenarios/${scenarioId}/edit`;
             } else {
+                // Another scene was deleted. Refresh the page state.
                 uiUpdater.showToast('シーンが削除されました。');
-                const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
-                uiUpdater.renderInitialPage(updatedData, sceneId);
+                await uiUpdater.refreshEntirePage(scenarioId, sceneId);
             }
         } catch (error) {
             console.error('Delete failed:', error);
@@ -66,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to initialize the page after TinyMCE is ready
     const initializePage = async (editor) => {
         try {
+            // Initialize the commander first, so it has access to the apiClient
+            uiUpdater.init(apiClient);
+
             const [mainData, infosWithScenes] = await Promise.all([
                 apiClient.fetchSceneData(scenarioId, sceneId),
                 apiClient.fetchAllInfosWithScenes(scenarioId)

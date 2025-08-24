@@ -42,16 +42,7 @@ const infoHandler = {
                 try {
                     await this.apiClient.removeInfoFromScene(this.scenarioId, sceneId, infoId);
                     
-                    // Refetch BOTH data sources in parallel to ensure consistency
-                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
-                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
-                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
-                    ]);
-
-                    // Refresh all relevant parts of the UI
-                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
-                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
-                    this.uiUpdater.refreshPreview(updatedMainData);
+                    await this.uiUpdater.refreshEntirePage(this.scenarioId, this.sceneId);
                     
                     this.uiUpdater.showToast('情報をシーンから削除しました。');
 
@@ -124,16 +115,7 @@ const infoHandler = {
                     // The API doesn't require a body for this simple add operation
                     await this.apiClient.addInfoToScene(this.scenarioId, this.sceneId, infoId);
 
-                    // Refetch BOTH data sources in parallel to ensure consistency
-                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
-                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
-                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
-                    ]);
-
-                    // Refresh all relevant parts of the UI
-                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
-                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
-                    this.uiUpdater.refreshPreview(updatedMainData);
+                    await this.uiUpdater.refreshEntirePage(this.scenarioId, this.sceneId);
 
                     this.uiUpdater.showToast('情報をシーンに追加しました。');
 

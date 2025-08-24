@@ -1,7 +1,10 @@
 // ui-updater.js
 
 const uiUpdater = {
-    allNpcsData: [], // Store all NPC data here
+    init(apiClient) {
+        this.apiClient = apiClient;
+        this.allNpcsData = []; // Store all NPC data here
+    },
 
     // The main function to orchestrate the initial page rendering
     renderInitialPage(data, sceneId) {
@@ -18,6 +21,31 @@ const uiUpdater = {
         this.refreshPreview(data);
     },
 
+    /**
+     * The new "Commander" method.
+     * Fetches all necessary data from the server and completely refreshes the UI.
+     * @param {number} scenarioId - The ID of the current scenario.
+     * @param {number} sceneId - The ID of the current scene.
+     */
+    async refreshEntirePage(scenarioId, sceneId) {
+        try {
+            // Refetch BOTH data sources in parallel to ensure consistency
+            const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                this.apiClient.fetchSceneData(scenarioId, sceneId),
+                this.apiClient.fetchAllInfosWithScenes(scenarioId)
+            ]);
+
+            // Refresh all relevant parts of the UI with the correct data
+            this.refreshLists(updatedMainData, sceneId);
+            this.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
+            this.refreshPreview(updatedMainData);
+
+        } catch (error) {
+            console.error('Failed to refresh the entire page:', error);
+            alert('ページの更新に失敗しました。');
+        }
+    },
+
     // A function to refresh all dynamic lists, can be called after any data change
     refreshLists(data, sceneId) {
         this.allNpcsData = data.allNpcs || []; // Update NPC data
@@ -26,7 +54,6 @@ const uiUpdater = {
         // NPC Lists
         const sceneNpcListEl = document.getElementById('scene-npc-list');
         const allNpcListEl = document.getElementById('all-npc-list');
-        console.log('[ui-updater.js] About to call npcListRenderer. Is it defined?', npcListRenderer); // ★ 新しい偵察ログ
         npcListRenderer.renderSceneNpcs(sceneNpcListEl, data.sceneNpcs, scenarioId, sceneId);
         npcListRenderer.renderAllNpcs(allNpcListEl, data.allNpcs, data.sceneNpcs, scenarioId, sceneId);
 
