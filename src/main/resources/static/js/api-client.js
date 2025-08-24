@@ -78,8 +78,8 @@ const apiClient = {
     },
 
     // シーンから情報を削除
-    removeInfoFromScene(scenarioId, sceneId, sceneInfoId) {
-        return this._fetch(`/scenarios/${scenarioId}/scenes/${sceneId}/scene-infos/${sceneInfoId}/remove`, {
+    removeInfoFromScene(scenarioId, sceneId, infoId) {
+        return this._fetch(`/scenarios/${scenarioId}/scenes/${sceneId}/infos/${infoId}/remove`, {
             method: 'POST',
         });
     },

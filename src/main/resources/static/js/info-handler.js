@@ -20,14 +20,45 @@ const infoHandler = {
             this.openInfoModal();
         });
 
-        // Event listener for opening the "Edit Info" modal (event delegation)
-        document.getElementById('scene-info-list').addEventListener('click', (event) => {
-            if (event.target.classList.contains('edit-info-btn')) {
-                const button = event.target;
-                const infoId = button.dataset.infoId;
-                const infoName = button.dataset.infoName;
-                const infoContent = button.dataset.infoContent;
+        // Combined event listener for the scene-info-list (Edit and Remove)
+        document.getElementById('scene-info-list').addEventListener('click', async (event) => {
+            const target = event.target;
+
+            // Handle "Edit Info" button click
+            if (target.classList.contains('edit-info-btn')) {
+                const infoId = target.dataset.infoId;
+                const infoName = target.dataset.infoName;
+                const infoContent = target.dataset.infoContent;
                 this.openInfoModal({ id: infoId, name: infoName, content: infoContent });
+                return; // Stop further processing
+            }
+
+            // Handle "Remove from Scene" button click
+            if (target.classList.contains('remove-info-from-scene-btn')) {
+                const sceneId = target.dataset.sceneId;
+                const infoId = target.dataset.infoId;
+                if (!sceneId || !infoId) return;
+
+                try {
+                    await this.apiClient.removeInfoFromScene(this.scenarioId, sceneId, infoId);
+                    
+                    // Refetch BOTH data sources in parallel to ensure consistency
+                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
+                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
+                    ]);
+
+                    // Refresh all relevant parts of the UI
+                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
+                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
+                    this.uiUpdater.refreshPreview(updatedMainData);
+                    
+                    this.uiUpdater.showToast('情報をシーンから削除しました。');
+
+                } catch (error) {
+                    console.error('Failed to remove info from scene:', error);
+                    alert('情報の削除に失敗しました。');
+                }
             }
         });
         
@@ -51,11 +82,11 @@ const infoHandler = {
                 ]);
 
                 // Refresh all relevant parts of the UI with the correct data
-                this.uiUpdater.refreshLists(updatedMainData); // This handles scene-info-list
+                this.uiUpdater.refreshLists(updatedMainData, this.sceneId); // This handles scene-info-list
                 this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title); // This handles all-info-list
                 this.uiUpdater.refreshPreview(updatedMainData);
 
-                this.uiUpdater.showSuccessToast('情報を保存しました。');
+                this.uiUpdater.showToast('情報を保存しました。');
                 this.infoModal.hide();
 
             } catch (error) {
@@ -64,12 +95,13 @@ const infoHandler = {
             }
         });
 
-        // Event listener for showing info details (event delegation)
+        // Combined event listener for the all-info-list (Detail and Add)
         document.getElementById('all-info-list').addEventListener('click', async (event) => {
-            if (event.target.classList.contains('detail-info-btn')) {
-                const button = event.target;
-                const infoId = button.dataset.infoId;
+            const target = event.target;
 
+            // Handle "Detail" button click
+            if (target.classList.contains('detail-info-btn')) {
+                const infoId = target.dataset.infoId;
                 try {
                     const infoDetails = await this.apiClient.fetchInfoDetails(this.scenarioId, infoId);
                     document.getElementById('infoDetailName').textContent = infoDetails.name;
@@ -79,6 +111,35 @@ const infoHandler = {
                     alert('情報の詳細の取得に失敗しました。');
                     document.getElementById('infoDetailName').textContent = 'エラー';
                     document.getElementById('infoDetailContent').textContent = '詳細の取得に失敗しました。';
+                }
+                return;
+            }
+
+            // Handle "Add to Scene" button click
+            if (target.classList.contains('add-info-to-scene-btn')) {
+                const infoId = target.dataset.infoId;
+                if (!infoId) return;
+
+                try {
+                    // The API doesn't require a body for this simple add operation
+                    await this.apiClient.addInfoToScene(this.scenarioId, this.sceneId, infoId);
+
+                    // Refetch BOTH data sources in parallel to ensure consistency
+                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
+                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
+                    ]);
+
+                    // Refresh all relevant parts of the UI
+                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
+                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
+                    this.uiUpdater.refreshPreview(updatedMainData);
+
+                    this.uiUpdater.showToast('情報をシーンに追加しました。');
+
+                } catch (error) {
+                    console.error('Failed to add info to scene:', error);
+                    alert('情報の追加に失敗しました。');
                 }
             }
         });

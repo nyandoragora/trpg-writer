@@ -1,5 +1,7 @@
 package com.example.trpg_writer.service;
 
+import com.example.trpg_writer.entity.Info;
+import com.example.trpg_writer.entity.Scene;
 import com.example.trpg_writer.entity.SceneInfo;
 import com.example.trpg_writer.entity.SceneInfoId;
 import com.example.trpg_writer.repository.SceneInfoRepository;
@@ -27,5 +29,25 @@ public class SceneInfoService {
 
     public List<SceneInfo> findByScenarioId(Integer scenarioId) {
         return sceneInfoRepository.findByScene_ScenarioId(scenarioId);
+    }
+
+    @Transactional
+    public void addInfoToScene(Integer sceneId, Integer infoId) {
+        SceneInfo sceneInfo = new SceneInfo();
+        Scene scene = new Scene();
+        scene.setId(sceneId);
+        Info info = new Info();
+        info.setId(infoId);
+
+        sceneInfo.setScene(scene);
+        sceneInfo.setInfo(info);
+
+        sceneInfoRepository.save(sceneInfo);
+    }
+
+    @Transactional
+    public void removeInfoFromScene(Integer sceneId, Integer infoId) {
+        SceneInfoId sceneInfoId = new SceneInfoId(sceneId, infoId);
+        sceneInfoRepository.deleteById(sceneInfoId);
     }
 }

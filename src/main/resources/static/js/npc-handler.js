@@ -22,11 +22,19 @@ const npcHandler = {
 
                 try {
                     await this.apiClient.addNpcToScene(this.scenarioId, this.sceneId, npcId);
-                    const updatedData = await this.apiClient.fetchSceneData(this.scenarioId, this.sceneId);
+
+                    // Refetch BOTH data sources in parallel to ensure consistency
+                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
+                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
+                    ]);
+
+                    // Refresh all relevant parts of the UI
+                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
+                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
+                    this.uiUpdater.refreshPreview(updatedMainData);
                     
-                    this.uiUpdater.refreshLists(updatedData, this.sceneId);
-                    this.uiUpdater.refreshPreview(updatedData);
-                    this.uiUpdater.showSuccessToast('NPCをシーンに追加しました。');
+                    this.uiUpdater.showToast('NPCをシーンに追加しました。');
 
                 } catch (error) {
                     console.error('Failed to add NPC:', error);
@@ -41,19 +49,25 @@ const npcHandler = {
                 const sceneNpcId = event.target.dataset.sceneNpcId;
                 if (!sceneNpcId) return;
 
-                if (confirm('このNPCをシーンから削除しますか？')) {
-                    try {
-                        await this.apiClient.removeNpcFromScene(this.scenarioId, this.sceneId, sceneNpcId);
-                        const updatedData = await this.apiClient.fetchSceneData(this.scenarioId, this.sceneId);
-                        
-                        this.uiUpdater.refreshLists(updatedData, this.sceneId);
-                        this.uiUpdater.refreshPreview(updatedData);
-                        this.uiUpdater.showSuccessToast('NPCを削除しました。');
+                try {
+                    await this.apiClient.removeNpcFromScene(this.scenarioId, this.sceneId, sceneNpcId);
 
-                    } catch (error) {
-                        console.error('Failed to remove NPC:', error);
-                        alert('NPCの削除に失敗しました。');
-                    }
+                    // Refetch BOTH data sources in parallel to ensure consistency
+                    const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                        this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
+                        this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
+                    ]);
+
+                    // Refresh all relevant parts of the UI
+                    this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
+                    this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
+                    this.uiUpdater.refreshPreview(updatedMainData);
+
+                    this.uiUpdater.showToast('NPCをシーンから削除しました。');
+
+                } catch (error) {
+                    console.error('Failed to remove NPC:', error);
+                    alert('NPCの削除に失敗しました。');
                 }
             }
         });
@@ -100,12 +114,18 @@ const npcHandler = {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('npcDetailModal'));
                         modal.hide();
 
-                        // Fetch the latest data and refresh the entire UI
-                        const updatedData = await this.apiClient.fetchSceneData(this.scenarioId, this.sceneId);
-                        this.uiUpdater.refreshLists(updatedData);
-                        this.uiUpdater.refreshPreview(updatedData);
+                        // Refetch BOTH data sources in parallel to ensure consistency
+                        const [updatedMainData, updatedInfosWithScenes] = await Promise.all([
+                            this.apiClient.fetchSceneData(this.scenarioId, this.sceneId),
+                            this.apiClient.fetchAllInfosWithScenes(this.scenarioId)
+                        ]);
+
+                        // Refresh all relevant parts of the UI
+                        this.uiUpdater.refreshLists(updatedMainData, this.sceneId);
+                        this.uiUpdater.renderAllInfosList(updatedInfosWithScenes, updatedMainData.scene.title);
+                        this.uiUpdater.refreshPreview(updatedMainData);
                         
-                        this.uiUpdater.showSuccessToast('NPCを削除しました。');
+                        this.uiUpdater.showToast('NPCを削除しました。');
 
                     } catch (error) {
                         console.error('Failed to delete NPC:', error);

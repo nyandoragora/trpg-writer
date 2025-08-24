@@ -33,7 +33,7 @@ const uiUpdater = {
         // Info Lists
         const sceneInfoListEl = document.getElementById('scene-info-list');
         const allInfoListEl = document.getElementById('all-info-list');
-        infoListRenderer.renderSceneInfos(sceneInfoListEl, data.sceneInfos);
+        infoListRenderer.renderSceneInfos(sceneInfoListEl, data.sceneInfos, sceneId);
         infoListRenderer.renderAllInfos(allInfoListEl, data.allInfos, data.sceneInfos);
         
         // Scene List
@@ -71,9 +71,8 @@ const uiUpdater = {
     },
 
     showSuccessToast(message) {
-        // This can be implemented with a library like Toastr.js or a simple custom element
-        // For now, a simple alert will suffice.
-        alert(message);
+        // This is now an alias for the real showToast function
+        this.showToast(message);
     },
 
     displayValidationErrors(errors) {

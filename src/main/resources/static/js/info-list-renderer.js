@@ -2,7 +2,7 @@
 
 const infoListRenderer = {
     // Render the list of infos currently in the scene
-    renderSceneInfos(listElement, sceneInfos) {
+    renderSceneInfos(listElement, sceneInfos, sceneId) {
         if (!listElement) return;
         listElement.innerHTML = '';
 
@@ -15,7 +15,7 @@ const infoListRenderer = {
             const info = sceneInfo.info;
             if (!info) return;
 
-            const card = this._createInfoCard(info, true, sceneInfo.id);
+            const card = this._createInfoCard(info, true, sceneId, sceneInfo.info.id);
             listElement.appendChild(card);
         });
     },
@@ -77,13 +77,20 @@ const infoListRenderer = {
 
         const detailButton = document.createElement('button');
         detailButton.type = 'button';
-        detailButton.className = 'btn btn-sm btn-info detail-info-btn';
+        detailButton.className = 'btn btn-sm btn-info me-2 detail-info-btn';
         detailButton.dataset.bsToggle = 'modal';
         detailButton.dataset.bsTarget = '#infoDetailModal';
         detailButton.dataset.infoId = infoDto.id; // Use id from DTO
         detailButton.textContent = '詳細';
+
+        const addButton = document.createElement('button');
+        addButton.type = 'button';
+        addButton.className = 'btn btn-sm btn-primary add-info-to-scene-btn';
+        addButton.dataset.infoId = infoDto.id;
+        addButton.textContent = 'シーンに追加';
         
         buttonGroup.appendChild(detailButton);
+        buttonGroup.appendChild(addButton);
 
         cardBody.appendChild(titleContainer);
         cardBody.appendChild(content); // Add summary content
@@ -93,7 +100,7 @@ const infoListRenderer = {
     },
 
     // Helper function to create a single info card for the "Scene Info" list
-    _createInfoCard(info, isInScene, sceneInfoId = null) {
+    _createInfoCard(info, isInScene, sceneId = null, infoId = null) {
         const card = document.createElement('div');
         card.className = 'card mb-2';
 
@@ -125,8 +132,9 @@ const infoListRenderer = {
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
             removeButton.className = 'btn btn-sm btn-danger remove-info-from-scene-btn';
-            removeButton.dataset.sceneInfoId = sceneInfoId;
-            removeButton.textContent = '削除';
+            removeButton.dataset.sceneId = sceneId;
+            removeButton.dataset.infoId = infoId;
+            removeButton.textContent = 'シーンから削除';
 
             buttonGroup.appendChild(editButton);
             buttonGroup.appendChild(removeButton);
