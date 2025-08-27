@@ -101,6 +101,13 @@ const apiClient = {
         });
     },
 
+    // 情報の削除
+    deleteInfo(scenarioId, infoId) {
+        return this._fetch(`/api/scenarios/${scenarioId}/infos/${infoId}`, {
+            method: 'DELETE',
+        });
+    },
+
     // 情報詳細の取得
     fetchInfoDetails(scenarioId, infoId) {
         return this._fetch(`/api/scenarios/${scenarioId}/infos/${infoId}`, {

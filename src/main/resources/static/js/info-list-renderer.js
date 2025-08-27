@@ -83,6 +83,14 @@ const infoListRenderer = {
         detailButton.dataset.infoId = infoDto.id; // Use id from DTO
         detailButton.textContent = '詳細';
 
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn btn-sm btn-secondary me-2 edit-info-btn';
+        editButton.dataset.bsToggle = 'modal';
+        editButton.dataset.bsTarget = '#infoModal';
+        editButton.dataset.infoId = infoDto.id;
+        editButton.textContent = '編集';
+
         const addButton = document.createElement('button');
         addButton.type = 'button';
         addButton.className = 'btn btn-sm btn-primary add-info-to-scene-btn';
@@ -90,6 +98,7 @@ const infoListRenderer = {
         addButton.textContent = 'シーンに追加';
         
         buttonGroup.appendChild(detailButton);
+        buttonGroup.appendChild(editButton);
         buttonGroup.appendChild(addButton);
 
         cardBody.appendChild(titleContainer);
