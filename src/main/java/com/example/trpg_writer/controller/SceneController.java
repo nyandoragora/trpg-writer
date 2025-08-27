@@ -10,6 +10,7 @@ import com.example.trpg_writer.service.ScenarioService;
 import com.example.trpg_writer.service.SceneDataService;
 import com.example.trpg_writer.service.SceneService;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -126,19 +128,23 @@ public final class SceneController {
     }
 
     @PostMapping("/{sceneId}/uploadImage")
-    public String uploadImage(@PathVariable("scenarioId") Integer scenarioId,
-                              @PathVariable("sceneId") Integer sceneId,
-                              @RequestParam("imageFile") MultipartFile imageFile,
-                              RedirectAttributes redirectAttributes,
-                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @ResponseBody
+    public ResponseEntity<?> uploadImage(@PathVariable("scenarioId") Integer scenarioId,
+                                         @PathVariable("sceneId") Integer sceneId,
+                                         @RequestParam("imageFile") MultipartFile imageFile,
+                                         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         scenarioService.checkScenarioOwnership(scenarioId, userDetails);
         try {
-            sceneService.saveImage(sceneId, imageFile);
-            redirectAttributes.addFlashAttribute("successMessage", "背景画像をアップロードしました。");
+            String imageUrl = sceneService.saveImage(sceneId, imageFile);
+            if (imageUrl != null) {
+                return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "画像ファイルが空か、無効です。"));
+            }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "画像のアップロードに失敗しました: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", "画像のアップロードに失敗しました: " + e.getMessage()));
         }
-        return "redirect:/scenarios/" + scenarioId + "/scenes/" + sceneId + "/edit";
     }
 
     @GetMapping("/all-infos")

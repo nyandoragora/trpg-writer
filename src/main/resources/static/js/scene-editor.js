@@ -142,6 +142,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleDeleteScene(idToDelete);
             }
         });
+
+        // --- Background Image Upload Logic ---
+        const bgUploadForm = document.querySelector('#background form');
+        const bgUploadBtn = bgUploadForm.querySelector('button[type="submit"]');
+        const imageInput = bgUploadForm.querySelector('#imageFile');
+
+        bgUploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Stop default form submission
+
+            const file = imageInput.files[0];
+            if (!file) {
+                alert('画像ファイルを選択してください。');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('imageFile', file);
+
+            bgUploadBtn.disabled = true;
+            bgUploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> アップロード中...';
+
+            try {
+                const response = await apiClient.uploadSceneImage(scenarioId, sceneId, formData);
+                
+                const previewCard = document.getElementById('scene-preview-card');
+                // Add a cache-busting query parameter to the URL to ensure the browser fetches the new image
+                const newImageUrl = `${response.imageUrl}?t=${new Date().getTime()}`;
+                
+                // Set the background image and ensure styling is reapplied for consistent display
+                previewCard.style.backgroundImage = `url('${newImageUrl}')`;
+                previewCard.style.backgroundSize = 'cover';
+                previewCard.style.backgroundPosition = 'center';
+                previewCard.style.backgroundRepeat = 'no-repeat';
+
+                uiUpdater.showToast('背景画像を更新しました。');
+                imageInput.value = ''; // Clear the input
+
+            } catch (error) {
+                console.error('Image upload failed:', error);
+                alert('画像のアップロードに失敗しました。');
+            } finally {
+                bgUploadBtn.disabled = false;
+                bgUploadBtn.textContent = 'アップロード';
+            }
+        });
     };
 
     // Initialize TinyMCE

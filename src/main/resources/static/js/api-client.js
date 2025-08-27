@@ -9,7 +9,7 @@ const apiClient = {
         return document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
     },
 
-    // API呼び出しの共通処理
+    // API呼び出しの共通処理 (JSON用)
     async _fetch(url, options = {}) {
         const headers = {
             'Content-Type': 'application/json',
@@ -24,7 +24,6 @@ const apiClient = {
         });
 
         if (!response.ok) {
-            // エラーレスポンスがJSON形式の場合、その内容をエラーメッセージとして使用する
             try {
                 const errorData = await response.json();
                 const errorMessage = errorData.message || JSON.stringify(errorData);
@@ -33,7 +32,32 @@ const apiClient = {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         }
-        // 成功レスポンスが空の場合もあるので、JSON解析を試みて失敗したらnullを返す
+        return response.text().then(text => text ? JSON.parse(text) : null);
+    },
+
+    // API呼び出しの共通処理 (ファイルアップロード用)
+    async _fetchMultipart(url, options = {}) {
+        const headers = {
+            [this._getCsrfHeader()]: this._getCsrfToken(),
+            // 'Content-Type' is NOT set here. The browser will set it automatically for FormData.
+            ...options.headers,
+        };
+
+        const response = await fetch(url, {
+            credentials: 'include',
+            ...options,
+            headers,
+        });
+
+        if (!response.ok) {
+            try {
+                const errorData = await response.json();
+                const errorMessage = errorData.message || JSON.stringify(errorData);
+                throw new Error(`API Error: ${errorMessage}`);
+            } catch (e) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        }
         return response.text().then(text => text ? JSON.parse(text) : null);
     },
 
@@ -149,6 +173,14 @@ const apiClient = {
         return this._fetch(`/scenarios/${scenarioId}/api/npcs/${npcId}`, {
             method: 'PUT',
             body: JSON.stringify(npcData),
+        });
+    },
+
+    // シーン背景画像のアップロード
+    uploadSceneImage(scenarioId, sceneId, formData) {
+        return this._fetchMultipart(`/scenarios/${scenarioId}/scenes/${sceneId}/uploadImage`, {
+            method: 'POST',
+            body: formData,
         });
     },
 };
