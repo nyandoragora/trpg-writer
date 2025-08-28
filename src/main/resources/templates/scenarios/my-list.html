@@ -38,7 +38,7 @@
                           <div class="card shadow-sm">
                             <div class="card-body">
                               <h5 class="card-title" th:text="${scenario.title}"></h5>
-                              <p class="card-text text-muted" th:text="${scenario.introduction}"></p>
+                              <p class="card-text text-muted" th:text="${#strings.abbreviate(scenario.introduction, 200)}"></p>
                               <div class="d-flex justify-content-end">
                                 <a th:href="@{/scenarios/{id}/edit(id=${scenario.id})}" class="btn btn-sm btn-outline-primary">編集する</a>
                               </div>

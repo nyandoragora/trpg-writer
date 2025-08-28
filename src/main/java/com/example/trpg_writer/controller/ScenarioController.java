@@ -75,11 +75,11 @@ public final class ScenarioController {
         }
 
         User user = userDetailsImpl.getUser();
-        scenarioService.create(scenarioForm, user);
+        Scenario scenario = scenarioService.create(scenarioForm, user);
 
         redirectAttributes.addFlashAttribute("successMessage", "シナリオを登録しました。");
 
-        return "redirect:/users";
+        return "redirect:/scenarios/" + scenario.getId() + "/edit";
     }
 
     @GetMapping("/{id}/edit")
@@ -140,7 +140,7 @@ public final class ScenarioController {
         scenarioService.checkScenarioOwnership(id, userDetails);
         scenarioService.delete(id);
         redirectAttributes.addFlashAttribute("successMessage", "シナリオを削除しました。");
-        return "redirect:/users";
+        return "redirect:/scenarios/my-list";
     }
 
     @GetMapping("/{id}/pdf")

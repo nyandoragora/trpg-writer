@@ -24,12 +24,12 @@ public class ScenarioService {
   private final ScenarioRepository scenarioRepository;
 
   @Transactional
-  public void create(ScenarioForm scenarioForm, User user) {
+  public Scenario create(ScenarioForm scenarioForm, User user) {
       Scenario scenario = new Scenario();
       scenario.setTitle(scenarioForm.getTitle());
       scenario.setIntroduction(scenarioForm.getIntroduction());
       scenario.setUser(user);
-      scenarioRepository.save(scenario);
+      return scenarioRepository.save(scenario);
   }
 
   @Transactional
