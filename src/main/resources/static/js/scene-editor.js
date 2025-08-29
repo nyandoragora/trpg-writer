@@ -6,14 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sceneId = sceneDataContainer.dataset.sceneId;
     const tinymceApiKey = sceneDataContainer.dataset.tinymceApiKey;
 
-    // --- Modal Elements ---
-    const unsavedChangesModalEl = document.getElementById('unsavedChangesModal');
-    const unsavedChangesModal = new bootstrap.Modal(unsavedChangesModalEl);
-    const saveAndNavigateBtn = document.getElementById('save-and-navigate-btn');
-    const discardAndNavigateBtn = document.getElementById('discard-and-navigate-btn');
-
-    let isDirty = false;
-    let navigationUrl = null; // To store the URL to navigate to
+    let protector; // This will be our concierge instance
 
     // --- Save Scene Content Logic ---
     const saveSceneContent = async (editor) => {
@@ -25,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await apiClient.saveSceneContent(scenarioId, sceneId, sceneData);
             editor.setDirty(false);
-            isDirty = false;
+            if (protector) protector.resetState(); // Let the concierge know the form is clean now
             uiUpdater.showSaveStatus('保存しました！');
             const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
             uiUpdater.refreshPreview(updatedData);
@@ -46,14 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await apiClient.deleteScene(scenarioId, idToDelete);
             
-            isDirty = false; // Avoid unsaved changes warning after deletion
+            // Tell the concierge that we are navigating away safely
+            if (protector) protector.isSubmitting = true; 
 
             if (idToDelete.toString() === sceneId.toString()) {
-                // The current scene was deleted, so we must redirect.
-                isDirty = false; // Avoid unsaved changes warning.
                 window.location.href = `/scenarios/${scenarioId}/edit`;
             } else {
-                // Another scene was deleted. Refresh the page state.
                 uiUpdater.showToast('シーンが削除されました。');
                 await uiUpdater.refreshEntirePage(scenarioId, sceneId);
             }
@@ -85,42 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('ページの読み込みに失敗しました。');
         }
 
-        // --- Event Listeners ---
+        
 
-        // Handle unsaved changes for browser-level navigation (reload, back, close tab)
-        window.addEventListener('beforeunload', (e) => {
-            if (isDirty || editor.isDirty()) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
-
-        // Handle unsaved changes for in-page navigation (clicking links)
-        document.body.addEventListener('click', (event) => {
-            const link = event.target.closest('a');
-            if (link && (isDirty || editor.isDirty())) {
-                // Exclude links that open in a new tab or are not for navigation
-                if (link.target === '_blank' || link.href.startsWith('javascript:')) {
-                    return;
-                }
-                event.preventDefault();
-                navigationUrl = link.href;
-                unsavedChangesModal.show();
-            }
-        });
-
-        // Modal button listeners
-        discardAndNavigateBtn.addEventListener('click', () => {
-            isDirty = false;
-            editor.setDirty(false);
-            window.location.href = navigationUrl;
-        });
-
-        saveAndNavigateBtn.addEventListener('click', async () => {
-            const success = await saveSceneContent(editor);
-            if (success) {
-                window.location.href = navigationUrl;
-            }
+        // Setup the unsaved changes protector
+        // We need a custom dirty check because of TinyMCE
+        // The form itself does exist, so we pass the correct ID.
+        protector = new UnsavedChangesProtector('scene-content-form', {
+            isDirtyCheck: () => editor.isDirty(),
+            saveFunction: () => saveSceneContent(editor),
+            modalId: 'unsavedChangesModal'
         });
 
         // Save content button

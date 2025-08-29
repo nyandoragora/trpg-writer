@@ -23,7 +23,7 @@
                 <div class="row">
                   <div class="col-lg-12">
                     <!-- Scenario Edit Form -->
-                    <form th:action="@{/scenarios/{id}/update(id=${scenario.id})}" th:object="${scenarioForm}" method="post" class="mb-4">
+                    <form th:action="@{/scenarios/{id}/update(id=${scenario.id})}" th:object="${scenarioForm}" method="post" class="mb-4" id="scenario-form">
                         <div class="mb-3">
                             <label for="title" class="form-label h2">タイトル</label>
                             <input type="text" class="form-control form-control-lg" id="title" th:field="*{title}" required>
@@ -139,6 +139,9 @@
               </div>
             </div>
 
+            <!-- Unsaved Changes Confirmation Modal -->
+            <div th:replace="~{modals/unsaved-changes-modal :: unsaved-changes-modal}"></div>
+
             <div th:replace="~{fragment :: footer}"></div>
         </div>
 
@@ -146,5 +149,7 @@
 
         <!-- Swiper -->
         <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+        <script th:src="@{/js/form-unsaved-changes-protector.js}"></script>
+        <script th:src="@{/js/scenario-editor.js}"></script>
     </body>
 </html>

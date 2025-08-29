@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+    <!-- Unsaved Changes Confirmation Modal -->
+    <div th:fragment="unsaved-changes-modal" class="modal fade" id="unsavedChangesModal" tabindex="-1" aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="unsavedChangesModalLabel">変更が保存されていません</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>編集中の内容が失われます。ページを移動しますか？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-action="save-and-navigate" class="btn btn-primary">保存して移動</button>
+                    <button type="button" data-action="discard" class="btn btn-danger">変更を破棄して移動</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">編集を続ける</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
