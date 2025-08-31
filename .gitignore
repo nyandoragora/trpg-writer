@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
+/src/main/resources/application.properties
+/src/main/resources/application-test.properties
+
 GEMINI.md
 future.txt
 EnemyDataSample.png
