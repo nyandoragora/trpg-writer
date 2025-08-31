@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Save Scene Content Logic ---
     const saveSceneContent = async (editor) => {
-        const title = document.getElementById('scene-title').textContent;
+        const title = document.getElementById('scene-title-input').value;
         const content = editor.getContent();
         const gmInfo = document.getElementById('gm-info-textarea').value;
         const sceneData = { title, content, gmInfo };
@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uiUpdater.showSaveStatus('保存しました！');
             const updatedData = await apiClient.fetchSceneData(scenarioId, sceneId);
             uiUpdater.refreshPreview(updatedData);
+            sceneListRenderer.render(document.getElementById('scene-list-container'), updatedData.allScenes, scenarioId);
             return true; // Indicate success
         } catch (error) {
             console.error('Save failed:', error);
@@ -66,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]);
 
             uiUpdater.renderInitialPage(mainData, sceneId);
+            document.getElementById('scene-title-input').value = mainData.scene.title;
             uiUpdater.renderAllInfosList(infosWithScenes, mainData.scene.title);
             
             npcHandler.init(scenarioId, sceneId, apiClient, uiUpdater);

@@ -12,7 +12,7 @@ const uiUpdater = {
 
         // Set static content like titles and text areas
         document.getElementById('scenario-title').textContent = data.scenario.title;
-        document.getElementById('scene-title').textContent = data.scene.title;
+        document.getElementById('scene-title-input').value = data.scene.title;
         tinymce.get('content-editor').setContent(data.scene.content || '');
         document.getElementById('gm-info-textarea').value = data.scene.gmInfo || '';
 

@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.TemplateEngine;
@@ -133,6 +135,30 @@ public final class ScenarioController {
         redirectAttributes.addFlashAttribute("successMessage", "シナリオを更新しました。");
 
         return "redirect:/scenarios/" + id + "/edit";
+    }
+
+    @PostMapping("/{id}/api/update")
+    @ResponseBody
+    public ResponseEntity<?> updateScenarioApi(@PathVariable("id") Integer id,
+                                               @RequestBody @Validated ScenarioForm scenarioForm,
+                                               BindingResult bindingResult,
+                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        
+        scenarioService.checkScenarioOwnership(id, userDetails);
+
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(
+                    fieldError -> fieldError.getField(),
+                    fieldError -> fieldError.getDefaultMessage()
+                ));
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+
+        scenarioForm.setId(id);
+        scenarioService.update(scenarioForm);
+
+        return new ResponseEntity<>(Map.of("message", "シナリオを更新しました。"), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/delete")
