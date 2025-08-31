@@ -10,19 +10,7 @@
     <p class="scenario-description" th:text="${scenario.introduction}"></p>
 
     <div th:each="scene : ${scenes}" class="scene">
-        <h2 class="scene-title" th:text="${scene.title}"></h2>
-        <div class="scene-content" th:utext="${scene.content}"></div>
-
-        <!-- Scene NPC Summary -->
-        <div th:if="${sceneNpcCountMap.containsKey(scene.id)}" class="scene-npc-summary">
-            <h4>登場NPC</h4>
-            <ul>
-                <li th:each="entry : ${sceneNpcCountMap.get(scene.id)}">
-                    <span th:text="${entry.key.name} + ' (Lv.' + ${entry.key.level} + ')'"></span>
-                    <span th:if="${entry.value > 1}" th:text="' x' + ${entry.value}"></span>
-                </li>
-            </ul>
-        </div>
+        <h2 class="scene-title" th:id="'scene-' + ${scene.id}" th:text="${scene.title}"></h2>
 
         <!-- GM Info Section -->
         <div th:if="${scene.gmInfo != null and !scene.gmInfo.isEmpty()}" class="gm-info">
@@ -30,33 +18,55 @@
             <p th:text="${scene.gmInfo}"></p>
         </div>
 
+        <div class="scene-content" th:utext="${scene.content}"></div>
+
+        <!-- Scene NPC Summary -->
+        <div th:if="${sceneNpcCountMap.containsKey(scene.id)}" class="scene-npc-summary">
+            <h4>登場NPC</h4>
+            <ul>
+                <li th:each="entry : ${sceneNpcCountMap.get(scene.id)}">
+                    <a th:href="'#npc-' + ${entry.key.id}" th:text="${entry.key.name} + ' (Lv.' + ${entry.key.level} + ')'"></a>
+                    <span th:if="${entry.value > 1}" th:text="' x' + ${entry.value}"></span>
+                </li>
+            </ul>
+        </div>
+
         <!-- Scene Infos Section -->
         <div th:if="${sceneInfosMap.containsKey(scene.id) and !sceneInfosMap.get(scene.id).isEmpty()}" class="scene-info-section">
             <h4>シーン内情報</h4>
             <div th:each="info : ${sceneInfosMap.get(scene.id)}" class="info-card">
-                <h5 class="info-title" th:text="${info.name}"></h5>
+                <h5 class="info-title">
+                    <a th:href="'#info-' + ${info.id}" th:text="${info.name}"></a>
+                </h5>
                 <p class="info-content" th:text="${info.content}"></p>
             </div>
         </div>
     </div>
 
     <!-- Info Summary Page -->
-    <div th:if="${allSceneInfos != null and !allSceneInfos.isEmpty()}" class="info-summary-page">
+    <div th:if="${infoToScenesMap != null and !infoToScenesMap.isEmpty()}" class="info-summary-page">
         <h2 class="summary-title">情報一覧</h2>
-        <div th:each="sceneInfo : ${allSceneInfos}" class="summary-item">
-            <h4 class="summary-info-title" th:text="${sceneInfo.info.name}"></h4>
-            <p class="summary-info-content" th:text="${sceneInfo.info.content}"></p>
-            <p class="summary-scene-ref">（登場シーン： <span th:text="${sceneInfo.scene.title}"></span>）</p>
+        <div th:each="entry : ${infoToScenesMap}" class="summary-item">
+            <h4 class="summary-info-title" th:id="'info-' + ${entry.key.id}" th:text="${entry.key.name}"></h4>
+            <p class="summary-info-content" th:text="${entry.key.content}"></p>
+            <p class="summary-scene-ref">
+                （登場シーン： 
+                <span th:each="scene, iterStat : ${entry.value}">
+                    <a th:href="'#scene-' + ${scene.id}" th:text="${scene.title}"></a>
+                    <span th:if="!${iterStat.last}">, </span>
+                </span>
+                ）
+            </p>
         </div>
     </div>
 
     <!-- Handout Page -->
-    <div th:if="${allSceneInfos != null and !allSceneInfos.isEmpty()}" class="handout-page">
+    <div th:if="${infoToScenesMap != null and !infoToScenesMap.isEmpty()}" class="handout-page">
         <h2 class="summary-title">配布資料</h2>
         <div class="handout-container">
-            <div th:each="sceneInfo : ${allSceneInfos}" class="handout-card">
-                <div class="handout-header" th:text="${sceneInfo.info.name}"></div>
-                <div class="handout-body" th:text="${sceneInfo.info.content}"></div>
+            <div th:each="entry : ${infoToScenesMap}" class="handout-card">
+                <div class="handout-header" th:text="${entry.key.name}"></div>
+                <div class="handout-body" th:text="${entry.key.content}"></div>
             </div>
         </div>
     </div>
@@ -65,8 +75,16 @@
     <div th:if="${allNpcs != null and !allNpcs.isEmpty()}" class="npc-summary-page">
         <h2 class="summary-title">登場NPC一覧</h2>
         <div th:each="npc : ${allNpcs}" class="npc-data-sheet">
-            <h3 class="npc-name" th:text="${npc.name} + ' (Lv.' + ${npc.level} + ')'"></h3>
+            <h3 class="npc-name" th:id="'npc-' + ${npc.id}" th:text="${npc.name} + ' (Lv.' + ${npc.level} + ')'"></h3>
             <div class="npc-details">
+                <p class="summary-scene-ref" th:if="${npcToScenesMap.containsKey(npc)}">
+                    （登場シーン：
+                    <span th:each="scene, iterStat : ${npcToScenesMap.get(npc)}">
+                        <a th:href="'#scene-' + ${scene.id}" th:text="${scene.title}"></a>
+                        <span th:if="!${iterStat.last}">, </span>
+                    </span>
+                    ）
+                </p>
                 <p th:if="${npc.description != null and !npc.description.isEmpty()}" th:text="${npc.description}"></p>
                 <table class="status-table">
                     <tr>

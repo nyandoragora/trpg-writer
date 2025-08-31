@@ -186,8 +186,12 @@ public final class ScenarioController {
                                         .collect(Collectors.toList())
             ));
         
-        // Fetch all scene infos for the summary page
-        List<SceneInfo> allSceneInfos = sceneInfoService.findByScenarioId(id);
+        // Group scenes by info for the summary page, ensuring no duplicate infos
+        Map<Info, List<Scene>> infoToScenesMap = sceneInfoService.findByScenarioId(id).stream()
+            .collect(Collectors.groupingBy(
+                SceneInfo::getInfo,
+                Collectors.mapping(SceneInfo::getScene, Collectors.toList())
+            ));
 
         // Fetch all unique NPCs for the NPC summary page
         List<Npc> allNpcs = npcService.findUniqueNpcsByScenarioId(id);
@@ -202,14 +206,22 @@ public final class ScenarioController {
                     Collectors.counting()
                 )
             ));
+        
+        // Group scenes by NPC for the summary page
+        Map<Npc, List<Scene>> npcToScenesMap = allSceneNpcs.stream()
+            .collect(Collectors.groupingBy(
+                SceneNpc::getNpc,
+                Collectors.mapping(SceneNpc::getScene, Collectors.toList())
+            ));
 
         Context context = new Context();
         context.setVariable("scenario", scenario);
         context.setVariable("scenes", scenes);
         context.setVariable("sceneInfosMap", sceneInfosMap);
-        context.setVariable("allSceneInfos", allSceneInfos);
+        context.setVariable("infoToScenesMap", infoToScenesMap);
         context.setVariable("allNpcs", allNpcs);
         context.setVariable("sceneNpcCountMap", sceneNpcCountMap);
+        context.setVariable("npcToScenesMap", npcToScenesMap);
 
         String html = templateEngine.process("scenarios/pdf-template", context);
         byte[] pdf = pdfService.generatePdfFromHtml(html);
